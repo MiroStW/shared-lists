@@ -1,8 +1,16 @@
+import { Header } from "../components/header/Header";
+import { Items } from "../components/items/Items";
+import { Lists } from "../components/lists/Lists";
+import styles from "../styles/showApp.module.css";
+
 const ShowApp = () => {
   return (
     <div>
-      <h1>ShowApp</h1>
-      <div id="firebaseui-auth-container"></div>
+      <Header />
+      <div id={styles.main}>
+        <Lists />
+        <Items />
+      </div>
     </div>
   );
 };

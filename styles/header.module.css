@@ -1,0 +1,13 @@
+#header {
+  flex: 0 1 auto;
+  text-align: center;
+  padding: 10px;
+  height: 35px;
+  border-bottom: 1px solid #5f6368;
+  display: flex;
+}
+
+.headerTitle {
+  font-size: 24px;
+  flex: 1;
+}
