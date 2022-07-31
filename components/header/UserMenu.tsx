@@ -1,16 +1,22 @@
 import { signOut } from "firebase/auth";
 import Image from "next/image";
+import { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../firebase/firebase";
 import styles from "../../styles/userMenu.module.css";
 
 const UserMenu = () => {
   const [user] = useAuthState(auth);
+  const [hideMenu, setHideMenu] = useState(true);
+
+  const clickHandler = () => {
+    setHideMenu(!hideMenu);
+  };
 
   return (
     <>
       {user && (
-        <div className={styles.userWidget}>
+        <div className={styles.userWidget} onClick={clickHandler}>
           <div className={styles.userImage}>
             {user.photoURL ? (
               <Image
@@ -26,7 +32,7 @@ const UserMenu = () => {
                 .join("")
             )}
           </div>
-          <div className={styles.userMenu}>
+          <div className={styles.userMenu} hidden={hideMenu}>
             <div className={styles.userMenuList}>
               <div
                 className={styles.userMenuItem}
