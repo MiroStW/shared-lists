@@ -1,0 +1,37 @@
+.list {
+  /* border-bottom: 1px white dashed; */
+  width: 80%;
+  display: grid;
+  grid-template-columns: auto repeat(2, max-content);
+  padding: 8px;
+}
+
+/* .specialProject {
+  width: 80%;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: max-content auto;
+  padding: 8px;
+} */
+
+@media (max-width: 500px) {
+  .list {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+.listTitle {
+  margin-right: 36px;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.project:hover .listTitle {
+  margin-right: 0;
+}
+
+.list:hover {
+  background: rgb(255 255 255 / 4%);
+  cursor: pointer;
+}

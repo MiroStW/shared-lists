@@ -1,0 +1,30 @@
+@media (max-width: 500px) {
+  .listsArea {
+    display: none;
+  }
+}
+
+.listsArea div:checked + label {
+  background: #fff;
+  color: #5a5243;
+}
+
+.listsArea h2 {
+  padding-left: 8px;
+}
+
+.listsArea {
+  max-width: 250px;
+  background: #202124;
+  padding-left: 10px;
+  border-right: 1px solid #5f6368;
+  height: 100%;
+}
+
+.listList {
+  margin-bottom: 10px;
+}
+/*
+.separator {
+  height: 10px;
+} */
