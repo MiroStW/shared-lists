@@ -6,6 +6,8 @@ import { db } from "../../firebase/firebase";
 import List from "./List";
 import { listConverter } from "../../firebase/firestoreConverter";
 import styles from "../../styles/lists.module.css";
+import { Loading } from "../Loading";
+import { Error } from "../Error";
 
 const Lists = ({ user }: { user: User }) => {
   const [lists, loading, error] = useCollection(
@@ -28,9 +30,14 @@ const Lists = ({ user }: { user: User }) => {
         <h2>Lists</h2>
       </div>
       <div className={styles.listList}>
-        {lists?.docs.map((list) => {
-          return <List key={list.id} list={list.data()} />;
-        })}
+        {error && <Error msg={error} />}
+        {loading ? (
+          <Loading />
+        ) : (
+          lists?.docs.map((list) => {
+            return <List key={list.id} list={list.data()} />;
+          })
+        )}
       </div>
     </div>
   );
