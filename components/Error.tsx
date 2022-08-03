@@ -1,8 +1,8 @@
-const Error = ({ msg }: { msg: Error }) => {
+const Error = ({ msg }: { msg: string | undefined }) => {
   return (
     <div>
       <h1>Error</h1>
-      <p>{msg.message}</p>
+      <p>{msg || "no error message"}</p>
     </div>
   );
 };
