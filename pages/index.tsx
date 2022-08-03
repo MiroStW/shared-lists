@@ -19,7 +19,7 @@ const App: NextPage = () => {
   else if (errorUser || errorLists)
     return <Error msg={errorUser?.message || errorLists?.message} />;
   else if (user && lists) {
-    router.push(`/${lists[0].ref.id}`);
+    router.push(`/lists/${lists[0].ref.id}`);
   } else {
     router.push("/login");
   }

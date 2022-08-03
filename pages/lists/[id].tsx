@@ -1,8 +1,8 @@
-import { Header } from "../components/header/Header";
-import { Items } from "../components/items/Items";
-import { Lists } from "../components/lists/Lists";
-import { useLists } from "../firebase/listsContext";
-import styles from "../styles/showApp.module.css";
+import { Header } from "../../components/header/Header";
+import { Items } from "../../components/items/Items";
+import { Lists } from "../../components/lists/Lists";
+import { useLists } from "../../firebase/listsContext";
+import styles from "../../styles/showApp.module.css";
 
 const ShowApp = ({ id }: { id: string }) => {
   const { lists } = useLists();
