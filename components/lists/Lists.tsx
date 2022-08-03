@@ -1,24 +1,10 @@
 import { useEffect } from "react";
-import { collection, orderBy, query, where } from "firebase/firestore";
-import { useCollection } from "react-firebase-hooks/firestore";
-import { User } from "firebase/auth";
-import { db } from "../../firebase/firebase";
 import List from "./List";
-import { listConverter } from "../../firebase/firestoreConverter";
 import styles from "../../styles/lists.module.css";
-import { Loading } from "../Loading";
-import { Error } from "../Error";
+import { useLists } from "../../firebase/listsContext";
 
-const Lists = ({ user }: { user: User }) => {
-  const [lists, loading, error] = useCollection(
-    query(
-      collection(db, "lists"),
-      where("ownerID", "==", user?.uid),
-      where("isArchived", "==", false)
-      // orderBy("createdDate", "desc")
-    ).withConverter(listConverter),
-    { snapshotListenOptions: { includeMetadataChanges: true } }
-  );
+const Lists = () => {
+  const { lists } = useLists();
 
   useEffect(() => {
     console.log(lists);
@@ -30,14 +16,9 @@ const Lists = ({ user }: { user: User }) => {
         <h2>Lists</h2>
       </div>
       <div className={styles.listList}>
-        {error && <Error msg={error} />}
-        {loading ? (
-          <Loading />
-        ) : (
-          lists?.docs.map((list) => {
-            return <List key={list.id} list={list.data()} />;
-          })
-        )}
+        {lists?.map((list) => {
+          return <List key={list.ref.id} list={list} />;
+        })}
       </div>
     </div>
   );

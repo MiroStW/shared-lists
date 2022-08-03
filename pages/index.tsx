@@ -1,26 +1,29 @@
 import type { NextPage } from "next";
 import { useEffect } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
+import { useRouter } from "next/router";
 import { Loading } from "../components/Loading";
 import { Error } from "../components/Error";
-import { auth } from "../firebase/firebase";
-import Login from "./Login";
-import ShowApp from "./showApp";
+import { useAuth } from "../firebase/authContext";
+import { useLists } from "../firebase/listsContext";
 
 const App: NextPage = () => {
-  const [user, loading, error] = useAuthState(auth);
+  const router = useRouter();
+  const { user, loading: loadingUser, error: errorUser } = useAuth();
+  const { lists, loading: loadingLists, error: errorLists } = useLists();
 
   useEffect(() => {
     console.log(user);
   }, [user]);
 
-  if (loading) return <Loading />;
-  else if (error) return <Error msg={error} />;
-  else if (user) {
-    return <ShowApp user={user} />;
+  if (loadingUser || loadingLists) return <Loading />;
+  else if (errorUser || errorLists)
+    return <Error msg={errorUser?.message || errorLists?.message} />;
+  else if (user && lists) {
+    router.push(`/${lists[0].ref.id}`);
   } else {
-    return <Login />;
+    router.push("/login");
   }
+  return null;
 };
 
 export default App;

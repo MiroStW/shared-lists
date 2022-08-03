@@ -1,17 +1,16 @@
-import { useAuthState } from "react-firebase-hooks/auth";
 import Head from "next/head";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
-import { auth } from "../firebase/firebase.js";
-import { Loading } from "../components/Loading";
-import { Error } from "../components/Error";
-import { uiConfig } from "../firebase/firebaseAuthUI.config";
+import { Loading } from "../../components/Loading";
+import { Error } from "../../components/Error";
+import { uiConfig } from "../../firebase/firebaseAuthUI.config";
+import { auth, useAuth } from "../../firebase/authContext";
 
 const Login = () => {
-  const [user, loading, error] = useAuthState(auth);
+  const { user, loading, error } = useAuth();
   // const router = useRouter();
 
   if (loading) return <Loading />;
-  else if (error) return <Error msg={error} />;
+  else if (error) return <Error msg={error.message} />;
   else if (user) {
     // user is already logged in, redirect to home page
     // router.push("/");

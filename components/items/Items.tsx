@@ -1,18 +1,19 @@
-import { User } from "firebase/auth";
-import { query, collection, where } from "firebase/firestore";
+import { query, where } from "firebase/firestore";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { Item } from "./Item";
 import styles from "../../styles/items.module.css";
 import { List } from "../../types/types";
-import { db } from "../../firebase/firebase";
 import { itemConverter } from "../../firebase/firestoreConverter";
 import { Loading } from "../Loading";
 import { Error } from "../Error";
+import { useAuth } from "../../firebase/authContext";
+import { itemsOfList } from "../../firebase/useDb";
 
-const Items = ({ list, user }: { list: List; user: User }) => {
+const Items = ({ list }: { list: List }) => {
+  const { user } = useAuth();
   const [items, loading, error] = useCollection(
     query(
-      collection(db, `lists/${list.ref.id}/items`),
+      itemsOfList(list),
       where("ownerID", "==", user?.uid)
       // orderBy("createdDate", "desc")
     ).withConverter(itemConverter),
@@ -25,7 +26,7 @@ const Items = ({ list, user }: { list: List; user: User }) => {
         <h2>Items</h2>
       </div>
       <div className={styles.itemsList}>
-        {error && <Error msg={error} />}
+        {error && <Error msg={error.message} />}
         {loading ? (
           <Loading />
         ) : (
