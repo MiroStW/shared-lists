@@ -1,12 +1,11 @@
 import { signOut } from "firebase/auth";
 import Image from "next/image";
 import { useState } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../../firebase/firebase";
+import { useAuth } from "../../firebase/authContext";
 import styles from "../../styles/userMenu.module.css";
 
 const UserMenu = () => {
-  const [user] = useAuthState(auth);
+  const { user, auth } = useAuth();
   const [hideMenu, setHideMenu] = useState(true);
 
   const clickHandler = () => {

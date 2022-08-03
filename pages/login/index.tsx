@@ -3,10 +3,10 @@ import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import { Loading } from "../../components/Loading";
 import { Error } from "../../components/Error";
 import { uiConfig } from "../../firebase/firebaseAuthUI.config";
-import { auth, useAuth } from "../../firebase/authContext";
+import { useAuth } from "../../firebase/authContext";
 
 const Login = () => {
-  const { user, loading, error } = useAuth();
+  const { user, loading, error, auth } = useAuth();
   // const router = useRouter();
 
   if (loading) return <Loading />;

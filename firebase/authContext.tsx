@@ -1,14 +1,15 @@
-import { getAuth, User } from "firebase/auth";
+import { Auth, getAuth, User } from "firebase/auth";
 import { createContext, ReactNode, useContext } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { firebase } from "./firebase";
 
-export const auth = getAuth(firebase);
+const auth = getAuth(firebase);
 
 const authContext = createContext({
   user: null as User | null | undefined,
   loading: true,
   error: undefined as Error | undefined,
+  auth,
 });
 
 export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
@@ -35,7 +36,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   // }, [user]);
 
   return (
-    <authContext.Provider value={{ user, loading, error }}>
+    <authContext.Provider value={{ user, loading, error, auth }}>
       {children}
     </authContext.Provider>
   );

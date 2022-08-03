@@ -17,7 +17,7 @@ export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
   const [listSnapshot, loading, error] = useCollection(
     query(
       listsRef,
-      where("ownerID", "==", user?.uid),
+      // where("ownerID", "==", user?.uid),
       where("isArchived", "==", false)
       // orderBy("createdDate", "desc")
     ).withConverter(listConverter),
