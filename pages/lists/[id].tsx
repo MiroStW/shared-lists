@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { AddButton } from "../../components/AddButton";
 import { Header } from "../../components/header/Header";
 import { Items } from "../../components/items/Items";
 import { Lists } from "../../components/lists/Lists";
@@ -35,6 +36,7 @@ const ShowApp = () => {
             </div>
           </>
         )}
+        <AddButton />
       </div>
     </div>
   );
