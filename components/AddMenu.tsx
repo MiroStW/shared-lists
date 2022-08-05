@@ -1,38 +1,64 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import styles from "../styles/addMenu.module.css";
+import { List } from "../types/types";
+import { AddNamePicker } from "./AddNamePicker";
 import { Icon } from "./Icon";
 
 const AddMenu = ({
   setShowAddMenu,
+  activeList,
 }: {
   setShowAddMenu: Dispatch<SetStateAction<boolean>>;
+  activeList: List;
 }) => {
+  const [type, setType] = useState<"item" | "section" | "list" | null>(null);
+
   return (
-    <div className={styles.backdrop} onClick={() => setShowAddMenu(false)}>
-      <div className={styles.addMenu}>
-        <div
-          className={styles.addMenuItem}
-          onClick={() => setShowAddMenu(false)}
-        >
-          <Icon iconName="add" style="filled" size={36} />
-          <div className={styles.addMenuTitle}>New item</div>
-        </div>
-        <div
-          className={styles.addMenuItem}
-          onClick={() => setShowAddMenu(false)}
-        >
-          <Icon iconName="expand_more" style="filled" size={36} />
-          <div className={styles.addMenuTitle}>New section</div>
-        </div>
-        <div
-          className={styles.addMenuItem}
-          onClick={() => setShowAddMenu(false)}
-        >
-          <Icon iconName="playlist_add" style="filled" size={36} />
-          <div className={styles.addMenuTitle}>New list</div>
-        </div>
-      </div>
-    </div>
+    <>
+      {type ? (
+        <AddNamePicker
+          type={type}
+          activeList={activeList}
+          setShowAddMenu={setShowAddMenu}
+        />
+      ) : (
+        <>
+          <div
+            className={styles.backdrop}
+            onClick={() => setShowAddMenu(false)}
+          ></div>
+          <div className={styles.addMenu}>
+            <div
+              className={styles.addMenuItem}
+              onClick={() => {
+                setType("item");
+              }}
+            >
+              <Icon iconName="add" style="filled" size={36} />
+              <div className={styles.addMenuTitle}>New item</div>
+            </div>
+            <div
+              className={styles.addMenuItem}
+              onClick={() => {
+                setType("section");
+              }}
+            >
+              <Icon iconName="expand_more" style="filled" size={36} />
+              <div className={styles.addMenuTitle}>New section</div>
+            </div>
+            <div
+              className={styles.addMenuItem}
+              onClick={() => {
+                setType("list");
+              }}
+            >
+              <Icon iconName="playlist_add" style="filled" size={36} />
+              <div className={styles.addMenuTitle}>New list</div>
+            </div>
+          </div>
+        </>
+      )}
+    </>
   );
 };
 

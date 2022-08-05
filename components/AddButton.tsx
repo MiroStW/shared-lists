@@ -2,14 +2,15 @@ import { useState } from "react";
 import { Icon } from "./Icon";
 import styles from "../styles/addButton.module.css";
 import { AddMenu } from "./AddMenu";
+import { List } from "../types/types";
 
-const AddButton = () => {
+const AddButton = ({ activeList }: { activeList: List }) => {
   const [showAddMenu, setShowAddMenu] = useState(false);
 
   return (
     <>
       {showAddMenu ? (
-        <AddMenu setShowAddMenu={setShowAddMenu} />
+        <AddMenu setShowAddMenu={setShowAddMenu} activeList={activeList} />
       ) : (
         <button
           className={styles.addButton}
