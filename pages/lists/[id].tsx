@@ -16,9 +16,8 @@ const ShowApp = () => {
   const { lists, loading: loadingLists } = useLists();
 
   useEffect(() => {
-    console.log(id);
     if (!loadingLists && lists) setList(lists?.find((el) => id === el.ref.id));
-  }, [id, lists]);
+  }, [id, lists, loadingLists]);
 
   if (loadingLists) return <Loading />;
 
@@ -34,9 +33,9 @@ const ShowApp = () => {
             <div style={{ position: "relative", flex: 1 }}>
               {list ? <Items list={list} /> : <Loading />}
             </div>
+            {list && <AddButton activeList={list} />}
           </>
         )}
-        <AddButton />
       </div>
     </div>
   );
