@@ -1,5 +1,5 @@
 .addButton {
-  position: absolute;
+  position: fixed;
   width: 50px;
   height: 50px;
   right: 15px;
@@ -15,4 +15,8 @@
 
 .addButton > * {
   text-align: center;
+}
+
+.addButton:hover {
+  background: rgb(251, 242, 223);
 }
