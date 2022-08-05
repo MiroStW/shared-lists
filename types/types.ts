@@ -2,7 +2,6 @@
 import { DocumentReference, Timestamp } from "firebase/firestore";
 
 export interface ListData {
-  id: string;
   name: string;
   isArchived: boolean;
   createdDate: Timestamp;
@@ -21,9 +20,9 @@ export class List {
 }
 
 export interface ItemData {
-  id: string;
   name: string;
-  isArchived: boolean;
+  completed: boolean;
+  description: string;
   createdDate: Timestamp;
   ownerID: string;
 }
