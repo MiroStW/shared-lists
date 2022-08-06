@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import styles from "../styles/addMenu.module.css";
+import modalStyles from "../styles/modal.module.css";
 import { List } from "../types/types";
 import { AddNamePicker } from "./AddNamePicker";
 import { Icon } from "./Icon";
@@ -24,10 +25,10 @@ const AddMenu = ({
       ) : (
         <>
           <div
-            className={styles.backdrop}
+            className={modalStyles.backdrop}
             onClick={() => setShowAddMenu(false)}
           ></div>
-          <div className={styles.addMenu}>
+          <div className={`${styles.addMenu} ${modalStyles.modal}`}>
             <div
               className={styles.addMenuItem}
               onClick={() => {

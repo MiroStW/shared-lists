@@ -1,12 +1,8 @@
 .addMenu {
-  position: fixed;
   right: 15px;
   bottom: 30px;
   display: flex;
   flex-direction: column;
-  border-radius: 10px;
-  overflow: hidden;
-  background-color: #5f6368;
 }
 
 .addMenuItem {
