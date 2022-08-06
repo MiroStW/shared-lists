@@ -1,8 +1,8 @@
 import type { NextPage } from "next";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
-import { Loading } from "../components/Loading";
-import { Error } from "../components/Error";
+import { Loading } from "../components/utils/Loading";
+import { Error } from "../components/utils/Error";
 import { useAuth } from "../firebase/authContext";
 import { useLists } from "../firebase/listsContext";
 

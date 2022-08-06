@@ -1,7 +1,7 @@
 import Head from "next/head";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
-import { Loading } from "../../components/Loading";
-import { Error } from "../../components/Error";
+import { Loading } from "../../components/utils/Loading";
+import { Error } from "../../components/utils/Error";
 import { uiConfig } from "../../firebase/firebaseAuthUI.config";
 import { useAuth } from "../../firebase/authContext";
 

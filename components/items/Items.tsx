@@ -4,8 +4,8 @@ import { Item } from "./Item";
 import styles from "../../styles/items.module.css";
 import { List } from "../../types/types";
 import { itemConverter } from "../../firebase/firestoreConverter";
-import { Loading } from "../Loading";
-import { Error } from "../Error";
+import { Loading } from "../utils/Loading";
+import { Error } from "../utils/Error";
 import { useAuth } from "../../firebase/authContext";
 import { itemsOfList } from "../../firebase/useDb";
 

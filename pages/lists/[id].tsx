@@ -4,7 +4,7 @@ import { AddButton } from "../../components/AddButton";
 import { Header } from "../../components/header/Header";
 import { Items } from "../../components/items/Items";
 import { Lists } from "../../components/lists/Lists";
-import { Loading } from "../../components/Loading";
+import { Loading } from "../../components/utils/Loading";
 import { useLists } from "../../firebase/listsContext";
 import styles from "../../styles/showApp.module.css";
 import { List } from "../../types/types";

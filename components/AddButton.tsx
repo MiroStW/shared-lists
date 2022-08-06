@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Icon } from "./Icon";
+import { Icon } from "./utils/Icon";
 import styles from "../styles/addButton.module.css";
 import { AddMenu } from "./AddMenu";
 import { List } from "../types/types";
