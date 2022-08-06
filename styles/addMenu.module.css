@@ -1,6 +1,7 @@
 .addMenu {
   right: 15px;
   bottom: 30px;
+  padding: 0 !important;
   display: flex;
   flex-direction: column;
 }

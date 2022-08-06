@@ -5,7 +5,7 @@ import { createItemData } from "../firebase/factory";
 import { itemsOfList } from "../firebase/useDb";
 import { List } from "../types/types";
 import styles from "../styles/addNamePicker.module.css";
-import modalStyles from "../styles/modal.module.css";
+import { Modal } from "./utils/Modal";
 
 const AddNamePicker = ({
   activeList,
@@ -33,26 +33,19 @@ const AddNamePicker = ({
   // TODO: add status message
   // TODO: add close button
   return (
-    <>
-      <div
-        className={modalStyles.backdrop}
-        onClick={() => setShowAddMenu(false)}
-      ></div>
-      <div className={`${modalStyles.modal} ${styles.addNamePicker}`}>
-        <form>
-          <label htmlFor="name">Name of new {type}:</label>
-          <input
-            autoFocus
-            type="text"
-            name="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <input type="submit" value="Submit" onClick={clickHandler} />
-        </form>
-      </div>
-      <div className="backdrop"></div>
-    </>
+    <Modal setOpenModal={setShowAddMenu} title={`New ${type}`}>
+      <form>
+        <label htmlFor="name">Name:</label>
+        <input
+          autoFocus
+          type="text"
+          name="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <input type="submit" value="Submit" onClick={clickHandler} />
+      </form>
+    </Modal>
   );
 };
 

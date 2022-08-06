@@ -3,7 +3,27 @@
   margin: 0 25px;
   border-radius: 10px;
   overflow: hidden;
+  padding: 14px 32px 32px 32px;
   background-color: #5f6368;
+}
+
+.modalButtons {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.modalCloseButton {
+  position: relative;
+  left: 20px;
+  cursor: pointer;
+}
+
+.modalTitle {
+  font-size: 20px;
+  font-weight: 500;
+  padding-bottom: 10px;
+  word-break: break-word;
 }
 
 .modal form {
@@ -11,10 +31,6 @@
   align-items: center;
   flex-flow: wrap;
   gap: 15px;
-}
-
-.modal label {
-  /* margin: 10px; */
 }
 
 .modal input[type="text"] {
@@ -33,13 +49,6 @@
 
 .modal input[type="submit"]:hover {
   background: rgb(255 255 255 / 4%);
-}
-
-.center {
-  left: 50%;
-  margin-left: -50px;
-  top: 50%;
-  margin-top: -50px;
 }
 
 .backdrop {
