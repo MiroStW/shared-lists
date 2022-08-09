@@ -23,11 +23,8 @@ export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<FirestoreError | undefined>(undefined);
 
-  // eslint-disable-next-line consistent-return
   useEffect(() => {
     if (user) {
-      const listsnapshot: List[] = [];
-
       const q = query(
         listsRef,
         where("ownerID", "==", user?.uid),
@@ -39,6 +36,7 @@ export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
         q,
         { includeMetadataChanges: true },
         async (snapshot) => {
+          const listsnapshot: List[] = [];
           setLoading(true);
           snapshot.forEach((doc) => {
             listsnapshot.push(doc.data());
@@ -55,6 +53,7 @@ export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
         unsubscribe();
       };
     }
+    return undefined;
   }, [user]);
 
   return (
