@@ -23,7 +23,7 @@ const Items = ({ list }: { list: List }) => {
   return (
     <div className={styles.itemsArea}>
       <div className={styles.itemsHeader}>
-        <h2>Items</h2>
+        <h2>{list.data.name}</h2>
       </div>
       <div className={styles.itemsList}>
         {error && <Error msg={error.message} />}
