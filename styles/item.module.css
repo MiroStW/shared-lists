@@ -1,7 +1,8 @@
 .item {
+  display: flex;
+  align-items: center;
   border-bottom: 1px solid #5f6368;
-  display: grid;
-  grid-template-columns: repeat(2, min-content) auto;
+  padding: 8px 0;
 }
 
 .item.active:hover {
@@ -14,6 +15,11 @@
   cursor: pointer;
 }
 
+.item.complete .itemName {
+  text-decoration: line-through;
+  color: grey;
+}
+
 .itemBar {
   padding: 8px 8px 8px 0;
   grid-row: 1 / 1;
@@ -23,50 +29,35 @@
   grid-template-columns: max-content auto max-content;
 }
 
-.itemDueDateIcon {
-  background: rgba(245, 222, 178, 0.12);
-  border: 1px solid rgb(245, 222, 178);
-  padding: 1px 4px;
-  border-radius: 2px;
-  font-size: 14px;
+.checkbox {
+  display: flex;
 }
 
-input[type="checkbox" i].itemComplete {
+.checkbox [type="checkbox"] {
+  position: relative;
+  /* left: 15px; */
+  /* top: -4px; */
+  z-index: 0;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.checkbox [type="checkbox"] + label {
+  position: absolute;
+}
+
+.checkbox [type="checkbox"]:checked + label {
+  background-color: grey;
+  margin: 10.5px 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.checkbox input[type="checkbox" i] {
   margin: 10.5px 8px;
   grid-row: 1 / 8;
   background: white;
   width: 13px;
   height: 13px;
   color: black;
-}
-
-.itemPriority {
-  padding: 7px 3px;
-  grid-row: 1 / 1;
-  grid-column: 2 / 2;
-  cursor: pointer;
-}
-
-.priorityPicker {
-  background: black;
-  grid-row: 1 / 1;
-  grid-column: 2 / 4;
-  width: max-content;
-  cursor: pointer;
-}
-
-.prio1 {
-  color: #ff0000;
-}
-
-.prio2 {
-  color: #fb8c00;
-}
-
-.prio3 {
-  color: #b0fb00;
-}
-
-.prio4 {
-  color: rgba(255, 255, 255, 0.3);
 }

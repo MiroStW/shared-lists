@@ -6,7 +6,7 @@
 .itemsArea {
   flex: 1;
   padding-right: 18px;
-  padding-left: 10px;
+  padding-left: 18px;
 }
 
 .itemsHeader {
@@ -17,7 +17,6 @@
 .itemsHeader h2 {
   flex: 1;
   margin: 0;
-  padding-left: 8px;
 }
 
 .itemList {
