@@ -1,10 +1,9 @@
 import { addDoc } from "firebase/firestore";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useAuth } from "../firebase/authContext";
-import { createItemData } from "../firebase/factory";
-import { itemsOfList } from "../firebase/useDb";
+import { createItemData, createListData } from "../firebase/factory";
+import { itemsOfList, lists } from "../firebase/useDb";
 import { List } from "../types/types";
-import styles from "../styles/addNamePicker.module.css";
 import { Modal } from "./utils/Modal";
 
 const AddNamePicker = ({
@@ -22,10 +21,22 @@ const AddNamePicker = ({
   const clickHandler = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     e.preventDefault();
     if (user)
-      addDoc(
-        itemsOfList(activeList),
-        createItemData(name === "" ? `new ${type}` : name, user)
-      );
+      switch (type) {
+        case "item":
+          addDoc(
+            itemsOfList(activeList),
+            createItemData(name === "" ? `new ${type}` : name, user)
+          );
+          break;
+        case "list":
+          addDoc(
+            lists,
+            createListData(name === "" ? `new ${type}` : name, user)
+          );
+          break;
+        default:
+          break;
+      }
     setShowAddMenu(false);
   };
 
