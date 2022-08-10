@@ -1,8 +1,9 @@
 .item {
   display: flex;
   align-items: center;
+  gap: 8px;
   border-bottom: 1px solid #5f6368;
-  padding: 8px 0;
+  padding: 8px;
 }
 
 .item.active:hover {
@@ -15,18 +16,21 @@
   cursor: pointer;
 }
 
+.itemHoverMenu {
+  display: none;
+}
+
+.item:hover .itemHoverMenu {
+  display: initial;
+}
+
+.itemName {
+  flex: 1;
+}
+
 .item.complete .itemName {
   text-decoration: line-through;
   color: grey;
-}
-
-.itemBar {
-  padding: 8px 8px 8px 0;
-  grid-row: 1 / 1;
-  grid-column: 3 / 3;
-  gap: 6px;
-  display: grid;
-  grid-template-columns: max-content auto max-content;
 }
 
 .checkbox {
@@ -35,27 +39,26 @@
 
 .checkbox [type="checkbox"] {
   position: relative;
-  /* left: 15px; */
-  /* top: -4px; */
   z-index: 0;
+  border-radius: 3px;
   -webkit-appearance: none;
   cursor: pointer;
 }
 
-.checkbox [type="checkbox"] + label {
+.checkbox label {
   position: absolute;
+  border-radius: 3px;
 }
 
 .checkbox [type="checkbox"]:checked + label {
   background-color: grey;
-  margin: 10.5px 8px;
+  margin: 10.5px 0px;
   font-size: 14px;
   cursor: pointer;
 }
 
 .checkbox input[type="checkbox" i] {
-  margin: 10.5px 8px;
-  grid-row: 1 / 8;
+  margin: 10.5px 0px;
   background: white;
   width: 13px;
   height: 13px;
