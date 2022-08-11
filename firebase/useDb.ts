@@ -8,7 +8,7 @@ import {
   enableMultiTabIndexedDbPersistence,
 } from "firebase/firestore";
 // import { useSnackbar } from "components/helpers/snackbar/snackbar";
-import { ItemData, List, ListData } from "../types/types";
+import { ItemData, List, ListData, Section, SectionData } from "../types/types";
 import { firebase } from "./firebase";
 
 const db = getFirestore(firebase);
@@ -36,5 +36,11 @@ const createCollectionGroup = <T = DocumentData>(collectionName: string) => {
 // export all collections
 export const lists = createCollection<ListData>("lists");
 export const items = createCollectionGroup<ItemData>("items");
+export const sections = createCollectionGroup<SectionData>("sections");
 export const itemsOfList = (list: List) =>
   createCollection<ItemData>(`lists/${list.ref.id}/items`);
+
+export const itemsOfSection = (section: Section) =>
+  createCollection<SectionData>(
+    `lists/${section.ref.parent.parent?.id}/sections/${section.ref.id}/items`
+  );

@@ -19,6 +19,23 @@ export class List {
   }
 }
 
+export interface SectionData {
+  name: string;
+  createdDate: Timestamp;
+  ownerID: string;
+}
+
+export class Section {
+  readonly ref: DocumentReference<SectionData>;
+
+  readonly data: SectionData;
+
+  constructor(ref: DocumentReference<SectionData>, data: SectionData) {
+    this.ref = ref;
+    this.data = data;
+  }
+}
+
 export interface ItemData {
   name: string;
   completed: boolean;
