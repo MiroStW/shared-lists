@@ -1,14 +1,9 @@
-import { useEffect } from "react";
 import List from "./List";
 import styles from "../../styles/lists.module.css";
 import { useLists } from "../../firebase/listsContext";
 
 const Lists = () => {
   const { lists } = useLists();
-
-  useEffect(() => {
-    console.log(lists);
-  }, [lists]);
 
   return (
     <div className={styles.listsArea}>
