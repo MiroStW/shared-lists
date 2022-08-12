@@ -1,8 +1,12 @@
 import { addDoc } from "firebase/firestore";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useAuth } from "../firebase/authContext";
-import { createItemData, createListData } from "../firebase/factory";
-import { itemsOfList, lists } from "../firebase/useDb";
+import {
+  createItemData,
+  createListData,
+  createSectionData,
+} from "../firebase/factory";
+import { itemsOfList, lists, sectionsOfList } from "../firebase/useDb";
 import { List } from "../types/types";
 import { Modal } from "./utils/Modal";
 
@@ -32,6 +36,12 @@ const AddNamePicker = ({
           addDoc(
             lists,
             createListData(name === "" ? `new ${type}` : name, user)
+          );
+          break;
+        case "section":
+          addDoc(
+            sectionsOfList(activeList),
+            createSectionData(name === "" ? `new ${type}` : name, user)
           );
           break;
         default:
