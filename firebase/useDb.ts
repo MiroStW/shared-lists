@@ -40,6 +40,9 @@ export const sections = createCollectionGroup<SectionData>("sections");
 export const itemsOfList = (list: List) =>
   createCollection<ItemData>(`lists/${list.ref.id}/items`);
 
+export const sectionsOfList = (list: List) =>
+  createCollection<SectionData>(`lists/${list.ref.id}/sections`);
+
 export const itemsOfSection = (section: Section) =>
   createCollection<SectionData>(
     `lists/${section.ref.parent.parent?.id}/sections/${section.ref.id}/items`
