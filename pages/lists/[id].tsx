@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { AddButton } from "../../components/AddButton";
 import { Header } from "../../components/header/Header";
-import { Items } from "../../components/items/Items";
+import { ItemArea } from "../../components/items/ItemArea";
 import { Lists } from "../../components/lists/Lists";
 import { Loading } from "../../components/utils/Loading";
 import { useLists } from "../../firebase/listsContext";
@@ -31,7 +31,7 @@ const ShowApp = () => {
           <>
             <Lists />
             <div style={{ position: "relative", flex: 1 }}>
-              {list ? <Items list={list} /> : <Loading />}
+              {list ? <ItemArea list={list} /> : <Loading />}
             </div>
             {list && <AddButton activeList={list} />}
           </>
