@@ -1,6 +1,6 @@
 import { User } from "firebase/auth";
 import { Timestamp } from "firebase/firestore";
-import { ListData, ItemData } from "../types/types";
+import { ListData, ItemData, SectionData } from "../types/types";
 
 // factory for lists
 const createListData = (name: string, user: User): ListData => {
@@ -23,4 +23,12 @@ const createItemData = (name: string, user: User): ItemData => {
   };
 };
 
-export { createListData, createItemData };
+// factory for items
+const createSectionData = (name: string, user: User): SectionData => {
+  return {
+    name,
+    createdDate: Timestamp.now(),
+    ownerID: user.uid,
+  };
+};
+export { createListData, createItemData, createSectionData };
