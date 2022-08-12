@@ -1,0 +1,25 @@
+.sectionHeader {
+  display: flex;
+  gap: 2.5px;
+  padding: 16px 8px 8px 2.5px;
+  align-items: center;
+}
+
+.sectionName {
+  flex: 1;
+  font-weight: bold;
+}
+
+.sectionToggle {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.sectionHoverMenu {
+  display: none;
+}
+
+.section:hover .sectionHoverMenu {
+  display: block;
+}
