@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  env: {
+    FIREBASE_PROJECT_ID: "shared-lists-8fc29",
+  },
+  distDir: "build",
   reactStrictMode: false,
   swcMinify: true,
   images: {
