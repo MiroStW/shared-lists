@@ -11,6 +11,7 @@
 # firebase
 /.firebase/
 firebase-config.js
+ui-debug.log
 
 # next.js
 /.next/
