@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "serve": "npm run build && firebase emulators:start --only functions,hosting",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
