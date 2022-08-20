@@ -3,7 +3,7 @@ import { GoogleAuthProvider, EmailAuthProvider } from "firebase/auth";
 const uiConfig = () => {
   return {
     signInFlow: "popup",
-    signInSuccessUrl: "/",
+    signInSuccessUrl: "/lists",
     // tosUrl: "/terms-of-service",
     // privacyPolicyUrl: "/privacy-policy",
     signInOptions: [
