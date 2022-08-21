@@ -1,10 +1,13 @@
+/* eslint-disable import/no-unresolved */
+/* eslint-disable global-require */
+/* eslint-disable @typescript-eslint/no-var-requires */
 const { https } = require("firebase-functions");
 const { default: next } = require("next");
 
 const nextjsServer = next({
   dev: false,
   conf: {
-    distDir: require("./next.config.js").distDir,
+    distDir: require("../../next.config.js").distDir,
   },
 });
 
