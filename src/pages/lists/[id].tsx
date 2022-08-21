@@ -9,7 +9,7 @@ import { useLists } from "../../firebase/listsContext";
 import styles from "../../styles/showApp.module.css";
 import { List } from "../../types/types";
 
-const ShowApp = ({ protectedRoute }: { protectedRoute: boolean }) => {
+const ShowApp = () => {
   const router = useRouter();
   const { id } = router.query;
   const [list, setList] = useState<List | undefined>(undefined);
