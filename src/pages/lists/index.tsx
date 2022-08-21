@@ -16,4 +16,10 @@ const App: NextPage = () => {
   return null;
 };
 
+export const getServerSideProps = async () => {
+  return {
+    props: { protectedRoute: true },
+  };
+};
+
 export default App;
