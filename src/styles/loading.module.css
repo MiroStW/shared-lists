@@ -6,6 +6,34 @@
   width: 80px;
   height: 80px;
 }
+
+.size60 {
+  width: 60px;
+  height: 60px;
+}
+
+.size60.loader div {
+  border-width: 3px;
+}
+
+.size40.loader div {
+  border-width: 2px;
+}
+
+.size20.loader div {
+  border-width: 1px;
+}
+
+.size40 {
+  width: 40px;
+  height: 40px;
+}
+
+.size20 {
+  width: 20px;
+  height: 20px;
+}
+
 .loader div {
   position: absolute;
   border: 4px solid #fff;
@@ -18,22 +46,22 @@
 }
 @keyframes loader {
   0% {
-    top: 36px;
-    left: 36px;
+    top: 45%;
+    left: 45%;
     width: 0;
     height: 0;
     opacity: 0;
   }
   4.9% {
-    top: 36px;
-    left: 36px;
+    top: 45%;
+    left: 45%;
     width: 0;
     height: 0;
     opacity: 0;
   }
   5% {
-    top: 36px;
-    left: 36px;
+    top: 45%;
+    left: 45%;
     width: 0;
     height: 0;
     opacity: 1;
@@ -41,8 +69,8 @@
   100% {
     top: 0px;
     left: 0px;
-    width: 72px;
-    height: 72px;
+    width: 90%;
+    height: 90%;
     opacity: 0;
   }
 }
