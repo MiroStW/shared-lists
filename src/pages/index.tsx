@@ -1,10 +1,14 @@
 import { signOut } from "firebase/auth";
 import type { NextPage } from "next";
 import Link from "next/link";
+import { Loading } from "../components/utils/Loading";
 import { useAuth } from "../firebase/authContext";
 
 const Home: NextPage = () => {
-  const { user, auth } = useAuth();
+  const { user, loading, auth } = useAuth();
+
+  if (loading) return <Loading />;
+
   return (
     <>
       <h1>Shared Lists</h1>
