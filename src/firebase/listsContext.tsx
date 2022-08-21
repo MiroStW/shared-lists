@@ -1,4 +1,10 @@
-import { FirestoreError, onSnapshot, query, where } from "firebase/firestore";
+import {
+  addDoc,
+  FirestoreError,
+  onSnapshot,
+  query,
+  where,
+} from "firebase/firestore";
 import {
   createContext,
   ReactNode,
@@ -8,6 +14,7 @@ import {
 } from "react";
 import { List } from "../types/types";
 import { useAuth } from "./authContext";
+import { createListData } from "./factory";
 import { listConverter } from "./firestoreConverter";
 import { lists as listsRef } from "./useDb";
 
@@ -41,6 +48,8 @@ export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
           snapshot.forEach((doc) => {
             listsnapshot.push(doc.data());
           });
+          if (!snapshot.size)
+            addDoc(listsRef, createListData("my first list", user));
           setLists(listsnapshot);
           setLoading(false);
         },
