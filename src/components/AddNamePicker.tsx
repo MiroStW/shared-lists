@@ -1,4 +1,5 @@
 import { addDoc } from "firebase/firestore";
+import router from "next/router";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useAuth } from "../firebase/authContext";
 import {
@@ -22,28 +23,34 @@ const AddNamePicker = ({
   const { user } = useAuth();
   const [name, setName] = useState("");
 
-  const clickHandler = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
+  const clickHandler = async (
+    e: React.MouseEvent<HTMLInputElement, MouseEvent>
+  ) => {
     e.preventDefault();
     if (user)
       switch (type) {
-        case "item":
+        case "item": {
           addDoc(
             itemsOfList(activeList),
             createItemData(name === "" ? `new ${type}` : name, user)
           );
           break;
-        case "list":
-          addDoc(
+        }
+        case "list": {
+          const newList = await addDoc(
             lists,
             createListData(name === "" ? `new ${type}` : name, user)
           );
+          router.push(`/lists/${newList.id}`);
           break;
-        case "section":
+        }
+        case "section": {
           addDoc(
             sectionsOfList(activeList),
             createSectionData(name === "" ? `new ${type}` : name, user)
           );
           break;
+        }
         default:
           break;
       }
