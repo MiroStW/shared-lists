@@ -7,6 +7,7 @@ import { Loading } from "../utils/Loading";
 import { Item } from "./Item";
 import { Error } from "../utils/Error";
 import { List, Section } from "../../types/types";
+import { Droppable } from "../utils/Droppable";
 
 const Items = ({ parent }: { parent: List | Section }) => {
   const { user } = useAuth();
@@ -26,7 +27,12 @@ const Items = ({ parent }: { parent: List | Section }) => {
       {loading ? (
         <Loading />
       ) : (
+        // <Droppable
+        //   area={parent}
+        //   type={parent.ref.parent.id === "lists" ? "list" : "section"}
+        // >
         items?.docs.map((item) => <Item key={item.ref.id} item={item.data()} />)
+        // </Droppable>
       )}
     </>
   );

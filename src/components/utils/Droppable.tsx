@@ -1,17 +1,20 @@
 import { useDroppable } from "@dnd-kit/core";
-import { Section } from "../../types/types";
+import { List, Section } from "../../types/types";
 
 const Droppable = ({
   children,
-  section,
+  area,
+  type,
 }: {
   children: React.ReactNode;
-  section: Section;
+  area: Section | List;
+  type: "section" | "list" | "section-header" | "list-header";
 }) => {
   const { isOver, setNodeRef } = useDroppable({
-    id: `droppable-${section.ref.id}`,
+    id: `droppable-${type}-${area.ref.id}`,
     data: {
-      section,
+      area,
+      type,
     },
   });
   const style = {

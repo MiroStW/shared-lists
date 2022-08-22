@@ -11,7 +11,7 @@ const Item = ({ item }: { item: ItemType }) => {
   };
 
   return (
-    <Draggable key={item.ref.id} item={item}>
+    <Draggable item={item}>
       <div
         className={`${styles.item} ${item.data.completed && styles.complete}`}
       >

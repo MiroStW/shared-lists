@@ -12,8 +12,8 @@ const Section = ({ section }: { section: SectionType }) => {
   };
 
   return (
-    <Droppable section={section}>
-      <div className={styles.section}>
+    <div className={styles.section}>
+      <Droppable area={section} type={"section-header"}>
         <div className={styles.sectionHeader}>
           <div
             className={styles.sectionToggle}
@@ -29,8 +29,8 @@ const Section = ({ section }: { section: SectionType }) => {
           </div>
         </div>
         <Items parent={section} />
-      </div>
-    </Droppable>
+      </Droppable>
+    </div>
   );
 };
 
