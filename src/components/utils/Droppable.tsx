@@ -1,5 +1,6 @@
 import { useDroppable } from "@dnd-kit/core";
 import { List, Section } from "../../types/types";
+import styles from "../../styles/dnd.module.css";
 
 const Droppable = ({
   children,
@@ -17,15 +18,14 @@ const Droppable = ({
       type,
     },
   });
-  const style = {
-    color: isOver ? "green" : undefined,
-  };
 
   return (
-    <div ref={setNodeRef} style={style}>
+    <div ref={setNodeRef} className={isOver ? styles.isOver : undefined}>
       {children}
     </div>
   );
 };
 
-export { Droppable };
+const DroppableBackdrop = () => <div className={styles.overBackdrop}>drop</div>;
+
+export { Droppable, DroppableBackdrop };
