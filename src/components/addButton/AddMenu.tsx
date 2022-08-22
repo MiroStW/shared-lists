@@ -1,9 +1,9 @@
 import { Dispatch, SetStateAction, useState } from "react";
-import styles from "../styles/addMenu.module.css";
-import modalStyles from "../styles/modal.module.css";
-import { List } from "../types/types";
+import styles from "../../styles/addMenu.module.css";
+import modalStyles from "../../styles/modal.module.css";
+import { List } from "../../types/types";
 import { AddNamePicker } from "./AddNamePicker";
-import { Icon } from "./utils/Icon";
+import { Icon } from "../utils/Icon";
 
 const AddMenu = ({
   setShowAddMenu,

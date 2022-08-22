@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { AddButton } from "../../components/AddButton";
+import { AddButton } from "../../components/addButton/AddButton";
 import { Header } from "../../components/header/Header";
 import { ItemArea } from "../../components/items/ItemArea";
 import { Lists } from "../../components/lists/Lists";

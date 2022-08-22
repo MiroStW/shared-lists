@@ -1,15 +1,15 @@
 import { addDoc } from "firebase/firestore";
 import router from "next/router";
 import { Dispatch, SetStateAction, useState } from "react";
-import { useAuth } from "../firebase/authContext";
+import { useAuth } from "../../firebase/authContext";
 import {
   createItemData,
   createListData,
   createSectionData,
-} from "../firebase/factory";
-import { itemsOfList, lists, sectionsOfList } from "../firebase/useDb";
-import { List } from "../types/types";
-import { Modal } from "./utils/Modal";
+} from "../../firebase/factory";
+import { itemsOfList, lists, sectionsOfList } from "../../firebase/useDb";
+import { List } from "../../types/types";
+import { Modal } from "../utils/Modal";
 
 const AddNamePicker = ({
   activeList,
