@@ -1,4 +1,8 @@
-import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { DragEndEvent } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { addDoc, deleteDoc } from "firebase/firestore";
 import { itemsOfList, itemsOfSection } from "../../firebase/useDb";
 import styles from "../../styles/items.module.css";
@@ -34,20 +38,20 @@ const ItemArea = ({ list }: { list: List }) => {
 
   return (
     <div className={styles.itemsArea}>
-      <DndContext onDragEnd={(e) => handleDragEnd(e)}>
-        <Droppable area={list} type="list-header">
-          <div className={styles.itemsHeader}>
-            <h2>{list.data.name}</h2>
-          </div>
-        </Droppable>
+      {/* <DndContext onDragEnd={(e) => handleDragEnd(e)}> */}
+      {/* <Droppable area={list} type="list-header"> */}
+      <div className={styles.itemsHeader}>
+        <h2>{list.data.name}</h2>
+      </div>
+      {/* </Droppable> */}
 
-        <div className={styles.itemsList}>
-          <Droppable area={list} type="list">
-            <Items parent={list} />
-          </Droppable>
-          <Sections list={list} />
-        </div>
-      </DndContext>
+      <div className={styles.itemsList}>
+        {/* <Droppable area={list} type="list"> */}
+        <Items parent={list} />
+        {/* </Droppable> */}
+        <Sections list={list} />
+      </div>
+      {/* </DndContext> */}
     </div>
   );
 };

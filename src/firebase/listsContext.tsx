@@ -2,6 +2,7 @@ import {
   addDoc,
   FirestoreError,
   onSnapshot,
+  orderBy,
   query,
   where,
 } from "firebase/firestore";
@@ -35,8 +36,8 @@ export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
       const q = query(
         listsRef,
         where("ownerID", "==", user?.uid),
-        where("isArchived", "==", false)
-        // orderBy("createdDate", "desc")
+        where("isArchived", "==", false),
+        orderBy("createdDate", "asc")
       ).withConverter(listConverter);
 
       const unsubscribe = onSnapshot(

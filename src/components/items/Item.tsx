@@ -4,6 +4,7 @@ import { Item as ItemType } from "../../types/types";
 import { Icon } from "../utils/Icon";
 import { Checkbox } from "./Checkbox";
 import { Draggable } from "../utils/Draggable";
+import { Sortable } from "../utils/Sortable";
 
 const Item = ({ item }: { item: ItemType }) => {
   const handleDelete = () => {
@@ -11,9 +12,12 @@ const Item = ({ item }: { item: ItemType }) => {
   };
 
   return (
-    <Draggable item={item}>
+    // <Draggable item={item}>
+    <Sortable item={item}>
       <div
-        className={`${styles.item} ${item.data.completed && styles.complete}`}
+        className={`${styles.item} ${
+          item.data.completed ? styles.complete : ""
+        }`}
       >
         <Checkbox item={item} />
         <div className={styles.itemName}>{item.data.name}</div>
@@ -23,7 +27,8 @@ const Item = ({ item }: { item: ItemType }) => {
           </div>
         </div>
       </div>
-    </Draggable>
+    </Sortable>
+    // </Draggable>
   );
 };
 

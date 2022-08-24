@@ -13,23 +13,23 @@ const Section = ({ section }: { section: SectionType }) => {
 
   return (
     <div className={styles.section}>
-      <Droppable area={section} type={"section-header"}>
-        <div className={styles.sectionHeader}>
-          <div
-            className={styles.sectionToggle}
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            <Icon iconName={isOpen ? "unfold_less" : "unfold_more"} size={24} />
-          </div>
-          <div className={styles.sectionName}>{section.data.name}</div>
-          <div className={styles.sectionHoverMenu}>
-            <div className={styles.deleteButton} onClick={handleDelete}>
-              <Icon iconName="delete" />
-            </div>
+      {/* <Droppable area={section} type={"section-header"}> */}
+      <div className={styles.sectionHeader}>
+        <div
+          className={styles.sectionToggle}
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <Icon iconName={isOpen ? "unfold_less" : "unfold_more"} size={24} />
+        </div>
+        <div className={styles.sectionName}>{section.data.name}</div>
+        <div className={styles.sectionHoverMenu}>
+          <div className={styles.deleteButton} onClick={handleDelete}>
+            <Icon iconName="delete" />
           </div>
         </div>
-        <Items parent={section} />
-      </Droppable>
+      </div>
+      <Items parent={section} />
+      {/* </Droppable> */}
     </div>
   );
 };
