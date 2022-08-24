@@ -20,6 +20,7 @@ const createItemData = (name: string, user: User): ItemData => {
     description: "",
     createdDate: Timestamp.now(),
     ownerID: user.uid,
+    order: 0,
   };
 };
 
