@@ -1,3 +1,4 @@
+import { DragEndEvent, DndContext } from "@dnd-kit/core";
 import {
   DndContext,
   DragEndEvent,
@@ -12,7 +13,7 @@ import {
 } from "@dnd-kit/sortable";
 import { addDoc, deleteDoc } from "firebase/firestore";
 import { useState } from "react";
-import { itemsOfList, itemsOfSection } from "../../firebase/useDb";
+import { items, itemsOfList, itemsOfSection } from "../../firebase/useDb";
 import styles from "../../styles/items.module.css";
 import { Item as ItemType, List, Section } from "../../types/types";
 import { Droppable } from "../utils/Droppable";
@@ -22,36 +23,11 @@ import { Sections } from "./Sections";
 
 const ItemArea = ({ list }: { list: List }) => {
   const [activeItem, setActiveItem] = useState<ItemType | null>(null);
-
-  // const oldHandleDragEnd = (e: DragEndEvent) => {
-  //   if (e.over) {
-  //     const item = e.active.data.current?.item as ItemType;
-  //     const type = e.over.data.current?.type as
-  //       | "section"
-  //       | "list"
-  //       | "section-header"
-  //       | "list-header";
-  //     const area = e.over.data.current?.area as Section | List;
-
-  //     console.log(item);
-  //     console.log(type);
-  //     console.log(area);
-
-  //     if (type === "section" || type === "section-header") {
-  //       addDoc(itemsOfSection(area), item.data);
-  //     } else if (type === "list" || type === "list-header") {
-  //       addDoc(itemsOfList(area as List), item.data);
-  //     }
-
-  //     deleteDoc(item.ref);
-  //   }
-  // };
-
-  const handleDragStart = (e: DragStartEvent) => {
-    setActiveItem(e.active.data.current?.item as ItemType);
-  };
+  // query all items of a list in object {root: [item1, item2, item3], section1:
+  // [item1, item2], section2: [item1, item2]}
 
   const handleDragEnd = (e: DragEndEvent) => {
+
     setActiveItem(null);
     const { active, over } = e;
 
@@ -84,30 +60,29 @@ const ItemArea = ({ list }: { list: List }) => {
     }
   };
 
+  const handleDragStart = (e: DragStartEvent) => {
+    setActiveItem(e.active.data.current?.item as ItemType);
+  };
+
   return (
     <div className={styles.itemsArea}>
-      <DndContext
-        onDragStart={(e) => handleDragStart(e)}
-        onDragEnd={(e) => handleDragEnd(e)}
-      >
-        {/* <Droppable area={list} type="list-header"> */}
+      <DndContext onDragStart={(e) => handleDragStart(e)} onDragEnd={(e) => handleDragEnd(e)}>
         <div className={styles.itemsHeader}>
           <h2>{list.data.name}</h2>
         </div>
-        {/* </Droppable> */}
-
         <div className={styles.itemsList}>
-          {/* <Droppable area={list} type="list"> */}
-          <Items parent={list} />
-          {/* </Droppable> */}
+          {items.map((area) => {
+            if(area !== "root") <div>{area.key}</div>
+          <Items items={area} />
+          })}
           <Sections list={list} />
         </div>
       </DndContext>
+
       <DragOverlay>
         {activeItem ? <Item item={activeItem} /> : null}
       </DragOverlay>
     </div>
   );
 };
-
 export { ItemArea };
