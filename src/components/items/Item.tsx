@@ -3,7 +3,6 @@ import styles from "../../styles/item.module.css";
 import { Item as ItemType } from "../../types/types";
 import { Icon } from "../utils/Icon";
 import { Checkbox } from "./Checkbox";
-import { Draggable } from "../utils/Draggable";
 import { Sortable } from "../utils/Sortable";
 
 const Item = ({ item }: { item: ItemType }) => {
@@ -12,7 +11,6 @@ const Item = ({ item }: { item: ItemType }) => {
   };
 
   return (
-    // <Draggable item={item}>
     <Sortable item={item}>
       <div
         className={`${styles.item} ${
@@ -28,7 +26,6 @@ const Item = ({ item }: { item: ItemType }) => {
         </div>
       </div>
     </Sortable>
-    // </Draggable>
   );
 };
 
