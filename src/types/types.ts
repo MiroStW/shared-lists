@@ -43,6 +43,7 @@ export interface ItemData {
   createdDate: Timestamp;
   ownerID: string;
   order: number;
+  list: string;
 }
 
 export class Item {

@@ -1,6 +1,6 @@
 import { User } from "firebase/auth";
 import { Timestamp } from "firebase/firestore";
-import { ListData, ItemData, SectionData } from "../types/types";
+import { ListData, ItemData, SectionData, List } from "../types/types";
 
 // factory for lists
 const createListData = (name: string, user: User): ListData => {
@@ -13,7 +13,7 @@ const createListData = (name: string, user: User): ListData => {
 };
 
 // factory for items
-const createItemData = (name: string, user: User): ItemData => {
+const createItemData = (name: string, user: User, list: List): ItemData => {
   return {
     name,
     completed: false,
@@ -21,6 +21,7 @@ const createItemData = (name: string, user: User): ItemData => {
     createdDate: Timestamp.now(),
     ownerID: user.uid,
     order: 0,
+    list: list.ref.id,
   };
 };
 
