@@ -3,7 +3,7 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from "firebase/firestore";
-import { ListData, ItemData } from "../types/types";
+import { ListData, ItemData, SectionData } from "../types/types";
 
 interface LocalDocumentData<D> {
   ref: DocumentReference<D>;
@@ -31,5 +31,6 @@ const createFirestoreConverter = <T>(): FirestoreDataConverter<
 
 const listConverter = createFirestoreConverter<ListData>();
 const itemConverter = createFirestoreConverter<ItemData>();
+const sectionConverter = createFirestoreConverter<SectionData>();
 
-export { itemConverter, listConverter };
+export { itemConverter, listConverter, sectionConverter };
