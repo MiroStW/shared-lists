@@ -7,7 +7,14 @@ import {
   UniqueIdentifier,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { orderBy, query, updateDoc, where } from "firebase/firestore";
+import {
+  addDoc,
+  deleteDoc,
+  orderBy,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { useAuth } from "../../firebase/authContext";
@@ -15,13 +22,19 @@ import {
   itemConverter,
   sectionConverter,
 } from "../../firebase/firestoreConverter";
-import { items as itemsCollection, sectionsOfList } from "../../firebase/useDb";
+import {
+  items as itemsCollection,
+  itemsOfSection,
+  sectionsOfList,
+} from "../../firebase/useDb";
 import styles from "../../styles/items.module.css";
 import { Item as ItemType, List, Section } from "../../types/types";
 import { Loading } from "../utils/Loading";
 import { Error } from "../utils/Error";
 import { Item } from "./Item";
 import { Items } from "./Items";
+import { itemsOfList } from "../../firebase/useDb";
+import { createItemData } from "../../firebase/factory";
 
 const ItemArea = ({ list }: { list: List }) => {
   const { user } = useAuth();
@@ -202,12 +215,19 @@ const ItemArea = ({ list }: { list: List }) => {
     if (
       !activeContainer ||
       !overContainer ||
-      activeContainer !== overContainer
+      activeContainer.ref.id !== overContainer.ref.id
     ) {
       return;
     }
 
-    if (items && activeContainer && overContainer && activeItem && overItem) {
+    if (
+      items &&
+      activeContainer &&
+      overContainer &&
+      activeItem &&
+      overItem &&
+      user
+    ) {
       const overContainerItems = items.docs
         .filter((item) => item.ref.parent.parent?.id === overContainer.ref.id)
         .map((item) => item.data());
@@ -217,10 +237,26 @@ const ItemArea = ({ list }: { list: List }) => {
       // console.log(active.id);
       // console.log(over?.id);
       const newIndex = oldItemOrder.indexOf(over?.id as string);
+      // if activeItem.ref.id not in oldItemOrder: addDoc/deleteDoc
+      if (!(activeItem.ref.id in oldItemOrder)) {
+        // caluclate new order number
+        // now delete & recreate item with new order number
+        overContainer.ref.parent.id === "lists"
+          ? addDoc(
+              itemsOfList(overContainer as List),
+              createItemData(activeItem.data.name, user, list, newIndex)
+            )
+          : addDoc(
+              itemsOfSection(overContainer as Section),
+              createItemData(active.data.current?.item.data.name, user, list)
+            );
+        deleteDoc(active.data.current?.item.ref);
+      }
+      // take newIndex as order value for addDoc
       const oldIndex = oldItemOrder.indexOf(active.id as string);
       // console.log(oldIndex, newIndex);
       const newItemOrder =
-        activeContainer.ref.id === overContainer.ref.id
+        activeItem.ref.id in oldItemOrder
           ? arrayMove(oldItemOrder, oldIndex, newIndex)
           : oldItemOrder.splice(newIndex, 0, activeItem.ref.id);
       // console.log("old order:");
@@ -238,18 +274,6 @@ const ItemArea = ({ list }: { list: List }) => {
           if (itemObj) updateDoc(itemObj.ref, "order", index);
         }
       });
-      // caluclate new order number
-      // now delete & recreate item with new order number
-      // overContainer.ref.parent.id === "lists"
-      //   ? addDoc(
-      //       itemsOfList(overContainer as List),
-      //       createItemData(active.data.current?.item.data.name, user, list)
-      //     )
-      //   : addDoc(
-      //       itemsOfSection(overContainer as Section),
-      //       createItemData(active.data.current?.item.data.name, user, list)
-      //     );
-      // deleteDoc(active.data.current?.item.ref);
       setActiveItem(null);
     }
   };
