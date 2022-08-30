@@ -13,14 +13,19 @@ const createListData = (name: string, user: User): ListData => {
 };
 
 // factory for items
-const createItemData = (name: string, user: User, list: List): ItemData => {
+const createItemData = (
+  name: string,
+  user: User,
+  list: List,
+  order = 0
+): ItemData => {
   return {
     name,
     completed: false,
     description: "",
     createdDate: Timestamp.now(),
     ownerID: user.uid,
-    order: 0,
+    order,
     list: list.ref.id,
   };
 };
