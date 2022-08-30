@@ -115,7 +115,7 @@ const ItemArea = ({ list }: { list: List }) => {
     // console.log(active.id);
     const activeContainer = findContainer(active.id);
     const overContainer = findContainer(over?.id);
-    console.log("containers: ", activeContainer?.ref.id, overContainer?.ref.id);
+    // console.log("containers: ", activeContainer?.ref.id, overContainer?.ref.id);
     if (
       !activeContainer ||
       !overContainer ||
@@ -234,13 +234,29 @@ const ItemArea = ({ list }: { list: List }) => {
 
       // establish new order
       const oldItemOrder = overContainerItems.map((item) => item.ref.id);
-      // console.log(active.id);
-      // console.log(over?.id);
-      const newIndex = oldItemOrder.indexOf(over?.id as string);
+      console.log("oldItemOrder: ", oldItemOrder);
+      console.log("active.id: ", active.id);
+      console.log("over.id: ", over?.id);
+      // for moved items over.id already is moved item, which is not present in
+      // oldItemOrder, causing newIndex to be -1
+      const newIndex = localItems[overContainer.ref.id]!.map(
+        (item) => item.ref.id
+      ).indexOf(over?.id as string);
+      console.log("newIndex: ", newIndex);
+      // take newIndex as order value for addDoc
+      const oldIndex = oldItemOrder.indexOf(active.id as string);
+      // console.log(oldIndex, newIndex);
+
+      const newItemOrder = oldItemOrder.includes(activeItem.ref.id)
+        ? arrayMove(oldItemOrder, oldIndex, newIndex)
+        : [
+            ...oldItemOrder.slice(0, newIndex),
+            activeItem.ref.id,
+            ...oldItemOrder.slice(newIndex, oldItemOrder.length),
+          ];
+      console.log("newItemOrder: ", newItemOrder);
       // if activeItem.ref.id not in oldItemOrder: addDoc/deleteDoc
-      if (!(activeItem.ref.id in oldItemOrder)) {
-        // caluclate new order number
-        // now delete & recreate item with new order number
+      if (!oldItemOrder.includes(activeItem.ref.id)) {
         overContainer.ref.parent.id === "lists"
           ? addDoc(
               itemsOfList(overContainer as List),
@@ -248,17 +264,15 @@ const ItemArea = ({ list }: { list: List }) => {
             )
           : addDoc(
               itemsOfSection(overContainer as Section),
-              createItemData(active.data.current?.item.data.name, user, list)
+              createItemData(
+                active.data.current?.item.data.name,
+                user,
+                list,
+                newIndex
+              )
             );
         deleteDoc(active.data.current?.item.ref);
       }
-      // take newIndex as order value for addDoc
-      const oldIndex = oldItemOrder.indexOf(active.id as string);
-      // console.log(oldIndex, newIndex);
-      const newItemOrder =
-        activeItem.ref.id in oldItemOrder
-          ? arrayMove(oldItemOrder, oldIndex, newIndex)
-          : oldItemOrder.splice(newIndex, 0, activeItem.ref.id);
       // console.log("old order:");
       // console.log(oldItemOrder);
       // console.log("new order:");
@@ -266,13 +280,17 @@ const ItemArea = ({ list }: { list: List }) => {
       // 2. map through the items
       newItemOrder.forEach((id, index) => {
         // 3. if oldIndex != new index:
-        if (index !== oldItemOrder.indexOf(id)) {
+        if (newItemOrder.indexOf(id) !== oldItemOrder.indexOf(id)) {
           // 4. get ref of item by id:
           const itemObj = overContainerItems.find((item) => item.ref.id === id);
 
           // 5. updateDoc(item.ref, { order: index });
           if (itemObj) updateDoc(itemObj.ref, "order", index);
-        }
+        } else if (
+          newItemOrder.indexOf(id) !==
+          overContainerItems.find((item) => item.ref.id === id)?.data.order
+        )
+          console.log("ALARM at ", id);
       });
       setActiveItem(null);
     }
@@ -281,6 +299,11 @@ const ItemArea = ({ list }: { list: List }) => {
   const handleDragStart = (e: DragStartEvent) => {
     setActiveItem(e.active.data.current?.item as ItemType);
   };
+
+  useEffect(() => {
+    if (activeItem)
+      console.log("picked up: ", activeItem.data.name, activeItem.ref.id);
+  }, [activeItem]);
 
   return (
     <div className={styles.itemsArea}>
