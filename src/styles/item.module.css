@@ -1,9 +1,9 @@
 .item {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 8px;
   border-bottom: 1px solid #5f6368;
-  padding: 8px;
+  padding: 0 8px;
 }
 
 .item.active:hover {
@@ -21,11 +21,15 @@
 }
 
 .item:hover .itemHoverMenu {
-  display: initial;
+  display: flex;
+  align-items: center;
 }
 
 .itemName {
+  display: flex;
+  align-items: center;
   flex: 1;
+  padding: 15px 0;
 }
 
 .item.complete .itemName {
@@ -35,6 +39,7 @@
 
 .checkbox {
   display: flex;
+  align-items: center;
 }
 
 .checkbox [type="checkbox"] {

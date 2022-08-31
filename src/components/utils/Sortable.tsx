@@ -1,12 +1,13 @@
+import { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 import { useSortable } from "@dnd-kit/sortable";
 import React from "react";
 import { Item } from "../../types/types";
 
 const Sortable = ({
-  children,
+  render,
   item,
 }: {
-  children: React.ReactNode;
+  render: (listeners?: SyntheticListenerMap) => React.ReactNode;
   item: Item;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -23,8 +24,8 @@ const Sortable = ({
     : undefined;
 
   return (
-    <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
-      {children}
+    <div ref={setNodeRef} style={style} {...attributes}>
+      {render(listeners)}
     </div>
   );
 };

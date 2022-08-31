@@ -11,21 +11,26 @@ const Item = ({ item }: { item: ItemType }) => {
   };
 
   return (
-    <Sortable item={item}>
-      <div
-        className={`${styles.item} ${
-          item.data.completed ? styles.complete : ""
-        }`}
-      >
-        <Checkbox item={item} />
-        <div className={styles.itemName}>{item.data.name}</div>
-        <div className={styles.itemHoverMenu}>
-          <div className={styles.deleteButton} onClick={handleDelete}>
-            <Icon iconName="delete" />
+    <Sortable
+      item={item}
+      render={(listeners) => (
+        <div
+          className={`${styles.item} ${
+            item.data.completed ? styles.complete : ""
+          }`}
+        >
+          <Checkbox item={item} />
+          <div {...listeners} className={styles.itemName}>
+            {item.data.name}
+          </div>
+          <div className={styles.itemHoverMenu}>
+            <div className={styles.deleteButton} onClick={handleDelete}>
+              <Icon iconName="delete" />
+            </div>
           </div>
         </div>
-      </div>
-    </Sortable>
+      )}
+    />
   );
 };
 
