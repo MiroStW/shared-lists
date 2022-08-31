@@ -115,7 +115,8 @@ const ItemArea = ({ list }: { list: List }) => {
     // console.log(active.id);
     const activeContainer = findContainer(active.id);
     const overContainer = findContainer(over?.id);
-    // console.log("containers: ", activeContainer?.ref.id, overContainer?.ref.id);
+    console.log("containers: ", activeContainer?.ref.id, overContainer?.ref.id);
+    console.log("over: ", over?.id);
     if (
       !activeContainer ||
       !overContainer ||
@@ -125,29 +126,10 @@ const ItemArea = ({ list }: { list: List }) => {
       return;
     }
 
-    // console.log("over: ", over.id);
-    // move activeItem to new area (only locally! change items object)
-    // problem: spamming updates to firestore on every "dragOver" event
-    // problem: potentially loosing refernce to activeItem because items get
-    // updated live
-    // solution: somehow only locally add new item to new list and hide
-    // old one
-    // only move DOM node && do update on dragEnd
-
-    console.log(
-      `moved ${activeItem?.data.name} from ${activeContainer.data.name} to ${overContainer.data.name}`
-    );
     setLocalItems((prev) => {
       const activeItems = prev[activeContainer.ref.id]!;
       const overItems = prev[overContainer.ref.id]!;
-      // console.log(
-      //   "activeItems Ids: ",
-      //   activeItems.map((item) => item.ref.id)
-      // );
-      // console.log(
-      //   "active.data.current?.item.ref.id: ",
-      //   active.data.current?.item.ref.id
-      // );
+
       // Find the indexes for the items
       const activeIndex = activeItems
         ?.map((item) => item.ref.id)
@@ -172,24 +154,6 @@ const ItemArea = ({ list }: { list: List }) => {
         newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
       }
 
-      // console.log("activeIndex: ", activeIndex);
-      // console.log("newIndex: ", newIndex);
-      // console.log({
-      //   ...prev,
-      //   [activeContainer.ref.id]: [
-      //     ...activeItems.filter((item) => item.ref.id !== activeItem?.ref.id),
-      //   ],
-      //   [overContainer.ref.id]: [
-      //     ...overItems.slice(0, newIndex),
-      //     activeItems[activeIndex],
-      //     ...overItems.slice(newIndex, overItems.length),
-      //   ],
-      // });
-      // this is called on every "over" event, so often multiple times
-      // however activeItem is already removed from activeContainer, resulting
-      // in activeIndex to be -1 (not found)
-      // regardless, activeIndex is used below, resulting in
-      // activeItems[activeIndex] to be undefined
       return {
         ...prev,
         [activeContainer.ref.id]: [
@@ -234,9 +198,6 @@ const ItemArea = ({ list }: { list: List }) => {
 
       // establish new order
       const oldItemOrder = overContainerItems.map((item) => item.ref.id);
-      console.log("oldItemOrder: ", oldItemOrder);
-      console.log("active.id: ", active.id);
-      console.log("over.id: ", over?.id);
       // for moved items over.id already is moved item, which is not present in
       // oldItemOrder, causing newIndex to be -1
       const newIndex = localItems[overContainer.ref.id]!.map(
@@ -329,8 +290,8 @@ const ItemArea = ({ list }: { list: List }) => {
                     .map((sectionObj) => sectionObj.data())
                     .map((section) => (
                       <div key={section.ref.id}>
-                        <div>{section.data.name}</div>
                         <Items
+                          section={section}
                           id={section.ref.id}
                           items={localItems[section.ref.id]!}
                         />
