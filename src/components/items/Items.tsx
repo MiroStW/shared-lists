@@ -5,6 +5,7 @@ import {
 import { useDroppable } from "@dnd-kit/core";
 import { Item } from "./Item";
 import { Item as ItemType, Section } from "../../types/types";
+import { SectionHeader } from "./SectionHeader";
 
 const Items = ({
   items,
@@ -25,7 +26,7 @@ const Items = ({
         strategy={verticalListSortingStrategy}
       >
         <div ref={setNodeRef}>
-          <div>{section?.data.name}</div>
+          {section && <SectionHeader section={section} />}
           {items.map((item) => (
             <Item key={item.ref.id} item={item} />
           ))}
