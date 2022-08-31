@@ -10,6 +10,7 @@
     ],
     "predeploy": [
       "npm --prefix \"$PROJECT_DIR\" install",
+      "rm -r build",
       "npm --prefix \"$PROJECT_DIR\" run build"
     ],
     "runtime": "nodejs14"
