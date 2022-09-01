@@ -20,15 +20,15 @@ const Items = ({
 
   return (
     <>
-      {items && items.length > 0 && (
+      {items && (
         <SortableContext
           id={id}
-          items={items.map((item) => item.ref.id)}
+          items={items?.map((item) => item.ref.id)}
           strategy={verticalListSortingStrategy}
         >
           <div ref={setNodeRef}>
             {section && <SectionHeader section={section} />}
-            {items.map((item) => (
+            {items?.map((item) => (
               <Item key={item.ref.id} item={item} />
             ))}
           </div>
