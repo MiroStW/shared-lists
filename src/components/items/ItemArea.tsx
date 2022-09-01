@@ -19,16 +19,26 @@ const ItemArea = ({
       <div className={styles.itemsList}>
         {Object.keys(items).length > 0 && (
           <>
-            <Items id={list.ref.id} items={items[list.ref.id]!} />
-            {sections.map((section) => (
-              <div key={section.ref.id}>
-                <Items
-                  section={section}
-                  id={section.ref.id}
-                  items={items[section.ref.id]!}
-                />
-              </div>
-            ))}
+            {Object.keys(items).reduce(
+              (sum, area) => sum + items[area].length,
+              0
+            ) === 0 ? (
+              <div>No items yet</div>
+            ) : (
+              <>
+                <Items id={list.ref.id} items={items[list.ref.id]} />
+                {sections.length > 0 &&
+                  sections.map((section) => (
+                    <div key={section.ref.id}>
+                      <Items
+                        section={section}
+                        id={section.ref.id}
+                        items={items[section.ref.id]}
+                      />
+                    </div>
+                  ))}
+              </>
+            )}
           </>
         )}
       </div>
