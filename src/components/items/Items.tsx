@@ -26,10 +26,10 @@ const Items = ({
           items={items?.map((item) => item.ref.id)}
           strategy={verticalListSortingStrategy}
         >
-          <div ref={setNodeRef} className="droppable">
+          <div ref={setNodeRef}>
             {section && <SectionHeader section={section} />}
           </div>
-          {items?.map((item) => (
+          {items.map((item) => (
             <Item key={item.ref.id} item={item} />
           ))}
         </SortableContext>
