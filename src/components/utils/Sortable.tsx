@@ -1,3 +1,4 @@
+import { DraggableAttributes } from "@dnd-kit/core";
 import { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 import { useSortable } from "@dnd-kit/sortable";
 import React from "react";
@@ -7,7 +8,10 @@ const Sortable = ({
   render,
   item,
 }: {
-  render: (listeners?: SyntheticListenerMap) => React.ReactNode;
+  render: (
+    listeners?: SyntheticListenerMap,
+    attributes?: DraggableAttributes
+  ) => React.ReactNode;
   item: Item;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -24,8 +28,8 @@ const Sortable = ({
     : undefined;
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes}>
-      {render(listeners)}
+    <div ref={setNodeRef} style={style}>
+      {render(listeners, attributes)}
     </div>
   );
 };
