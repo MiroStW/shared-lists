@@ -13,14 +13,14 @@ const Item = ({ item }: { item: ItemType }) => {
   return (
     <Sortable
       item={item}
-      render={(listeners) => (
+      render={(listeners, attributes) => (
         <div
           className={`${styles.item} ${
             item.data.completed ? styles.complete : ""
           }`}
         >
           <Checkbox item={item} />
-          <div {...listeners} className={styles.itemName}>
+          <div {...listeners} {...attributes} className={styles.itemName}>
             {item.data.name}
           </div>
           <div className={styles.itemHoverMenu}>
