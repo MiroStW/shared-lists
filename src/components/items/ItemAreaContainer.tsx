@@ -1,4 +1,5 @@
 import {
+  closestCenter,
   DndContext,
   DragEndEvent,
   DragOverEvent,
@@ -79,9 +80,9 @@ const ItemAreaContainer = ({ list }: { list: List }) => {
     }
   }, [items, list.ref.id, sections]);
 
-  // useEffect(() => {
-  //   console.log("localItems: ", localItems);
-  // }, [localItems]);
+  useEffect(() => {
+    console.log("activeItem: ", activeItem);
+  }, [activeItem]);
 
   const findContainer = (id?: UniqueIdentifier) => {
     // return a dropped on list
@@ -136,6 +137,7 @@ const ItemAreaContainer = ({ list }: { list: List }) => {
       const overIndex = overItems
         ?.map((item) => item.ref.id)
         .indexOf(over.data.current?.item.ref.id);
+      console.log("overIndex: ", overIndex);
 
       let newIndex;
       if (over.id in prev) {
@@ -274,6 +276,7 @@ const ItemAreaContainer = ({ list }: { list: List }) => {
       ) : (
         <>
           <DndContext
+            collisionDetection={closestCenter}
             onDragStart={(e) => handleDragStart(e)}
             onDragOver={(e) => handleDragOver(e)}
             onDragEnd={(e) => handleDragEnd(e)}
@@ -283,15 +286,14 @@ const ItemAreaContainer = ({ list }: { list: List }) => {
               sections={sections!.docs.map((section) => section.data())}
               items={localItems}
             />
+            <DragOverlay dropAnimation={null}>
+              {activeItem ? (
+                <div>
+                  <Item item={activeItem} />
+                </div>
+              ) : null}
+            </DragOverlay>
           </DndContext>
-          <DragOverlay>
-            {activeItem ? (
-              <div>
-                xxxxx
-                <Item item={activeItem} />
-              </div>
-            ) : null}
-          </DragOverlay>
         </>
       )}
     </div>
