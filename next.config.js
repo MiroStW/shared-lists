@@ -4,7 +4,7 @@ const nextConfig = {
     FIREBASE_PROJECT_ID: "shared-lists-8fc29",
   },
   distDir: "build",
-  reactStrictMode: false,
+  reactStrictMode: true,
   swcMinify: true,
   images: {
     domains: [
