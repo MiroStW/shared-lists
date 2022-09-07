@@ -3,6 +3,7 @@
   align-items: stretch;
   gap: 8px;
   padding: 0 8px;
+  touch-action: manipulation;
 }
 
 .item.active:hover {

@@ -5,7 +5,11 @@ import {
   DragOverEvent,
   DragOverlay,
   DragStartEvent,
+  MouseSensor,
+  TouchSensor,
   UniqueIdentifier,
+  useSensor,
+  useSensors,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import {
@@ -83,6 +87,22 @@ const ItemAreaContainer = ({ list }: { list: List }) => {
   useEffect(() => {
     console.log("activeItem: ", activeItem);
   }, [activeItem]);
+
+  const touchSensor = useSensor(TouchSensor, {
+    activationConstraint: {
+      delay: 250,
+      tolerance: 5,
+    },
+  });
+
+  const mouseSensor = useSensor(MouseSensor, {
+    activationConstraint: {
+      delay: 0,
+      tolerance: 5,
+    },
+  });
+
+  const sensors = useSensors(touchSensor, mouseSensor);
 
   const findContainer = (id?: UniqueIdentifier) => {
     // return a dropped on list
@@ -276,6 +296,7 @@ const ItemAreaContainer = ({ list }: { list: List }) => {
       ) : (
         <>
           <DndContext
+            sensors={sensors}
             collisionDetection={closestCenter}
             onDragStart={(e) => handleDragStart(e)}
             onDragOver={(e) => handleDragOver(e)}
