@@ -6,10 +6,10 @@ import { useLists } from "../../firebase/listsContext";
 
 const App: NextPage = () => {
   const router = useRouter();
-  const { lists, loading: loadingLists, error: errorLists } = useLists();
+  const { lists, loading, error } = useLists();
 
-  if (errorLists) return <Error msg={errorLists?.message} />;
-  else if (loadingLists) return <Loading />;
+  if (error) return <Error msg={error?.message} />;
+  else if (loading) return <Loading />;
   else if (lists) {
     router.push(`/lists/${lists[0].ref.id}`);
   }
