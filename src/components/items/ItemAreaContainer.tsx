@@ -11,6 +11,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { arrayMove } from "@dnd-kit/sortable";
 import {
   addDoc,
@@ -297,6 +298,7 @@ const ItemAreaContainer = ({ list }: { list: List }) => {
         <>
           <DndContext
             sensors={sensors}
+            modifiers={[restrictToVerticalAxis]}
             collisionDetection={closestCenter}
             onDragStart={(e) => handleDragStart(e)}
             onDragOver={(e) => handleDragOver(e)}
