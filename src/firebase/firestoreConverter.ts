@@ -1,7 +1,9 @@
 import {
+  DocumentData,
   DocumentReference,
   FirestoreDataConverter,
   QueryDocumentSnapshot,
+  WithFieldValue,
 } from "firebase/firestore";
 import { ListData, ItemData, SectionData } from "../types/types";
 
@@ -14,16 +16,15 @@ const createFirestoreConverter = <T>(): FirestoreDataConverter<
   LocalDocumentData<T>
 > => {
   return {
-    toFirestore: (localData: LocalDocumentData<T>) => {
-      return localData.data;
+    toFirestore: (
+      localData: WithFieldValue<LocalDocumentData<T>>
+    ): DocumentData => {
+      return localData;
     },
-    fromFirestore: (
-      snapshot: QueryDocumentSnapshot<T>
-    ): LocalDocumentData<T> => {
-      // const data = snapshot.data(options);
+    fromFirestore: (snapshot: QueryDocumentSnapshot): LocalDocumentData<T> => {
       return {
-        ref: snapshot.ref,
-        data: snapshot.data(),
+        ref: snapshot.ref as DocumentReference<T>,
+        data: snapshot.data() as T,
       };
     },
   };
