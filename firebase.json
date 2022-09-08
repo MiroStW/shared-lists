@@ -1,18 +1,33 @@
 {
   "functions": {
-    "source": "functions",
+    "source": ".",
+    "ignore": [
+      ".firebase/**",
+      ".firebaserc",
+      "firebase.json",
+      "**/node_modules/**",
+      "**/public/**"
+    ],
     "predeploy": [
-      "npm --prefix \"$RESOURCE_DIR\" run lint",
-      "npm --prefix \"$RESOURCE_DIR\" run build"
-    ]
+      "npm --prefix \"$PROJECT_DIR\" install",
+      "rm -r build",
+      "npm --prefix \"$PROJECT_DIR\" run build"
+    ],
+    "runtime": "nodejs14"
   },
   "firestore": {
-    "rules": "firebase/firestore.rules",
-    "indexes": "firebase/firestore.indexes.json"
+    "rules": "src/firebase/firestore.rules",
+    "indexes": "src/firebase/firestore.indexes.json"
   },
   "hosting": {
     "public": "public",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      {
+        "source": "**",
+        "function": "nextjsFunc"
+      }
+    ]
   },
   "emulators": {
     "auth": {
@@ -25,7 +40,7 @@
       "port": 8080
     },
     "hosting": {
-      "port": 5000
+      "port": 4000
     },
     "ui": {
       "enabled": true
