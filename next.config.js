@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: false,
+  env: {
+    FIREBASE_PROJECT_ID: "shared-lists-8fc29",
+  },
+  distDir: "build",
+  reactStrictMode: true,
   swcMinify: true,
   images: {
     domains: [
