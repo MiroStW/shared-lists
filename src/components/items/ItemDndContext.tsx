@@ -146,20 +146,11 @@ const ItemDndContext = ({
   };
 
   const handleDragEnd = (e: DragEndEvent) => {
-    // handle order within a container
     const { active, over } = e;
     const overItem = over?.data.current?.item;
 
     const activeContainer = findContainer(active.id);
     const overContainer = findContainer(over?.id);
-
-    if (
-      !activeContainer ||
-      !overContainer ||
-      activeContainer.ref.id !== overContainer.ref.id
-    ) {
-      return;
-    }
 
     if (
       items &&
@@ -175,16 +166,15 @@ const ItemDndContext = ({
 
       // establish new order
       const oldItemOrder = overContainerItems.map((item) => item.ref.id);
-      // for moved items over.id already is moved item, which is not present in
-      // oldItemOrder, causing newIndex to be -1
+
       const newIndex = localItems[overContainer.ref.id]!.map(
         (item) => item.ref.id
       ).indexOf(over?.id as string);
-      // console.log("newIndex: ", newIndex);
-      // take newIndex as order value for addDoc
       const oldIndex = oldItemOrder.indexOf(active.id as string);
+      // console.log("newIndex: ", newIndex);
       // console.log(oldIndex, newIndex);
 
+      // newItemOrder based on newIndex & whether item moved to new container
       const newItemOrder = oldItemOrder.includes(activeItem.ref.id)
         ? arrayMove(oldItemOrder, oldIndex, newIndex)
         : [
@@ -192,7 +182,8 @@ const ItemDndContext = ({
             activeItem.ref.id,
             ...oldItemOrder.slice(newIndex, oldItemOrder.length),
           ];
-      // if activeItem.ref.id not in oldItemOrder: addDoc/deleteDoc
+
+      // if item moved to new container, delete it in old & add in new container
       if (!oldItemOrder.includes(activeItem.ref.id)) {
         overContainer.ref.parent.id === "lists"
           ? addDoc(
@@ -216,14 +207,13 @@ const ItemDndContext = ({
       }
       // console.log("old order: ", oldItemOrder);
       // console.log("new order: ", newItemOrder);
-      // 2. map through the items
+
+      // check if other items changed order
       newItemOrder.forEach((id, index) => {
-        // 3. if oldIndex != new index:
         if (newItemOrder.indexOf(id) !== oldItemOrder.indexOf(id)) {
-          // 4. get ref of item by id:
+          // get ref of item by id:
           const itemObj = overContainerItems.find((item) => item.ref.id === id);
 
-          // 5. updateDoc(item.ref, { order: index });
           if (itemObj) {
             updateDoc(itemObj.ref, "order", index);
             // console.log(
@@ -232,11 +222,12 @@ const ItemDndContext = ({
             // );
           }
         }
-        // else if (
-        //   newItemOrder.indexOf(id) !==
-        //   overContainerItems.find((item) => item.ref.id === id)?.data.order
-        // )
-        //   console.log("ALARM at ", id);
+        // check if localItems order is unchanged, but db order differs -> bug?
+        else if (
+          newItemOrder.indexOf(id) !==
+          overContainerItems.find((item) => item.ref.id === id)?.data.order
+        )
+          console.log("ALARM at ", id);
       });
       setActiveItem(null);
     }
