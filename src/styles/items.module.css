@@ -11,10 +11,11 @@
 
 .itemsHeader {
   display: flex;
+  gap: 15px;
   align-items: center;
 }
 
-.itemsHeader h2 {
+.listTitle {
   flex: 1;
   margin: 0;
 }
