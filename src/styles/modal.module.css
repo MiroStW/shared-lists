@@ -1,10 +1,17 @@
 .modal {
   position: fixed;
-  margin: 0 25px;
   border-radius: 10px;
   overflow: hidden;
   padding: 14px 32px 32px 32px;
   background-color: #5f6368;
+}
+
+.modalCenter {
+  margin: 10% auto;
+  top: 0;
+  width: fit-content;
+  left: 0;
+  right: 0;
 }
 
 .modalButtons {
