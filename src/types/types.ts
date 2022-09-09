@@ -56,3 +56,22 @@ export class Item {
     this.data = data;
   }
 }
+
+export interface InviteData {
+  inviterID: string;
+  inviteeEmail: string;
+  listID: string;
+  status: "pending" | "accepted" | "declined";
+  createdDate: Timestamp;
+}
+
+export class Invite {
+  readonly ref: DocumentReference<InviteData>;
+
+  readonly data: InviteData;
+
+  constructor(ref: DocumentReference<InviteData>, data: InviteData) {
+    this.ref = ref;
+    this.data = data;
+  }
+}

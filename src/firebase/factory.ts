@@ -1,8 +1,13 @@
 import { User } from "firebase/auth";
 import { Timestamp } from "firebase/firestore";
-import { ListData, ItemData, SectionData, List } from "../types/types";
+import {
+  ListData,
+  ItemData,
+  SectionData,
+  List,
+  InviteData,
+} from "../types/types";
 
-// factory for lists
 const createListData = (name: string, user: User): ListData => {
   return {
     name,
@@ -12,7 +17,6 @@ const createListData = (name: string, user: User): ListData => {
   };
 };
 
-// factory for items
 const createItemData = (
   name: string,
   user: User,
@@ -30,7 +34,6 @@ const createItemData = (
   };
 };
 
-// factory for items
 const createSectionData = (name: string, user: User): SectionData => {
   return {
     name,
@@ -38,4 +41,19 @@ const createSectionData = (name: string, user: User): SectionData => {
     ownerID: user.uid,
   };
 };
-export { createListData, createItemData, createSectionData };
+
+const createInviteData = (
+  user: User,
+  inviteeEmail: string,
+  list: List
+): InviteData => {
+  return {
+    inviterID: user.uid,
+    inviteeEmail,
+    listID: list.ref.id,
+    status: "pending",
+    createdDate: Timestamp.now(),
+  };
+};
+
+export { createListData, createItemData, createSectionData, createInviteData };
