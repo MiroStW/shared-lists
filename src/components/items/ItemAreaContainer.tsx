@@ -64,19 +64,21 @@ const ItemAreaContainer = ({ list }: { list: List }) => {
         <Loading />
       ) : (
         <>
-          <ItemDndContext
-            list={list}
-            sections={sections!.docs.map((section) => section.data())}
-            localItems={localItems}
-            setLocalItems={setLocalItems}
-            items={items!.docs.map((item) => item.data())}
-          >
-            <ItemArea
+          {items && sections && (
+            <ItemDndContext
               list={list}
-              sections={sections!.docs.map((section) => section.data())}
-              items={localItems}
-            />
-          </ItemDndContext>
+              sections={sections.docs.map((section) => section.data())}
+              localItems={localItems}
+              setLocalItems={setLocalItems}
+              items={items.docs.map((item) => item.data())}
+            >
+              <ItemArea
+                list={list}
+                sections={sections.docs.map((section) => section.data())}
+                items={localItems}
+              />
+            </ItemDndContext>
+          )}
         </>
       )}
     </div>
