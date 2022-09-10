@@ -15,7 +15,7 @@ service cloud.firestore {
     }
 
     function isNewInviter(req) {
-      return req.auth.uid == req.resource.data.InviterID
+      return req.auth.uid == req.resource.data.inviterID
     }
 
     function isExistingInviter(req, res) {
