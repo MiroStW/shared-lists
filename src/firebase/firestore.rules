@@ -2,7 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-  function isSignedIn(req) {
+    function isSignedIn(req) {
       return req.auth != null
     }
 
@@ -14,7 +14,15 @@ service cloud.firestore {
       return req.auth.uid == res.data.ownerID
     }
 
-    match /{document=**} {
+    function isNewInviter(req) {
+      return req.auth.uid == req.resource.data.InviterID
+    }
+
+    function isExistingInviter(req, res) {
+      return req.auth.uid == res.data.InviterID
+    }
+
+    match /lists/{list} {
 
       allow create: if
          isSignedIn(request) &&
@@ -29,6 +37,56 @@ service cloud.firestore {
       allow read: if
          isSignedIn(request) &&
          ownsExistingResource(request, resource);
+    }
+
+    match /{path=**}/items/{item} {
+
+      allow create: if
+         isSignedIn(request) &&
+         ownsNewResource(request)
+      allow update: if
+         isSignedIn(request) &&
+         ownsNewResource(request) &&
+         ownsExistingResource(request, resource);
+      allow delete: if
+         isSignedIn(request) &&
+         ownsExistingResource(request, resource);
+      allow read: if
+         isSignedIn(request) &&
+         ownsExistingResource(request, resource);
+    }
+
+    match /{path=**}/sections/{section} {
+
+      allow create: if
+         isSignedIn(request) &&
+         ownsNewResource(request)
+      allow update: if
+         isSignedIn(request) &&
+         ownsNewResource(request) &&
+         ownsExistingResource(request, resource);
+      allow delete: if
+         isSignedIn(request) &&
+         ownsExistingResource(request, resource);
+      allow read: if
+         isSignedIn(request) &&
+         ownsExistingResource(request, resource);
+    }
+
+    match /invites/{invite} {
+      allow create: if
+         isSignedIn(request) &&
+         isNewInviter(request)
+      allow update: if
+      	 isSignedIn(request) &&
+         resource.data.status == "pending"
+         // add resource.data.createdDate < today()-48h
+      allow delete: if
+         isSignedIn(request) &&
+         isExistingInviter(request, resource);
+      allow read: if
+         isSignedIn(request) &&
+         (resource.data.status == "pending" || isExistingInviter(request,resource))
     }
   }
 }
