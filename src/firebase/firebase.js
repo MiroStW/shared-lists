@@ -8,4 +8,4 @@ const firebase = initializeApp(firebaseConfig);
 const functions = getFunctions(firebase);
 connectFunctionsEmulator(functions, "localhost", 5001);
 
-export { firebase };
+export { firebase, functions };
