@@ -6,7 +6,10 @@
       ".firebaserc",
       "firebase.json",
       "**/node_modules/**",
-      "**/public/**"
+      "**/public/**",
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log"
     ],
     "predeploy": [
       "npm --prefix \"$PROJECT_DIR\" install",
