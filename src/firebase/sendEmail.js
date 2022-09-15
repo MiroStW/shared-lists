@@ -1,32 +1,64 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { https } = require("firebase-functions");
+const { firestore, https } = require("firebase-functions");
 const admin = require("firebase-admin");
+const cors = require("cors")({ origin: true });
+const nodemailer = require("nodemailer");
 
 admin.initializeApp();
 
-// Listens for new messages added to /messages/:documentId/original and creates an
-// uppercase version of the message to /messages/:documentId/uppercase
-// exports.makeUppercase = functions.firestore
-//   .document("/invites/{documentId}")
-//   .onCreate((snap, context) => {
-//     // Grab the current value of what was written to Firestore.
-//     const { inviterID, inviteeEmail, listID } = snap.data();
-
-//     const invitingUser =
-//       // Access the parameter `{documentId}` with `context.params`
-//       functions.logger.log("Uppercasing", context.params.documentId, original);
-
-//     const uppercase = original.toUpperCase();
-
-//     // You must return a Promise when performing asynchronous tasks inside a Functions such as
-//     // writing to Firestore.
-//     // Setting an 'uppercase' field in Firestore document returns a Promise.
-//     return snap.ref.set({ uppercase }, { merge: true });
-//   });
-exports.sendEmail = https.onCall((data, context) => {
-  return {
-    helloWorld: "hi!",
-    data,
-    userID: context.auth.uid,
-  };
+let transporter = nodemailer.createTransport({
+  host: "smtp.sendgrid.net",
+  port: 587,
+  auth: {
+    user: "apikey",
+    pass: process.env.SENDGRID_API_KEY,
+  },
 });
+
+const headers = {
+  "Access-Control-Allow-Origin": "*" /* @dev First, read about security */,
+  "Access-Control-Allow-Methods": "OPTIONS, POST, GET",
+  "Access-Control-Max-Age": 2592000, // 30 days
+  /** add other headers as per requirement */
+};
+
+exports.sendEmail = firestore
+  .document("/invites/{documentId}")
+  .onCreate(async (snap) => {
+    const { inviterID, inviteeEmail, listID } = snap.data();
+    const inviteID = snap.ref.id;
+
+    const invitingUser = await admin.auth().getUser(inviterID);
+    const listSnapshot = await admin.firestore().doc(`/lists/${listID}`).get();
+
+    const update = await snap.ref.update({ email_status: "success" });
+    console.log("update: ", update);
+
+    const mailOptions = {
+      from: "Shared lists <shared-lists@miro-wilms.de>",
+      to: "flair2k@gmail.com",
+      subject: `${invitingUser.displayName} invited you to join ${
+        listSnapshot.data().name
+      } list`,
+      html: `<p style="font-size: 16px;">
+          Hi there, <br /><br />
+          ${invitingUser.displayName} invited you to join ${
+        listSnapshot.data().name
+      } list. <br /><br />
+          Click <a href="https://shared-lists-8fc29.web.app/invites/${inviteID}">here</a> to join the list
+          </p>
+                    <br />
+
+                `,
+      function(error, info) {
+        if (error) {
+          snap.ref.update({ email_status: "error" });
+          console.log(error);
+        } else {
+          console.log("Email sent: " + info.response);
+        }
+      },
+    };
+
+    return transporter.sendMail(mailOptions);
+  });

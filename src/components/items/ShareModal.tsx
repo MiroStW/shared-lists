@@ -1,7 +1,9 @@
 import { addDoc } from "firebase/firestore";
+import { httpsCallable } from "firebase/functions";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useAuth } from "../../firebase/authContext";
 import { createInviteData } from "../../firebase/factory";
+import { functions } from "../../firebase/firebase";
 import { invites } from "../../firebase/useDb";
 import { List } from "../../types/types";
 import { Modal } from "../utils/Modal";
@@ -19,6 +21,10 @@ const ShareModal = ({
     e.preventDefault();
     if (user && email) {
       addDoc(invites, createInviteData(user, email, list));
+      const sendEmail = httpsCallable(functions, "sendEmail");
+      sendEmail()
+        .then((result) => console.log("result: ", result))
+        .catch((error) => console.log("error: ", error));
       setShowShareModal(false);
     }
   };
