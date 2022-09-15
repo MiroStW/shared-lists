@@ -1,9 +1,11 @@
-import { getAuth, User } from "firebase/auth";
+import { connectAuthEmulator, getAuth, User } from "firebase/auth";
 import { createContext, ReactNode, useContext } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { firebase } from "./firebase";
 
 const auth = getAuth(firebase);
+
+connectAuthEmulator(auth, "http://localhost:9099");
 
 const authContext = createContext({
   user: null as User | null | undefined,

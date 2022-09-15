@@ -21,7 +21,7 @@ import { firebase } from "./firebase";
 const db = getFirestore(firebase);
 
 // comment out this line to switch to production db
-// connectFirestoreEmulator(firestore, "localhost", 8080);
+connectFirestoreEmulator(db, "localhost", 8080);
 
 // enableMultiTabIndexedDbPersistence(db);
 //   .catch((err) => {
