@@ -42,9 +42,9 @@ exports.sendEmail = firestore
       } list`,
       html: `<p style="font-size: 16px;">
           Hi there, <br /><br />
-          ${invitingUser.displayName} invited you to join ${
+          ${invitingUser.displayName} invited you to join the "${
         listSnapshot.data().name
-      } list. <br /><br />
+      }" list. <br /><br />
           Click <a href="https://shared-lists-8fc29.web.app/invites/${inviteID}">here</a> to join the list
           </p>
                     <br />
