@@ -18,7 +18,7 @@ import {
 } from "../types/types";
 import { firebase } from "./firebase";
 
-const db = getFirestore(firebase);
+export const db = getFirestore(firebase);
 
 // comment out this line to switch to production db
 connectFirestoreEmulator(db, "localhost", 8080);
