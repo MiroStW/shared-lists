@@ -5,7 +5,7 @@ import {
   QueryDocumentSnapshot,
   WithFieldValue,
 } from "firebase/firestore";
-import { ListData, ItemData, SectionData } from "../types/types";
+import { ListData, ItemData, SectionData, InviteData } from "../types/types";
 
 interface LocalDocumentData<D> {
   ref: DocumentReference<D>;
@@ -33,5 +33,6 @@ const createFirestoreConverter = <T>(): FirestoreDataConverter<
 const listConverter = createFirestoreConverter<ListData>();
 const itemConverter = createFirestoreConverter<ItemData>();
 const sectionConverter = createFirestoreConverter<SectionData>();
+const inviteConverter = createFirestoreConverter<InviteData>();
 
-export { itemConverter, listConverter, sectionConverter };
+export { itemConverter, listConverter, sectionConverter, inviteConverter };
