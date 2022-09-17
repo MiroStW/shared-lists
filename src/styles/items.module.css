@@ -4,6 +4,7 @@
 } */
 
 .itemsArea {
+  position: relative;
   flex: 1;
   padding-right: 18px;
   padding-left: 18px;
