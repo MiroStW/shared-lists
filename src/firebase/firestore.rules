@@ -85,8 +85,7 @@ service cloud.firestore {
          isSignedIn(request) &&
          isExistingInviter(request, resource);
       allow read: if
-         isSignedIn(request) &&
-         (resource.data.status == "pending" || isExistingInviter(request,resource))
+         isSignedIn(request)
     }
   }
 }
