@@ -59,8 +59,10 @@ export class Item {
 
 export interface InviteData {
   inviterID: string;
+  inviterName: string;
   inviteeEmail: string;
   listID: string;
+  listName: string;
   status: "pending" | "accepted" | "declined";
   createdDate: Timestamp;
 }

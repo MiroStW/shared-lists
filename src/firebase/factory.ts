@@ -49,8 +49,10 @@ const createInviteData = (
 ): InviteData => {
   return {
     inviterID: user.uid,
+    inviterName: user.displayName || user.email!,
     inviteeEmail,
     listID: list.ref.id,
+    listName: list.data.name,
     status: "pending",
     createdDate: Timestamp.now(),
   };
