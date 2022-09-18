@@ -6,6 +6,7 @@ export interface ListData {
   isArchived: boolean;
   createdDate: Timestamp;
   ownerID: string;
+  contributors?: string[];
 }
 
 export class List {

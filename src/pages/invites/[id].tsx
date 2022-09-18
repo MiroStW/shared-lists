@@ -1,11 +1,11 @@
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { arrayUnion, doc, getDoc, updateDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { Loading } from "../../components/utils/Loading";
 import { Error as ErrorComp } from "../../components/utils/Error";
 import { useAuth } from "../../firebase/authContext";
 import { inviteConverter } from "../../firebase/firestoreConverter";
-import { invites } from "../../firebase/useDb";
+import { invites, lists } from "../../firebase/useDb";
 import { Invite } from "../../types/types";
 import { Header } from "../../components/header/Header";
 import styles from "../../styles/showApp.module.css";
@@ -43,6 +43,10 @@ const ShowInvite = () => {
   const handleJoinList = (response: boolean) => {
     if (invite) {
       updateDoc(invite.ref, { status: response ? "accepted" : "declined" });
+      updateDoc(doc(lists, invite.data.listID), {
+        contributors: arrayUnion(user?.uid),
+      });
+
       router.push(`/lists/${response ? invite?.data.listID : ""}`);
     }
   };
@@ -50,8 +54,6 @@ const ShowInvite = () => {
   if (loading) return <Loading />;
   if (error) return <ErrorComp msg={error.message} />;
   return (
-    // TODO: add handling of already accepted/declined invites or expired
-    // invites
     // TODO: handle 404 invite not found?
     <>
       {loading ? (
