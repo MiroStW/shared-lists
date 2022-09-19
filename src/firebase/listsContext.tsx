@@ -27,47 +27,98 @@ const listsContext = createContext({
 
 export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
-  const [lists, setLists] = useState<List[]>([]);
+  const [ownedLists, setOwnedLists] = useState<List[]>([]);
+  const [joinedLists, setJoinedLists] = useState<List[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<FirestoreError | undefined>(undefined);
 
   useEffect(() => {
-    if (user) {
-      const q = query(
-        listsRef,
-        where("ownerID", "==", user?.uid),
-        where("isArchived", "==", false),
-        orderBy("createdDate", "asc")
-      ).withConverter(listConverter);
+    console.log("owned: ", ownedLists);
+    console.log("joined: ", joinedLists);
+  }, [ownedLists, joinedLists]);
 
-      const unsubscribe = onSnapshot(
-        q,
-        { includeMetadataChanges: true },
-        async (snapshot) => {
-          const listsnapshot: List[] = [];
-          setLoading(true);
-          snapshot.forEach((doc) => {
-            listsnapshot.push(doc.data());
-          });
-          if (!snapshot.size)
+  useEffect(() => {
+    if (user) {
+      const getOwnedLists = () => {
+        const ownedLists = query(
+          listsRef,
+          where("ownerID", "==", user?.uid),
+          where("isArchived", "==", false),
+          orderBy("createdDate", "asc")
+        ).withConverter(listConverter);
+
+        const unsubscribe = onSnapshot(
+          ownedLists,
+          { includeMetadataChanges: true },
+          async (snapshot) => {
+            const listsnapshot: List[] = [];
+            setLoading(true);
+            snapshot.forEach((doc) => {
+              listsnapshot.push(doc.data());
+            });
+            if (!snapshot.size) console.log("No lists found for this user");
             addDoc(listsRef, createListData("my first list", user));
-          setLists(listsnapshot);
-          setLoading(false);
-        },
-        (err) => {
-          setError(err);
-          setLoading(false);
-        }
-      );
+            setOwnedLists(listsnapshot);
+            setLoading(false);
+          },
+          (err) => {
+            setError(err);
+            setLoading(false);
+          }
+        );
+        return unsubscribe;
+      };
+
+      const unsubscribeOwnedLists = getOwnedLists();
+
+      const getJoinedLists = () => {
+        const joinedLists = query(
+          listsRef,
+          where("contributors", "array-contains", user?.uid),
+          where("isArchived", "==", false),
+          orderBy("createdDate", "asc")
+        ).withConverter(listConverter);
+
+        const unsubscribe = onSnapshot(
+          joinedLists,
+          { includeMetadataChanges: true },
+          async (snapshot) => {
+            const listsnapshot: List[] = [];
+            setLoading(true);
+            snapshot.forEach((doc) => {
+              listsnapshot.push(doc.data());
+            });
+            setJoinedLists(listsnapshot);
+            setLoading(false);
+          },
+          (err) => {
+            setError(err);
+            setLoading(false);
+          }
+        );
+
+        return unsubscribe;
+      };
+
+      const unsubscribeJoinedLists = getJoinedLists();
+
       return () => {
-        unsubscribe();
+        unsubscribeOwnedLists();
+        unsubscribeJoinedLists();
       };
     }
+
     return undefined;
   }, [user]);
 
   return (
-    <listsContext.Provider value={{ lists, loading, error }}>
+    <listsContext.Provider
+      value={{
+        lists: ownedLists.concat(joinedLists),
+        loading,
+        error,
+      }}
+    >
       {children}
     </listsContext.Provider>
   );
