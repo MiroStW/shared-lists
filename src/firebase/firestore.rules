@@ -10,9 +10,21 @@ service cloud.firestore {
       return req.auth.uid == req.resource.data.ownerID
     }
 
+    function accessToNewResource(req) {
+      return (ownsNewResource(req) || req.auth.uid in req.resource.data.contributors)
+   }
+
     function ownsExistingResource(req, res) {
       return req.auth.uid == res.data.ownerID
     }
+
+   function accessToExistingResource(req, res) {
+      return (ownsExistingResource(req,res) || req.auth.uid in res.data.contributors)
+   }
+
+   function invitedToList(req,res) {
+      return req.resource.data.diff(res.data).affectedKeys().hasOnly(['contributors'])
+   }
 
     function isNewInviter(req) {
       return req.auth.uid == req.resource.data.inviterID
@@ -29,18 +41,23 @@ service cloud.firestore {
          ownsNewResource(request)
       allow update: if
          isSignedIn(request) &&
-         ownsNewResource(request) &&
-         ownsExistingResource(request, resource);
+         (
+            (accessToNewResource(request) && accessToExistingResource(request,
+            resource))
+            ||
+            invitedToList(request, resource)
+         );
       allow delete: if
          isSignedIn(request) &&
          ownsExistingResource(request, resource);
       allow read: if
          isSignedIn(request) &&
-         ownsExistingResource(request, resource);
+         accessToExistingResource(request, resource);
     }
 
     match /{path=**}/items/{item} {
-
+      // currently matches only item-level ownerID, but should also match
+      // list-level contributors
       allow create: if
          isSignedIn(request) &&
          ownsNewResource(request)
