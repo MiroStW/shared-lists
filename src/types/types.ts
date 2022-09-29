@@ -42,7 +42,7 @@ export interface ItemData {
   completed: boolean;
   description: string;
   createdDate: Timestamp;
-  ownerID: string;
+  authorizedUsers: string[];
   order: number;
   list: string;
 }

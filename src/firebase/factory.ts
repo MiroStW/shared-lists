@@ -17,18 +17,23 @@ const createListData = (name: string, user: User): ListData => {
   };
 };
 
-const createItemData = (
-  name: string,
-  user: User,
-  list: List,
-  order = 0
-): ItemData => {
+const createItemData = ({
+  name,
+  authorizedUsers,
+  list,
+  order = 0,
+}: {
+  name: string;
+  authorizedUsers: string[];
+  list: List;
+  order?: number;
+}): ItemData => {
   return {
     name,
     completed: false,
     description: "",
     createdDate: Timestamp.now(),
-    ownerID: user.uid,
+    authorizedUsers,
     order,
     list: list.ref.id,
   };

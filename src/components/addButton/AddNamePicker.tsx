@@ -32,7 +32,13 @@ const AddNamePicker = ({
         case "item": {
           addDoc(
             itemsOfList(activeList),
-            createItemData(name === "" ? `new ${type}` : name, user, activeList)
+            createItemData({
+              name: name === "" ? `new ${type}` : name,
+              authorizedUsers: activeList.data.contributors
+                ? [user.uid, ...activeList.data.contributors]
+                : [user.uid],
+              list: activeList,
+            })
           );
           break;
         }

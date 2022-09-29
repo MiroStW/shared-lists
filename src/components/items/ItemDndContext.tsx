@@ -188,16 +188,25 @@ const ItemDndContext = ({
         overContainer.ref.parent.id === "lists"
           ? addDoc(
               itemsOfList(overContainer as List),
-              createItemData(activeItem.data.name, user, list, newIndex)
+              createItemData({
+                name: activeItem.data.name,
+                authorizedUsers: list.data.contributors
+                  ? [list.data.ownerID, ...list.data.contributors]
+                  : [list.data.ownerID],
+                list,
+                order: newIndex,
+              })
             )
           : addDoc(
               itemsOfSection(overContainer as Section),
-              createItemData(
-                active.data.current?.item.data.name,
-                user,
+              createItemData({
+                name: active.data.current?.item.data.name,
+                authorizedUsers: list.data.contributors
+                  ? [list.data.ownerID, ...list.data.contributors]
+                  : [list.data.ownerID],
                 list,
-                newIndex
-              )
+                order: newIndex,
+              })
             );
         deleteDoc(active.data.current?.item.ref);
         // console.log(
