@@ -1,101 +1,120 @@
 rules_version = '2';
 service cloud.firestore {
-  match /databases/{database}/documents {
+   match /databases/{database}/documents {
 
-    function isSignedIn(req) {
-      return req.auth != null
-    }
+      function isSignedIn(req) {
+         return req.auth != null
+      }
 
-    function ownsNewResource(req) {
-      return req.auth.uid == req.resource.data.ownerID
-    }
+      function ownsNewResource(req) {
+         return req.auth.uid == req.resource.data.ownerID
+      }
 
-    function accessToNewResource(req) {
-      return (ownsNewResource(req) || req.auth.uid in req.resource.data.contributors)
-   }
+      function ownsExistingResource(req, res) {
+         return req.auth.uid == res.data.ownerID
+      }
 
-    function ownsExistingResource(req, res) {
-      return req.auth.uid == res.data.ownerID
-    }
+      function accessToNewResource(req) {
+         return req.auth.uid in req.resource.data.authorizedUsers
+      }
 
-   function accessToExistingResource(req, res) {
-      return (ownsExistingResource(req,res) || req.auth.uid in res.data.contributors)
-   }
+      function accessToExistingResource(req, res) {
+         return req.auth.uid in res.data.authorizedUsers
+      }
 
-   function invitedToList(req,res) {
-      return req.resource.data.diff(res.data).affectedKeys().hasOnly(['contributors'])
-   }
+      match /lists/{list} {
 
-    function isNewInviter(req) {
-      return req.auth.uid == req.resource.data.inviterID
-    }
+         function accessToNewList(req) {
+            return (ownsNewResource(req) || req.auth.uid in req.resource.data.contributors)
+         }
 
-    function isExistingInviter(req, res) {
-      return req.auth.uid == res.data.InviterID
-    }
+         function accessToExistingList(req, res) {
+            return (ownsExistingResource(req,res) || req.auth.uid in res.data.contributors)
+         }
 
-    match /lists/{list} {
+         function invitedToList(req,res) {
+            return req.resource.data.diff(res.data).affectedKeys().hasOnly(['contributors'])
+         }
 
-      allow create: if
-         isSignedIn(request) &&
-         ownsNewResource(request)
-      allow update: if
-         isSignedIn(request) &&
-         (
-            (accessToNewResource(request) && accessToExistingResource(request,
-            resource))
-            ||
-            invitedToList(request, resource)
-         );
-      allow delete: if
-         isSignedIn(request) &&
-         ownsExistingResource(request, resource);
-      allow read: if
-         isSignedIn(request) &&
-         accessToExistingResource(request, resource);
-    }
+         allow create: if
+            isSignedIn(request) &&
+            ownsNewResource(request)
+         allow update: if
+            isSignedIn(request) &&
+            (
+               (accessToNewList(request) && accessToExistingList(request,
+               resource))
+               ||
+               invitedToList(request, resource)
+            );
+         allow delete: if
+            isSignedIn(request) &&
+            ownsExistingResource(request, resource);
+         allow read: if
+            isSignedIn(request) &&
+            accessToExistingList(request, resource);
 
-    match /{path=**}/items/{item} {
-      // currently matches only item-level ownerID, but should also match
-      // list-level contributors
-      allow create: if
-         isSignedIn(request) &&
-         ownsNewResource(request)
-      allow update: if
-         isSignedIn(request) &&
-         ownsNewResource(request) &&
-         ownsExistingResource(request, resource);
-      allow delete: if
-         isSignedIn(request) &&
-         ownsExistingResource(request, resource);
-      allow read: if
-         isSignedIn(request) &&
-         ownsExistingResource(request, resource);
-    }
 
-    match /{path=**}/sections/{section} {
+         match /sections/{section} {
 
-      allow create: if
-         isSignedIn(request) &&
-         ownsNewResource(request)
-      allow update: if
-         isSignedIn(request) &&
-         ownsNewResource(request) &&
-         ownsExistingResource(request, resource);
-      allow delete: if
-         isSignedIn(request) &&
-         ownsExistingResource(request, resource);
-      allow read: if
-         isSignedIn(request) &&
-         ownsExistingResource(request, resource);
-    }
+            allow create: if
+               isSignedIn(request) &&
+               ownsNewResource(request)
+            allow update: if
+               isSignedIn(request) &&
+               ownsNewResource(request) &&
+               ownsExistingResource(request, resource);
+            allow delete: if
+               isSignedIn(request) &&
+               ownsExistingResource(request, resource);
+            allow read: if
+               isSignedIn(request) &&
+               ownsExistingResource(request, resource);
+         }
+      }
 
-    match /invites/{invite} {
+         match /{path=**}/items/{item} {
+            // currently matches only item-level ownerID, but should also match
+            // list-level contributors
+            // function accessToCurrentList (req, res) {
+               // let pathArray = req.path.split("/");
+               // LOOPS WONT WORK HERE - find other way to isolate listID
+               // let listId = pathArray[pathArray.findIndex((item) => item == "lists")+1];
+               // let listId = req.path.match(/lists\/(.*?)\//)[1]
+               // let listOwnerID = get(/databases/$(database)/documents/lists/$(res.data.list)).data.ownerID;
+               // let listContributors = get(/databases/$(database)/documents/lists/$(res.data.list)).data.contributors;
+               // return (req.auth.uid == listOwnerID || req.auth.uid in listContributors)
+            // }
+
+            allow create: if
+               isSignedIn(request) &&
+               accessToNewResource(request)
+            allow update: if
+               isSignedIn(request) &&
+               accessToNewResource(request) &&
+               accessToExistingResource(request, resource);
+            allow delete: if
+               isSignedIn(request) &&
+               accessToExistingResource(request, resource);
+            allow read: if
+               isSignedIn(request) &&
+               accessToExistingResource(request, resource);
+         }
+
+      match /invites/{invite} {
+      function isNewInviter(req) {
+         return req.auth.uid == req.resource.data.inviterID
+      }
+
+      function isExistingInviter(req, res) {
+         return req.auth.uid == res.data.InviterID
+      }
+
       allow create: if
          isSignedIn(request) &&
          isNewInviter(request)
       allow update: if
-      	 isSignedIn(request) &&
+            isSignedIn(request) &&
          resource.data.status == "pending"
          // add resource.data.createdDate < today()-48h
       allow delete: if
@@ -103,6 +122,6 @@ service cloud.firestore {
          isExistingInviter(request, resource);
       allow read: if
          isSignedIn(request)
-    }
-  }
+      }
+   }
 }
