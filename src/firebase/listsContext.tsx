@@ -56,8 +56,10 @@ export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
             snapshot.forEach((doc) => {
               listsnapshot.push(doc.data());
             });
-            if (!snapshot.size) console.log("No lists found for this user");
-            addDoc(listsRef, createListData("my first list", user));
+            if (!snapshot.size) {
+              console.log("No lists found for this user");
+              addDoc(listsRef, createListData("my first list", user));
+            }
             setOwnedLists(listsnapshot);
             setLoading(false);
           },
