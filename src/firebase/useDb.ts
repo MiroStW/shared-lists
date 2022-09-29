@@ -51,7 +51,7 @@ export const sectionsOfList = (list: List) =>
   createCollection<SectionData>(`lists/${list.ref.id}/sections`);
 
 export const itemsOfSection = (section: Section) =>
-  createCollection<SectionData>(
+  createCollection<ItemData>(
     `lists/${section.ref.parent.parent?.id}/sections/${section.ref.id}/items`
   );
 
