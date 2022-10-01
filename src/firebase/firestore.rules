@@ -59,17 +59,17 @@ service cloud.firestore {
 
             allow create: if
                isSignedIn(request) &&
-               ownsNewResource(request)
+               accessToNewResource(request)
             allow update: if
                isSignedIn(request) &&
-               ownsNewResource(request) &&
-               ownsExistingResource(request, resource);
+               accessToNewResource(request) &&
+               accessToExistingResource(request, resource);
             allow delete: if
                isSignedIn(request) &&
-               ownsExistingResource(request, resource);
+               accessToExistingResource(request, resource);
             allow read: if
                isSignedIn(request) &&
-               ownsExistingResource(request, resource);
+               accessToExistingResource(request, resource);
          }
       }
 
