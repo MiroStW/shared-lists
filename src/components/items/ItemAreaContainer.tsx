@@ -44,7 +44,7 @@ const ItemAreaContainer = ({ list }: { list: List }) => {
   const [sections, loadingSections, errorSections] = useCollection<Section>(
     query(
       sectionsOfList(list),
-      where("ownerID", "==", user?.uid)
+      where("authorizedUsers", "array-contains", user?.uid)
     ).withConverter(sectionConverter)
   );
   const [localItems, setLocalItems] = useState<{
