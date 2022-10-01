@@ -35,8 +35,8 @@ const AddNamePicker = ({
             createItemData({
               name: name === "" ? `new ${type}` : name,
               authorizedUsers: activeList.data.contributors
-                ? [user.uid, ...activeList.data.contributors]
-                : [user.uid],
+                ? [activeList.data.ownerID, ...activeList.data.contributors]
+                : [activeList.data.ownerID],
               list: activeList,
             })
           );
@@ -53,7 +53,12 @@ const AddNamePicker = ({
         case "section": {
           addDoc(
             sectionsOfList(activeList),
-            createSectionData(name === "" ? `new ${type}` : name, user)
+            createSectionData({
+              name: name === "" ? `new ${type}` : name,
+              authorizedUsers: activeList.data.contributors
+                ? [activeList.data.ownerID, ...activeList.data.contributors]
+                : [activeList.data.ownerID],
+            })
           );
           break;
         }
