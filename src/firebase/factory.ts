@@ -39,11 +39,17 @@ const createItemData = ({
   };
 };
 
-const createSectionData = (name: string, user: User): SectionData => {
+const createSectionData = ({
+  name,
+  authorizedUsers,
+}: {
+  name: string;
+  authorizedUsers: string[];
+}): SectionData => {
   return {
     name,
     createdDate: Timestamp.now(),
-    ownerID: user.uid,
+    authorizedUsers,
   };
 };
 

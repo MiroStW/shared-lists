@@ -23,7 +23,7 @@ export class List {
 export interface SectionData {
   name: string;
   createdDate: Timestamp;
-  ownerID: string;
+  authorizedUsers: string[];
 }
 
 export class Section {
