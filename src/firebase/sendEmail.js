@@ -4,7 +4,9 @@ const admin = require("firebase-admin");
 const cors = require("cors")({ origin: true });
 const nodemailer = require("nodemailer");
 
-admin.initializeApp();
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
 
 let transporter = nodemailer.createTransport({
   host: "smtp.sendgrid.net",

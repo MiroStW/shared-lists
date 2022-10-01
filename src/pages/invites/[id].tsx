@@ -1,15 +1,17 @@
-import { arrayUnion, doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
+import { httpsCallable } from "firebase/functions";
 import { useEffect, useState } from "react";
 import { Loading } from "../../components/utils/Loading";
 import { Error as ErrorComp } from "../../components/utils/Error";
 import { useAuth } from "../../firebase/authContext";
 import { inviteConverter } from "../../firebase/firestoreConverter";
-import { invites, lists } from "../../firebase/useDb";
+import { invites } from "../../firebase/useDb";
 import { Invite } from "../../types/types";
 import { Header } from "../../components/header/Header";
 import styles from "../../styles/showApp.module.css";
 import { Lists } from "../../components/lists/Lists";
+import { functions } from "../../firebase/firebase";
 
 const ShowInvite = () => {
   const router = useRouter();
@@ -40,15 +42,41 @@ const ShowInvite = () => {
     }
   }, [id, user]);
 
-  const handleJoinList = (response: boolean) => {
-    if (invite) {
+  const handleJoinList = async (response: boolean) => {
+    if (invite && response) {
       updateDoc(invite.ref, { status: response ? "accepted" : "declined" });
-      updateDoc(doc(lists, invite.data.listID), {
-        contributors: arrayUnion(user?.uid),
-      });
 
-      router.push(`/lists/${response ? invite?.data.listID : ""}`);
-    }
+      const addAuthorizedUser = httpsCallable(functions, "addAuthorizedUser");
+      addAuthorizedUser({ listId: invite.data.listID, userId: user?.uid });
+
+      // updateDoc(doc(lists, invite.data.listID), {
+      //   contributors: arrayUnion(user?.uid),
+      // });
+
+      // // query all items of list to update authorizedUsers
+      // const q = query(
+      //   items,
+      //   where("list", "==", invite.data.listID)
+      // ).withConverter(itemConverter);
+      // try {
+      //   const itemsSnapshot = await getDocs(q);
+
+      //   itemsSnapshot.forEach((snapshot) => {
+      //     const item = snapshot.data();
+      //     updateDoc(item.ref, {
+      //       authorizedUsers: [...item.data.authorizedUsers, user?.uid],
+      //     })
+      //       .then(() => console.log("updated item: ", item.data.name))
+      //       .catch((err) =>
+      //         console.error("didnt update item: ", item.data.name, err)
+      //       );
+      //   });
+      // } catch (err) {
+      //   console.log("query went wrong: ", err);
+      // }
+
+      router.push(`/lists/${invite?.data.listID}`);
+    } else router.push("/lists");
   };
 
   if (loading) return <Loading />;

@@ -4,6 +4,7 @@
 const { https } = require("firebase-functions");
 const { default: next } = require("next");
 const sendEmail = require("./sendEmail");
+const addAuthorizedUser = require("./addAuthorizedUser");
 
 const nextjsServer = next({
   dev: false,
@@ -19,3 +20,4 @@ exports.nextjsFunc = https.onRequest((req, res) => {
 });
 
 exports.sendEmail = sendEmail.sendEmail;
+exports.addAuthorizedUser = addAuthorizedUser.addAuthorizedUser;
