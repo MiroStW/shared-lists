@@ -20,7 +20,7 @@ exports.addAuthorizedUser = https.onCall(async (data, context) => {
 
   const list = listSnapshot.data();
 
-  if (list.contributors?.includes(userId) || list.ownerId === userId) {
+  if (list.contributors?.includes(userId) || list.ownerID === userId) {
     throw new https.HttpsError("already-exists", "User is already authorized");
   }
 
@@ -43,22 +43,19 @@ exports.addAuthorizedUser = https.onCall(async (data, context) => {
   let updatedRecords = 0;
 
   items?.forEach(async (item) => {
-    if (list.contributors) {
-      const update = await item.ref.update({
-        authorizedUsers: [...list.contributors, list.ownerId, userId],
-      });
-      if (update) updatedRecords++;
-    } else {
-      const update = await item.ref.update({
-        authorizedUsers: [list.ownerId, userId],
-      });
-      if (update) updatedRecords++;
-    }
+    const update = await item.ref.update({
+      authorizedUsers: list.contributors
+        ? [...list.contributors, list.ownerID, userId]
+        : [list.ownerID, userId],
+    });
+    if (update) updatedRecords++;
   });
 
   sections?.forEach(async (section) => {
     const update = await section.ref.update({
-      authorizedUsers: [...list.contributors, list.ownerId, userId],
+      authorizedUsers: list.contributors
+        ? [...list.contributors, list.ownerID, userId]
+        : [list.ownerID, userId],
     });
     if (update) updatedRecords++;
   });
