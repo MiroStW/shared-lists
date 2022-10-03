@@ -1,11 +1,4 @@
-import {
-  documentId,
-  endAt,
-  orderBy,
-  query,
-  startAt,
-  where,
-} from "firebase/firestore";
+import { orderBy, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { useAuth } from "../../firebase/authContext";
@@ -51,10 +44,10 @@ const ItemAreaContainer = ({ list }: { list: List }) => {
     [key: string]: ItemType[];
   }>({});
 
-  useEffect(() => {
-    // console.log("sections: ", sections);
-    console.log("localItems: ", localItems);
-  }, [localItems]);
+  // useEffect(() => {
+  //   // console.log("sections: ", sections);
+  //   console.log("localItems: ", localItems);
+  // }, [localItems]);
 
   useEffect(() => {
     if (items) {

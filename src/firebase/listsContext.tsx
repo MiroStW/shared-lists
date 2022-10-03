@@ -32,10 +32,10 @@ export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<FirestoreError | undefined>(undefined);
 
-  useEffect(() => {
-    console.log("owned: ", ownedLists);
-    console.log("joined: ", joinedLists);
-  }, [ownedLists, joinedLists]);
+  // useEffect(() => {
+  //   console.log("owned: ", ownedLists);
+  //   console.log("joined: ", joinedLists);
+  // }, [ownedLists, joinedLists]);
 
   useEffect(() => {
     if (user) {
