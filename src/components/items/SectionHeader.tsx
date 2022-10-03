@@ -6,7 +6,7 @@ import { Icon } from "../utils/Icon";
 const SectionHeader = ({ section }: { section: Section }) => {
   const [isOpen, setIsOpen] = useState(true);
   const handleDelete = () => {
-    console.log("click");
+    console.log("deleting section not implemented yet");
   };
 
   return (

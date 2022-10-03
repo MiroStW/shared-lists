@@ -23,7 +23,7 @@ const ShareModal = ({
       addDoc(invites, createInviteData(user, email, list));
       const sendEmail = httpsCallable(functions, "sendEmail");
       sendEmail()
-        .then((result) => console.log("result: ", result))
+        // .then((result) => console.log("result: ", result))
         .catch((error) => console.log("error: ", error));
       setShowShareModal(false);
     }
