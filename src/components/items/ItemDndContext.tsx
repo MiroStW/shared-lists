@@ -57,7 +57,7 @@ const ItemDndContext = ({
 
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
-      delay: 0,
+      delay: 120,
       tolerance: 5,
     },
   });
