@@ -2,42 +2,32 @@
   "indexes": [
     {
       "collectionGroup": "items",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "ownerID",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "order",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "items",
       "queryScope": "COLLECTION_GROUP",
       "fields": [
         {
-          "fieldPath": "ownerID",
+          "fieldPath": "authorizedUsers",
           "order": "ASCENDING"
         },
-        {
-          "fieldPath": "order",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "items",
-      "queryScope": "COLLECTION_GROUP",
-      "fields": [
         {
           "fieldPath": "list",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "ownerID",
+          "fieldPath": "order",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "items",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        {
+          "fieldPath": "authorizedUsers",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "list",
           "order": "ASCENDING"
         },
         {
@@ -56,6 +46,24 @@
         },
         {
           "fieldPath": "ownerID",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "lists",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "contributors",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "isArchived",
           "order": "ASCENDING"
         },
         {
