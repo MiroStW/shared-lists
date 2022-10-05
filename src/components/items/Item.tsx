@@ -1,5 +1,12 @@
 import { deleteDoc, updateDoc } from "firebase/firestore";
-import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  FocusEvent,
+  KeyboardEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import styles from "../../styles/item.module.css";
 import { Item as ItemType } from "../../types/types";
 import { Icon } from "../utils/Icon";
@@ -23,8 +30,10 @@ const Item = ({ item }: { item: ItemType }) => {
     setItemName(e.target.value);
   };
 
-  const handleRenameSubmit = (e: KeyboardEvent<HTMLInputElement>) => {
-    e.preventDefault();
+  const handleRenameSubmit = (
+    e: KeyboardEvent<HTMLInputElement> | FocusEvent<HTMLInputElement, Element>
+  ) => {
+    if ("preventDefault" in e) e.preventDefault();
     if (itemName !== item.data.name) {
       updateDoc(item.ref, { name: itemName });
     }
@@ -55,6 +64,7 @@ const Item = ({ item }: { item: ItemType }) => {
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleRenameSubmit(e);
               }}
+              onBlur={handleRenameSubmit}
             />
           ) : (
             <div

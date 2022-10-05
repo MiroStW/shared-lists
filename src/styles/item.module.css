@@ -16,6 +16,10 @@
   cursor: pointer;
 }
 
+.item:focus-within {
+  background: rgb(255 255 255 / 12%);
+}
+
 .itemHoverMenu {
   display: none;
 }
