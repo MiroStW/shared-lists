@@ -1,6 +1,9 @@
+import { useState } from "react";
 import styles from "../../styles/items.module.css";
 import { Item, List, Section } from "../../types/types";
+import { Icon } from "../utils/Icon";
 import { Items } from "./Items";
+import { ShareModal } from "./ShareModal";
 
 const ItemArea = ({
   list,
@@ -11,10 +14,22 @@ const ItemArea = ({
   sections: Section[];
   items: { [key: string]: Item[] };
 }) => {
+  const [showShareModal, setShowShareModal] = useState(false);
+
   return (
     <>
       <div className={styles.itemsHeader}>
-        <h2>{list.data.name}</h2>
+        <div className={styles.listTitle}>
+          <h2>{list.data.name}</h2>
+        </div>
+        <div className={styles.listOptions}>
+          <div
+            className={styles.listOption}
+            onClick={() => setShowShareModal(true)}
+          >
+            <Icon iconName={"share"} />
+          </div>
+        </div>
       </div>
       <div className={styles.itemsList}>
         {Object.keys(items).length > 0 && (
@@ -42,6 +57,9 @@ const ItemArea = ({
           </>
         )}
       </div>
+      {showShareModal && (
+        <ShareModal setShowShareModal={setShowShareModal} list={list} />
+      )}
     </>
   );
 };

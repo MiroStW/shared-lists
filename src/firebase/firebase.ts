@@ -1,11 +1,11 @@
-import { initializeApp } from "firebase/app";
+import { getApp, getApps, initializeApp } from "firebase/app";
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 
 import { firebaseConfig } from "./firebase-config";
 
-const firebase = initializeApp(firebaseConfig);
+const firebase = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 const functions = getFunctions(firebase);
 connectFunctionsEmulator(functions, "localhost", 5001);
 
-export { firebase };
+export { firebase, functions };

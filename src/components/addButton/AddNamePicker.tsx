@@ -32,7 +32,13 @@ const AddNamePicker = ({
         case "item": {
           addDoc(
             itemsOfList(activeList),
-            createItemData(name === "" ? `new ${type}` : name, user, activeList)
+            createItemData({
+              name: name === "" ? `new ${type}` : name,
+              authorizedUsers: activeList.data.contributors
+                ? [activeList.data.ownerID, ...activeList.data.contributors]
+                : [activeList.data.ownerID],
+              list: activeList,
+            })
           );
           break;
         }
@@ -47,7 +53,12 @@ const AddNamePicker = ({
         case "section": {
           addDoc(
             sectionsOfList(activeList),
-            createSectionData(name === "" ? `new ${type}` : name, user)
+            createSectionData({
+              name: name === "" ? `new ${type}` : name,
+              authorizedUsers: activeList.data.contributors
+                ? [activeList.data.ownerID, ...activeList.data.contributors]
+                : [activeList.data.ownerID],
+            })
           );
           break;
         }
@@ -61,7 +72,7 @@ const AddNamePicker = ({
   // TODO: add status message
   // TODO: add close button
   return (
-    <Modal setOpenModal={setShowAddMenu} title={`New ${type}`}>
+    <Modal setOpenModal={setShowAddMenu} title={`New ${type}`} center={false}>
       <form>
         <label htmlFor="name">Name:</label>
         <input

@@ -1,34 +1,99 @@
 rules_version = '2';
 service cloud.firestore {
-  match /databases/{database}/documents {
+   match /databases/{database}/documents {
 
-  function isSignedIn(req) {
-      return req.auth != null
-    }
+      function isSignedIn(req) {
+         return req.auth != null
+      }
 
-    function ownsNewResource(req) {
-      return req.auth.uid == req.resource.data.ownerID
-    }
+      function accessToNewResource(req) {
+         return req.auth.uid in req.resource.data.authorizedUsers
+      }
 
-    function ownsExistingResource(req, res) {
-      return req.auth.uid == res.data.ownerID
-    }
+      function accessToExistingResource(req, res) {
+         return req.auth.uid in res.data.authorizedUsers
+      }
 
-    match /{document=**} {
+      match /lists/{list} {
+
+         function ownsNewList(req) {
+            return req.auth.uid == req.resource.data.ownerID
+         }
+
+         function ownsExistingList(req, res) {
+            return req.auth.uid == res.data.ownerID
+         }
+
+         function accessToNewList(req) {
+            return (ownsNewList(req) || req.auth.uid in req.resource.data.contributors)
+         }
+
+         function accessToExistingList(req, res) {
+            return (ownsExistingList(req,res) || req.auth.uid in res.data.contributors)
+         }
+
+         function invitedToList(req,res) {
+            // add that user can only add own uid to contribtuors
+            return isSignedIn(req) && req.resource.data.diff(res.data).affectedKeys().hasOnly(['contributors'])
+         }
+
+         allow create: if
+            ownsNewList(request)
+         allow update: if
+            (accessToNewList(request) && accessToExistingList(request,
+            resource))
+            ||
+            invitedToList(request, resource);
+         allow delete: if
+            ownsExistingList(request, resource);
+         allow read: if
+            accessToExistingList(request, resource);
+
+         match /sections/{section} {
+
+            allow create: if
+               accessToNewResource(request)
+            allow update: if
+               accessToNewResource(request) &&
+               accessToExistingResource(request, resource);
+            allow delete: if
+               accessToExistingResource(request, resource);
+            allow read: if
+               accessToExistingResource(request, resource);
+         }
+      }
+
+         match /{path=**}/items/{item} {
+
+            allow create: if
+               accessToNewResource(request)
+            allow update: if
+               accessToNewResource(request) &&
+               accessToExistingResource(request, resource);
+            allow delete: if
+               accessToExistingResource(request, resource);
+            allow read: if
+               accessToExistingResource(request, resource);
+         }
+
+      match /invites/{invite} {
+      function isNewInviter(req) {
+         return req.auth.uid == req.resource.data.inviterID
+      }
+
+      function isExistingInviter(req, res) {
+         return req.auth.uid == res.data.InviterID
+      }
 
       allow create: if
-         isSignedIn(request) &&
-         ownsNewResource(request)
+         isNewInviter(request)
       allow update: if
-         isSignedIn(request) &&
-         ownsNewResource(request) &&
-         ownsExistingResource(request, resource);
+         resource.data.status == "pending"
+         // add resource.data.createdDate < today()-48h
       allow delete: if
-         isSignedIn(request) &&
-         ownsExistingResource(request, resource);
+         isExistingInviter(request, resource);
       allow read: if
-         isSignedIn(request) &&
-         ownsExistingResource(request, resource);
-    }
-  }
+         isSignedIn(request)
+      }
+   }
 }

@@ -6,6 +6,7 @@ export interface ListData {
   isArchived: boolean;
   createdDate: Timestamp;
   ownerID: string;
+  contributors?: string[];
 }
 
 export class List {
@@ -22,7 +23,7 @@ export class List {
 export interface SectionData {
   name: string;
   createdDate: Timestamp;
-  ownerID: string;
+  authorizedUsers: string[];
 }
 
 export class Section {
@@ -41,7 +42,7 @@ export interface ItemData {
   completed: boolean;
   description: string;
   createdDate: Timestamp;
-  ownerID: string;
+  authorizedUsers: string[];
   order: number;
   list: string;
 }
@@ -52,6 +53,27 @@ export class Item {
   readonly data: ItemData;
 
   constructor(ref: DocumentReference<ItemData>, data: ItemData) {
+    this.ref = ref;
+    this.data = data;
+  }
+}
+
+export interface InviteData {
+  inviterID: string;
+  inviterName: string;
+  inviteeEmail: string;
+  listID: string;
+  listName: string;
+  status: "pending" | "accepted" | "declined";
+  createdDate: Timestamp;
+}
+
+export class Invite {
+  readonly ref: DocumentReference<InviteData>;
+
+  readonly data: InviteData;
+
+  constructor(ref: DocumentReference<InviteData>, data: InviteData) {
     this.ref = ref;
     this.data = data;
   }

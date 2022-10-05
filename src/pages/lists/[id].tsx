@@ -30,9 +30,7 @@ const ShowApp = () => {
         ) : (
           <>
             <Lists />
-            <div style={{ position: "relative", flex: 1 }}>
-              {list ? <ItemAreaContainer list={list} /> : <Loading />}
-            </div>
+            {list ? <ItemAreaContainer list={list} /> : <Loading />}
             {list && <AddButton activeList={list} />}
           </>
         )}
