@@ -11,7 +11,7 @@ const App: NextPage = () => {
   if (error) return <Error msg={error?.message} />;
   else if (loading) return <Loading />;
   else if (lists) {
-    router.push(`/lists/${lists[0].ref.id}`);
+    router.push(`/lists/${lists[0]?.ref.id}`);
   }
   return null;
 };
