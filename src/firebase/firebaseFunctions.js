@@ -6,12 +6,14 @@ const { default: next } = require("next");
 const sendEmail = require("./sendEmail");
 const addAuthorizedUser = require("./addAuthorizedUser");
 const dataMigrations = require("./dataMigrations");
+const nextConfig = require("../../next.config.js");
 
 const nextjsServer = next({
   dev: false,
-  conf: {
-    distDir: require("../../next.config.js").distDir,
-  },
+  conf: nextConfig,
+  // {
+  //   distDir: require("../../next.config.js").distDir,
+  // },
 });
 
 const nextjsHandle = nextjsServer.getRequestHandler();
