@@ -9,7 +9,7 @@ import { useLists } from "../../firebase/listsContext";
 import styles from "../../styles/showApp.module.css";
 import { List } from "../../types/types";
 
-const ShowApp = () => {
+const ShowList = () => {
   const router = useRouter();
   const { id } = router.query;
   const [list, setList] = useState<List | undefined>(undefined);
@@ -45,4 +45,4 @@ export const getServerSideProps = async () => {
   };
 };
 
-export default ShowApp;
+export default ShowList;
