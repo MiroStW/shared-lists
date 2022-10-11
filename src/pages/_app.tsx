@@ -4,10 +4,12 @@ import { AuthContextProvider } from "../firebase/authContext";
 import { ListsContextProvider } from "../firebase/listsContext";
 import { ProtectedRoute } from "../components/utils/ProtectedRoute";
 
+export interface RouteProps {
+  protectedRoute: boolean;
+}
+
 interface AppPropsProtectedRoute extends AppProps {
-  pageProps: {
-    protectedRoute: boolean;
-  };
+  pageProps: RouteProps;
 }
 
 function MyApp({ Component, pageProps }: AppPropsProtectedRoute) {

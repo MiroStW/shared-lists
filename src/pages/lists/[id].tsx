@@ -8,6 +8,7 @@ import { Loading } from "../../components/utils/Loading";
 import { useLists } from "../../firebase/listsContext";
 import styles from "../../styles/showApp.module.css";
 import { List } from "../../types/types";
+import { RouteProps } from "../_app";
 
 const ShowApp = () => {
   const router = useRouter();
@@ -39,7 +40,7 @@ const ShowApp = () => {
   );
 };
 
-export const getServerSideProps = async () => {
+export const getServerSideProps = async (): Promise<{ props: RouteProps }> => {
   return {
     props: { protectedRoute: true },
   };

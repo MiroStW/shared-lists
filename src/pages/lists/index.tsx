@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { Loading } from "../../components/utils/Loading";
 import { Error } from "../../components/utils/Error";
 import { useLists } from "../../firebase/listsContext";
+import { RouteProps } from "../_app";
 
 const App: NextPage = () => {
   const router = useRouter();
@@ -16,7 +17,7 @@ const App: NextPage = () => {
   return null;
 };
 
-export const getServerSideProps = async () => {
+export const getServerSideProps = async (): Promise<{ props: RouteProps }> => {
   return {
     props: { protectedRoute: true },
   };
