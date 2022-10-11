@@ -38,7 +38,7 @@ exports.sendEmail = firestore
 
     const mailOptions = {
       from: "Shared lists <shared-lists@miro-wilms.de>",
-      to: "flair2k@gmail.com",
+      to: inviteeEmail,
       subject: `${invitingUser.displayName} invited you to join ${
         listSnapshot.data().name
       } list`,
