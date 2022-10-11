@@ -20,8 +20,6 @@ const ShowApp = () => {
     if (!loadingLists && lists) setList(lists?.find((el) => id === el.ref.id));
   }, [id, lists, loadingLists]);
 
-  if (loadingLists) return <Loading />;
-
   return (
     <div id={styles.container}>
       <Header />
