@@ -1,12 +1,19 @@
-import { signOut } from "firebase/auth";
-import type { NextPage } from "next";
+import { getAuth, signOut } from "firebase/auth";
+import type { GetServerSideProps, NextPage } from "next";
 import Link from "next/link";
 import { Loading } from "../components/utils/Loading";
 import { useAuth } from "../firebase/authContext";
+import { firebase } from "../firebase/firebase";
 import styles from "../styles/main.module.css";
 
-const Home: NextPage = () => {
-  const { user, loading, auth } = useAuth();
+export const getServerSideProps: GetServerSideProps = async () => {
+  const user = getAuth(firebase).currentUser;
+
+  return {
+    props: {user},
+  };
+
+const Home: NextPage = ({user}) => {
 
   return (
     <>
