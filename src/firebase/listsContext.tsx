@@ -40,7 +40,7 @@ export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (user) {
       const getOwnedLists = () => {
-        const ownedLists = query(
+        const ownedListsQuery = query(
           listsRef,
           where("ownerID", "==", user?.uid),
           where("isArchived", "==", false),
@@ -48,7 +48,7 @@ export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
         ).withConverter(listConverter);
 
         const unsubscribe = onSnapshot(
-          ownedLists,
+          ownedListsQuery,
           { includeMetadataChanges: true },
           async (snapshot) => {
             const listsnapshot: List[] = [];
@@ -73,7 +73,7 @@ export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
       const unsubscribeOwnedLists = getOwnedLists();
 
       const getJoinedLists = () => {
-        const joinedLists = query(
+        const joinedListsQuery = query(
           listsRef,
           where("contributors", "array-contains", user?.uid),
           where("isArchived", "==", false),
@@ -81,7 +81,7 @@ export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
         ).withConverter(listConverter);
 
         const unsubscribe = onSnapshot(
-          joinedLists,
+          joinedListsQuery,
           { includeMetadataChanges: true },
           async (snapshot) => {
             const listsnapshot: List[] = [];
