@@ -6,6 +6,7 @@ const { default: next } = require("next");
 const sendEmail = require("./sendEmail");
 const addAuthorizedUser = require("./addAuthorizedUser");
 const dataMigrations = require("./dataMigrations");
+const recursiveDelete = require("./recursiveDelete");
 const nextConfig = require("../../next.config.js");
 
 const nextjsServer = next({
@@ -25,3 +26,4 @@ exports.nextjsFunc = https.onRequest((req, res) => {
 exports.sendEmail = sendEmail.sendEmail;
 exports.addAuthorizedUser = addAuthorizedUser.addAuthorizedUser;
 exports.dataMigrations = dataMigrations.dataMigrations;
+exports.recursiveDelete = recursiveDelete.recursiveDelete;
