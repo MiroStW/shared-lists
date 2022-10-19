@@ -1,32 +1,15 @@
 import Link from "next/link";
 import { useState } from "react";
-import { httpsCallable } from "firebase/functions";
 import { List as ListType } from "../../types/types";
 import styles from "../../styles/list.module.css";
 import { Icon } from "../utils/Icon";
 import { RenameListModal } from "./RenameListModal";
-import { functions } from "../../firebase/firebase";
+import { DeleteListModal } from "./DeleteListModal";
 
 const List = ({ list }: { list: ListType }) => {
   const [isHovering, setIsHovering] = useState(false);
   const [showRenameModual, setShowRenameModual] = useState(false);
-
-  const deleteHandler = () => {
-    console.log("delete");
-
-    // need to add recursive delete
-    const deleteFn = httpsCallable(functions, "recursiveDelete");
-    deleteFn({ path: list.ref.path })
-      .then((result) => {
-        console.log(`Delete success: ${JSON.stringify(result)}`);
-      })
-      .catch((err) => {
-        console.log("Delete failed, see console,");
-        console.warn(err);
-      });
-
-    // add spinner and redirect to first list
-  };
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   return (
     <>
@@ -42,7 +25,7 @@ const List = ({ list }: { list: ListType }) => {
               <div onClick={() => setShowRenameModual(true)}>
                 <Icon iconName={"edit"} />
               </div>
-              <div onClick={deleteHandler}>
+              <div onClick={() => setShowDeleteModal(true)}>
                 <Icon iconName={"delete"} />
               </div>
             </div>
@@ -50,7 +33,10 @@ const List = ({ list }: { list: ListType }) => {
         </div>
       </Link>
       {showRenameModual && (
-        <RenameListModal list={list} setShowShareModal={setShowRenameModual} />
+        <RenameListModal list={list} setShowModal={setShowRenameModual} />
+      )}
+      {showDeleteModal && (
+        <DeleteListModal list={list} setShowModal={setShowDeleteModal} />
       )}
     </>
   );
