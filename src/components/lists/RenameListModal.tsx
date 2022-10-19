@@ -5,10 +5,10 @@ import { Modal } from "../utils/Modal";
 
 const RenameListModal = ({
   list,
-  setShowShareModal,
+  setShowModal,
 }: {
   list: List;
-  setShowShareModal: Dispatch<SetStateAction<boolean>>;
+  setShowModal: Dispatch<SetStateAction<boolean>>;
 }) => {
   const [listTitle, setListTitle] = useState(list.data.name);
 
@@ -16,13 +16,13 @@ const RenameListModal = ({
     e.preventDefault();
     if (listTitle && listTitle !== list.data.name) {
       updateDoc(list.ref, { name: listTitle });
-      setShowShareModal(false);
+      setShowModal(false);
       console.log("rename");
     }
   };
 
   return (
-    <Modal setOpenModal={setShowShareModal}>
+    <Modal setOpenModal={setShowModal}>
       {/* TODO: add validation */}
       <form>
         <label htmlFor="listTitle">Title:</label>
