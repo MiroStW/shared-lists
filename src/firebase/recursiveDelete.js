@@ -50,7 +50,7 @@ exports.recursiveDelete = runWith({
     project: process.env.GCLOUD_PROJECT,
     recursive: true,
     force: true,
-    token: config().fb.token,
+    token: process.env.FB_TOKEN,
   });
 
   return {
