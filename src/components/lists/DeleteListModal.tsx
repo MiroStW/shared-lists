@@ -31,14 +31,15 @@ const DeleteListModal = ({
       });
 
     // add spinner and redirect to first list
+    // maybe extract util function to be sahred between lists and sections
   };
 
   return (
     <Modal setOpenModal={setShowModal}>
       <>
         <p>
-          Are you really sure you want to delete the whole list? This cannot be
-          undone.
+          Are you really sure you want to delete the whole list including all
+          sections and items? This cannot be undone.
         </p>
         <button onClick={deleteHandler} disabled={isDeleting}>
           {!isDeleting ? "delete list" : <Loading size={20} />}
