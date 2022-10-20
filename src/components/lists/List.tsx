@@ -8,7 +8,7 @@ import { DeleteModal } from "./DeleteModal";
 
 const List = ({ list }: { list: ListType }) => {
   const [isHovering, setIsHovering] = useState(false);
-  const [showRenameModual, setShowRenameModual] = useState(false);
+  const [showRenameModual, setShowRenameModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   return (
@@ -22,7 +22,7 @@ const List = ({ list }: { list: ListType }) => {
           <div className={styles.listTitle}>{list.data.name}</div>
           {isHovering && (
             <div className={styles.listMenu}>
-              <div onClick={() => setShowRenameModual(true)}>
+              <div onClick={() => setShowRenameModal(true)}>
                 <Icon iconName={"edit"} />
               </div>
               <div onClick={() => setShowDeleteModal(true)}>
@@ -33,7 +33,7 @@ const List = ({ list }: { list: ListType }) => {
         </div>
       </Link>
       {showRenameModual && (
-        <RenameModal collection={list} setShowModal={setShowRenameModual} />
+        <RenameModal collection={list} setShowModal={setShowRenameModal} />
       )}
       {showDeleteModal && (
         <DeleteModal collection={list} setShowModal={setShowDeleteModal} />
