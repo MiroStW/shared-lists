@@ -37,7 +37,7 @@ const ItemArea = ({
             {Object.keys(items).reduce(
               (sum, area) => sum + items[area].length,
               0
-            ) === 0 ? (
+            ) === 0 && Object.keys(sections).length === 0 ? (
               <div>No items yet</div>
             ) : (
               <>
