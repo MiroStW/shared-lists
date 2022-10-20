@@ -3,8 +3,8 @@ import { useState } from "react";
 import { List as ListType } from "../../types/types";
 import styles from "../../styles/list.module.css";
 import { Icon } from "../utils/Icon";
-import { RenameListModal } from "./RenameListModal";
-import { DeleteListModal } from "./DeleteListModal";
+import { RenameModal } from "./RenameModal";
+import { DeleteModal } from "./DeleteModal";
 
 const List = ({ list }: { list: ListType }) => {
   const [isHovering, setIsHovering] = useState(false);
@@ -33,10 +33,10 @@ const List = ({ list }: { list: ListType }) => {
         </div>
       </Link>
       {showRenameModual && (
-        <RenameListModal list={list} setShowModal={setShowRenameModual} />
+        <RenameModal collection={list} setShowModal={setShowRenameModual} />
       )}
       {showDeleteModal && (
-        <DeleteListModal list={list} setShowModal={setShowDeleteModal} />
+        <DeleteModal collection={list} setShowModal={setShowDeleteModal} />
       )}
     </>
   );

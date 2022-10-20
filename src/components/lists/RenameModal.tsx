@@ -1,21 +1,23 @@
 import { updateDoc } from "firebase/firestore";
 import { MouseEvent, Dispatch, SetStateAction, useState } from "react";
-import { List } from "../../types/types";
+import { List, ListData, Section, SectionData } from "../../types/types";
 import { Modal } from "../utils/Modal";
 
-const RenameListModal = ({
-  list,
+const RenameModal = ({
+  collection,
   setShowModal,
 }: {
-  list: List;
+  collection: List | Section;
   setShowModal: Dispatch<SetStateAction<boolean>>;
 }) => {
-  const [listTitle, setListTitle] = useState(list.data.name);
+  const [collectionTitle, setCollectionTitle] = useState(collection.data.name);
 
   const handleRename = (e: MouseEvent) => {
     e.preventDefault();
-    if (listTitle && listTitle !== list.data.name) {
-      updateDoc(list.ref, { name: listTitle });
+    if (collectionTitle && collectionTitle !== collection.data.name) {
+      updateDoc<ListData | SectionData>(collection.ref, {
+        name: collectionTitle,
+      });
       setShowModal(false);
       console.log("rename");
     }
@@ -30,8 +32,8 @@ const RenameListModal = ({
           autoFocus
           type="text"
           name="listTitle"
-          value={listTitle}
-          onChange={(e) => setListTitle(e.target.value)}
+          value={collectionTitle}
+          onChange={(e) => setCollectionTitle(e.target.value)}
         />
         <input type="submit" value="Submit" onClick={handleRename} />
       </form>
@@ -39,4 +41,4 @@ const RenameListModal = ({
   );
 };
 
-export { RenameListModal };
+export { RenameModal };

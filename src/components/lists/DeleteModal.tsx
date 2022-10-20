@@ -2,15 +2,15 @@ import { httpsCallable } from "firebase/functions";
 import Router from "next/router";
 import { Dispatch, SetStateAction, useState } from "react";
 import { functions } from "../../firebase/firebase";
-import { List } from "../../types/types";
+import { List, Section } from "../../types/types";
 import { Loading } from "../utils/Loading";
 import { Modal } from "../utils/Modal";
 
-const DeleteListModal = ({
-  list,
+const DeleteModal = ({
+  collection,
   setShowModal,
 }: {
-  list: List;
+  collection: List | Section;
   setShowModal: Dispatch<SetStateAction<boolean>>;
 }) => {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -20,7 +20,7 @@ const DeleteListModal = ({
     setIsDeleting(true);
     // need to add recursive delete
     const deleteFn = httpsCallable(functions, "recursiveDelete");
-    deleteFn({ path: list.ref.path })
+    deleteFn({ path: collection.ref.path })
       .then((result) => {
         console.log(`Delete success: ${JSON.stringify(result)}`);
         setShowModal(false);
@@ -63,4 +63,4 @@ const DeleteListModal = ({
   );
 };
 
-export { DeleteListModal };
+export { DeleteModal };
