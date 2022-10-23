@@ -24,7 +24,7 @@ const DeleteModal = ({
       .then((result) => {
         console.log(`Delete success: ${JSON.stringify(result)}`);
         setShowModal(false);
-        Router.push("/lists");
+        if (collection.ref.parent?.id === "lists") Router.push("/lists");
       })
       .catch((err) => {
         console.log("Delete failed, see console,");
@@ -40,12 +40,12 @@ const DeleteModal = ({
     <Modal setOpenModal={setShowModal}>
       <>
         <p>
-          Are you really sure you want to delete the whole list including all
-          sections and items? This cannot be undone.
+          Are you really sure you want to permanently delete{" "}
+          {collection.data.name} including its items? This cannot be undone.
         </p>
         <button onClick={deleteHandler} disabled={isDeleting}>
           {!isDeleting ? (
-            "delete list"
+            "delete"
           ) : (
             <>
               <Loading size={20} inline={true} /> deleting...

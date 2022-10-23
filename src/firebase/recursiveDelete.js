@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { runWith, https, config } = require("firebase-functions");
+const { runWith, https, logger } = require("firebase-functions");
 const admin = require("firebase-admin");
 const firebase_tools = require("firebase-tools");
 /**
@@ -26,18 +26,36 @@ exports.recursiveDelete = runWith({
   }
 
   const path = data.path;
+  logger.log("path: ", path);
 
   // Check if user owns the record
-  const listSnapshot = await admin.firestore().doc(path).get();
+  const snapshot = await admin.firestore().doc(path).get();
 
-  if (!listSnapshot.exists) {
-    throw new https.HttpsError("not-found", "List not found");
+  if (!snapshot.exists) {
+    throw new https.HttpsError("not-found", "Object not found");
   }
-
-  if (listSnapshot.data().ownerID !== context.auth.uid) {
+  const ownerID = snapshot.get("ownerID");
+  logger.log("ownerID: ", ownerID);
+  if (ownerID && ownerID !== context.auth.uid) {
     throw new https.HttpsError(
       "permission-denied",
       "Must be list owner to delete."
+    );
+  }
+
+  const authorizedUsers = snapshot.get("authorizedUsers");
+  logger.log("authorizedUsers: ", authorizedUsers);
+  if (authorizedUsers && !authorizedUsers.includes(context.auth.uid)) {
+    throw new https.HttpsError(
+      "permission-denied",
+      "Must be authorized to delete."
+    );
+  }
+
+  if (!authorizedUsers && !ownerID) {
+    throw new https.HttpsError(
+      "permission-denied",
+      "Object to has to be a list or a section."
     );
   }
 
