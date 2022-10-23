@@ -21,14 +21,11 @@ const DeleteModal = ({
     // need to add recursive delete
     const deleteFn = httpsCallable(functions, "recursiveDelete");
     deleteFn({ path: collection.ref.path })
-      .then((result) => {
-        console.log(`Delete success: ${JSON.stringify(result)}`);
+      .then(() => {
         setShowModal(false);
         if (collection.ref.parent?.id === "lists") Router.push("/lists");
       })
       .catch((err) => {
-        console.log("Delete failed, see console,");
-        console.warn(err);
         setError(err.message);
         setIsDeleting(false);
       });
