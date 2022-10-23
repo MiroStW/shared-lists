@@ -1,26 +1,49 @@
 import { useState } from "react";
 import styles from "../../styles/section.module.css";
 import { Section } from "../../types/types";
+import { DeleteModal } from "../lists/DeleteModal";
+import { RenameModal } from "../lists/RenameModal";
 import { Icon } from "../utils/Icon";
 
 const SectionHeader = ({ section }: { section: Section }) => {
+  const [isHovering, setIsHovering] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
-  const handleDelete = () => {
-    console.log("deleting section not implemented yet");
-  };
+  const [showRenameModual, setShowRenameModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   return (
-    <div className={styles.sectionHeader}>
-      <div className={styles.sectionToggle} onClick={() => setIsOpen(!isOpen)}>
-        <Icon iconName={isOpen ? "unfold_less" : "unfold_more"} size={24} />
-      </div>
-      <div className={styles.sectionName}>{section.data.name}</div>
-      <div className={styles.sectionHoverMenu}>
-        <div className={styles.deleteButton} onClick={handleDelete}>
-          <Icon iconName="delete" />
+    <>
+      <div
+        className={`${styles.sectionHeader} ${isHovering && styles.hover}`}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      >
+        <div
+          className={styles.sectionToggle}
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <Icon iconName={isOpen ? "unfold_less" : "unfold_more"} size={24} />
         </div>
+        <div className={styles.sectionName}>{section.data.name}</div>
+        {isHovering && (
+          <div className={styles.sectionMenu}>
+            <div onClick={() => setShowRenameModal(true)}>
+              <Icon iconName="edit" />
+            </div>
+            <div onClick={() => setShowDeleteModal(true)}>
+              <Icon iconName="delete" />
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+
+      {showRenameModual && (
+        <RenameModal collection={section} setShowModal={setShowRenameModal} />
+      )}
+      {showDeleteModal && (
+        <DeleteModal collection={section} setShowModal={setShowDeleteModal} />
+      )}
+    </>
   );
 };
 

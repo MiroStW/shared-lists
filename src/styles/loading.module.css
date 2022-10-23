@@ -1,10 +1,16 @@
 .loader {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  width: 80px;
+  height: 80px;
+}
+
+.center {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 80px;
-  height: 80px;
 }
 
 .size60 {

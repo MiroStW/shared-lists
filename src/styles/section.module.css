@@ -19,10 +19,10 @@
   cursor: pointer;
 }
 
-.sectionHoverMenu {
-  display: none;
+.sectionMenu {
+  display: flex;
 }
 
-.section:hover .sectionHoverMenu {
-  display: block;
+.sectionMenu:hover {
+  cursor: pointer;
 }

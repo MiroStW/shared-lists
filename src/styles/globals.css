@@ -58,6 +58,11 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  border-color: rgba(255, 255, 255, 0.3);
+  cursor: default;
+}
+
 button:hover {
   background: rgb(255 255 255 / 4%);
 }
