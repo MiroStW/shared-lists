@@ -6,13 +6,18 @@ import { RenameModal } from "../lists/RenameModal";
 import { Icon } from "../utils/Icon";
 
 const SectionHeader = ({ section }: { section: Section }) => {
+  const [isHovering, setIsHovering] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
   const [showRenameModual, setShowRenameModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   return (
     <>
-      <div className={styles.sectionHeader}>
+      <div
+        className={`${styles.sectionHeader} ${isHovering && styles.hover}`}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      >
         <div
           className={styles.sectionToggle}
           onClick={() => setIsOpen(!isOpen)}
@@ -20,20 +25,16 @@ const SectionHeader = ({ section }: { section: Section }) => {
           <Icon iconName={isOpen ? "unfold_less" : "unfold_more"} size={24} />
         </div>
         <div className={styles.sectionName}>{section.data.name}</div>
-        <div className={styles.sectionHoverMenu}>
-          <div
-            className={styles.renameButton}
-            onClick={() => setShowRenameModal(true)}
-          >
-            <Icon iconName="edit" />
+        {isHovering && (
+          <div className={styles.sectionMenu}>
+            <div onClick={() => setShowRenameModal(true)}>
+              <Icon iconName="edit" />
+            </div>
+            <div onClick={() => setShowDeleteModal(true)}>
+              <Icon iconName="delete" />
+            </div>
           </div>
-          <div
-            className={styles.deleteButton}
-            onClick={() => setShowDeleteModal(true)}
-          >
-            <Icon iconName="delete" />
-          </div>
-        </div>
+        )}
       </div>
 
       {showRenameModual && (
