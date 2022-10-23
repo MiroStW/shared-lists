@@ -29,18 +29,15 @@ exports.addAuthorizedUser = https.onCall(async (data, context) => {
   });
   console.log("list updated? ", listUpdate);
 
+  let updatedRecords = 0;
+
   const subcollections = await listRef.listCollections();
+
+  // update items in top-level list
   const itemsRef = await subcollections.find(
     (collection) => collection.id === "items"
   );
   const items = await itemsRef?.get();
-
-  const sectionsRef = await subcollections.find(
-    (collection) => collection.id === "sections"
-  );
-  const sections = await sectionsRef?.get();
-
-  let updatedRecords = 0;
 
   items?.forEach(async (item) => {
     const update = await item.ref.update({
@@ -51,6 +48,12 @@ exports.addAuthorizedUser = https.onCall(async (data, context) => {
     if (update) updatedRecords++;
   });
 
+  // update sections in top-level list
+  const sectionsRef = await subcollections.find(
+    (collection) => collection.id === "sections"
+  );
+  const sections = await sectionsRef?.get();
+
   sections?.forEach(async (section) => {
     const update = await section.ref.update({
       authorizedUsers: list.contributors
@@ -58,6 +61,17 @@ exports.addAuthorizedUser = https.onCall(async (data, context) => {
         : [list.ownerID, userId],
     });
     if (update) updatedRecords++;
+
+    // update items in sections
+    const itemsRef = await section.ref.collection("items").get();
+    itemsRef?.forEach(async (item) => {
+      const update = await item.ref.update({
+        authorizedUsers: list.contributors
+          ? [...list.contributors, list.ownerID, userId]
+          : [list.ownerID, userId],
+      });
+      if (update) updatedRecords++;
+    });
   });
 
   return { listId, userId, updatedRecords };
