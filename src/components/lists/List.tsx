@@ -15,7 +15,7 @@ const List = ({ list }: { list: ListType }) => {
     <>
       <Link href={`/lists/${list.ref.id}`}>
         <div
-          className={`${styles.list} ${isHovering ? styles.hover : ""}`}
+          className={`${styles.list} ${isHovering && styles.hover}`}
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
         >
