@@ -33,9 +33,6 @@ exports.sendEmail = firestore
     const invitingUser = await admin.auth().getUser(inviterID);
     const listSnapshot = await admin.firestore().doc(`/lists/${listID}`).get();
 
-    const update = await snap.ref.update({ email_status: "success" });
-    console.log("update: ", update);
-
     const mailOptions = {
       from: "Shared lists <shared-lists@miro-wilms.de>",
       to: inviteeEmail,
@@ -49,14 +46,17 @@ exports.sendEmail = firestore
       }" list. <br /><br />
           Click <a href="https://shared-lists-8fc29.web.app/invites/${inviteID}">here</a> to join the list
           </p>
-                    <br />
+          <br />
 
-                `,
-      function(error, info) {
+          `,
+      async function(error, info) {
         if (error) {
-          snap.ref.update({ email_status: "error" });
+          const update = snap.ref.update({ email_status: "error" });
+          console.log("update: ", update);
           console.log(error);
         } else {
+          const update = await snap.ref.update({ email_status: "success" });
+          console.log("update: ", update);
           console.log("Email sent: " + info.response);
         }
       },
