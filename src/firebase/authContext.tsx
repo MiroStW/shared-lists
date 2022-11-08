@@ -5,7 +5,8 @@ import { firebase } from "./firebase";
 
 const auth = getAuth(firebase);
 
-connectAuthEmulator(auth, "http://localhost:9099");
+if (process.env.NEXT_PUBLIC_DEVELOPMENT === "TRUE")
+  connectAuthEmulator(auth, "http://localhost:9099");
 
 const authContext = createContext({
   user: null as User | null | undefined,
