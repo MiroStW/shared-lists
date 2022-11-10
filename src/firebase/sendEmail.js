@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { firestore, https } = require("firebase-functions");
+const { region } = require("firebase-functions");
 const admin = require("firebase-admin");
-const cors = require("cors")({ origin: true });
 const nodemailer = require("nodemailer");
 
 if (!admin.apps.length) {
@@ -17,15 +16,8 @@ let transporter = nodemailer.createTransport({
   },
 });
 
-const headers = {
-  "Access-Control-Allow-Origin": "*" /* @dev First, read about security */,
-  "Access-Control-Allow-Methods": "OPTIONS, POST, GET",
-  "Access-Control-Max-Age": 2592000, // 30 days
-  /** add other headers as per requirement */
-};
-
-exports.sendEmail = firestore
-  .document("/invites/{documentId}")
+exports.sendEmail = region("europe-west1")
+  .firestore.document("/invites/{documentId}")
   .onCreate(async (snap) => {
     const { inviterID, inviteeEmail, listID } = snap.data();
     const inviteID = snap.ref.id;
