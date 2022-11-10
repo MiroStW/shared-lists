@@ -21,10 +21,10 @@ const ShareModal = ({
     e.preventDefault();
     if (user && email) {
       addDoc(invites, createInviteData(user, email, list));
-      const sendEmail = httpsCallable(functions, "sendEmail");
-      sendEmail()
-        // .then((result) => console.log("result: ", result))
-        .catch((error) => console.log("error: ", error));
+      // const sendEmail = httpsCallable(functions, "sendEmail");
+      // sendEmail()
+      //   .then((result) => console.log("result: ", result))
+      //   .catch((error) => console.log("error: ", error));
       setShowShareModal(false);
     }
   };
