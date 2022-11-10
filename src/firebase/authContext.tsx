@@ -5,6 +5,7 @@ import { firebase } from "./firebase";
 
 const auth = getAuth(firebase);
 
+// comment out this line to switch to production db
 if (process.env.NEXT_PUBLIC_DEVELOPMENT === "TRUE")
   connectAuthEmulator(auth, "http://localhost:9099");
 
