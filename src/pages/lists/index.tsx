@@ -1,11 +1,16 @@
-import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { Loading } from "../../components/utils/Loading";
 import { Error } from "../../components/utils/Error";
 import { useLists } from "../../firebase/listsContext";
 import { RouteProps } from "../_app";
 
-const App: NextPage = () => {
+export const getStaticProps = async (): Promise<{ props: RouteProps }> => {
+  return {
+    props: { protectedRoute: true },
+  };
+};
+
+const App = () => {
   const router = useRouter();
   const { lists, loading, error } = useLists();
 
@@ -15,12 +20,6 @@ const App: NextPage = () => {
     router.push(`/lists/${lists[0]?.ref.id}`);
   }
   return null;
-};
-
-export const getServerSideProps = async (): Promise<{ props: RouteProps }> => {
-  return {
-    props: { protectedRoute: true },
-  };
 };
 
 export default App;

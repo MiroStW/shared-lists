@@ -1,5 +1,3 @@
-import { getAuth } from "firebase/auth";
-import { getDocs, orderBy, query, where } from "firebase/firestore";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -8,13 +6,9 @@ import { Header } from "../../components/header/Header";
 import { ItemAreaContainer } from "../../components/items/ItemAreaContainer";
 import { Lists } from "../../components/lists/Lists";
 import { Loading } from "../../components/utils/Loading";
-import { firebase } from "../../firebase/firebase";
-import { listConverter } from "../../firebase/firestoreConverter";
 import { useLists } from "../../firebase/listsContext";
-import { lists as listsRef } from "../../firebase/useDb";
 import styles from "../../styles/showApp.module.css";
 import { List } from "../../types/types";
-import { RouteProps } from "../_app";
 
 const ShowApp = () =>
   // { ssrLists }: { ssrLists: List[] }
@@ -49,6 +43,8 @@ const ShowApp = () =>
       </div>
     );
   };
+// TODO: either try to get lists with SSR / initialProps or go static for only
+// the background rendering
 
 export const getStaticProps: GetStaticProps = async () => {
   // const user = getAuth(firebase).currentUser;
