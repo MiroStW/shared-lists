@@ -1,34 +1,50 @@
+// eslint-disable-next-line import/no-unresolved
 import { getAuth } from "firebase-admin/auth";
 import { Auth, signOut, User } from "firebase/auth";
 import type {
   GetServerSideProps,
+  GetServerSidePropsContext,
   InferGetServerSidePropsType,
   NextPage,
 } from "next";
 import Link from "next/link";
+import nookies from "nookies";
 import { Loading } from "../components/utils/Loading";
 import { useAuth } from "../firebase/authContext";
-import { firebase } from "../firebase/firebase";
+import { firebaseAdmin } from "../firebase/firebaseAdmin";
 import styles from "../styles/main.module.css";
 
 interface SSRProps {
   auth: Auth;
 }
 
-export const getServerSideProps = async () => {
-  const auth = JSON.stringify(getAuth(firebase));
-  const user = getAuth().verifyIdToken();
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  try {
+    const cookies = nookies.get(ctx);
+    const token = await getAuth(firebaseAdmin).verifyIdToken(cookies.token);
 
-  return {
-    props: { auth },
-  };
+    const { uid } = token;
+
+    const user = await getAuth(firebaseAdmin).getUser(uid);
+
+    return {
+      props: { user },
+    };
+  } catch (err) {
+    ctx.res.writeHead(302, { Location: "/login" });
+    ctx.res.end();
+    console.log("err: ", err);
+    return {
+      props: {} as never,
+    };
+  }
 };
 
 const Home = ({
-  auth,
+  user,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+  const { auth } = useAuth();
   // const { user, loading, auth } = useAuth();
-  const authObj = JSON.parse(auth) as Auth;
   return (
     <>
       <h1>Shared Lists</h1>
@@ -36,16 +52,16 @@ const Home = ({
       <div className={styles.loginStatus}>
         {/* {loading && <Loading size={40} />} */}
 
-        {authObj.currentUser && (
+        {user && (
           // !loading &&
           <>
             <Link href="/lists">
               <button>open app</button>
             </Link>
-            <button onClick={() => signOut(authObj)}>logout</button>
+            <button onClick={() => signOut(auth)}>logout</button>
           </>
         )}
-        {!authObj.currentUser && (
+        {!user && (
           // !loading &&
           <>
             <button>

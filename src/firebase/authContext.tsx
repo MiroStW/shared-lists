@@ -1,7 +1,14 @@
 import { connectAuthEmulator, getAuth, User } from "firebase/auth";
-import { createContext, ReactNode, useContext } from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { firebase } from "./firebase";
+import nookies from "nookies";
 
 const auth = getAuth(firebase);
 
@@ -11,16 +18,29 @@ if (process.env.NEXT_PUBLIC_DEVELOPMENT === "TRUE")
 
 const authContext = createContext({
   user: null as User | null | undefined,
-  loading: true,
-  error: undefined as Error | undefined,
+  // loading: true,
+  // error: undefined as Error | undefined,
   auth,
 });
 
 export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
-  const [user, loading, error] = useAuthState(auth);
-  // const [user, setUser] = useState<User | null>(null);
+  // const [user, loading, error] = useAuthState(auth);
+  const [user, setUser] = useState<User | null>(null);
   // const [loading, setLoading] = useState(true);
   // const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    return auth.onIdTokenChanged(async (user) => {
+      if (!user) {
+        setUser(null);
+        nookies.set(undefined, "token", "", { path: "/" });
+      } else {
+        const token = await user.getIdToken();
+        setUser(user);
+        nookies.set(undefined, "token", token, { path: "/" });
+      }
+    });
+  }, []);
 
   // useEffect(() => {
   //   setLoading(true);
@@ -40,7 +60,13 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   // }, [user]);
 
   return (
-    <authContext.Provider value={{ user, loading, error, auth }}>
+    <authContext.Provider
+      value={{
+        user,
+        // loading, error,
+        auth,
+      }}
+    >
       {children}
     </authContext.Provider>
   );
