@@ -30,20 +30,27 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<unknown | null>(null);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      (window as any).nookies = nookies;
+    }
     return auth.onIdTokenChanged(async (user) => {
       if (!user) {
+        console.log("no token found...");
         setUser(null);
-        nookies.set(undefined, "token", "", { path: "/" });
-      } else {
-        try {
-          setLoading(true);
-          const token = await user.getIdToken();
-          setUser(user);
-          nookies.set(undefined, "token", token, { path: "/" });
-          setLoading(false);
-        } catch (err) {
-          setError(err);
-        }
+        nookies.destroy(null, "token");
+        nookies.set(null, "token", "", { path: "/" });
+        return;
+      }
+      try {
+        console.log("updating token...");
+        setLoading(true);
+        const token = await user.getIdToken();
+        setUser(user);
+        nookies.destroy(null, "token");
+        nookies.set(null, "token", token, { path: "/" });
+        setLoading(false);
+      } catch (err) {
+        setError(err);
       }
     });
   }, []);
