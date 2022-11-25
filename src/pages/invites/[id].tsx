@@ -2,6 +2,7 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
 import { httpsCallable } from "firebase/functions";
 import { useEffect, useState } from "react";
+import { GetServerSidePropsContext } from "next";
 import { Loading } from "../../components/utils/Loading";
 import { Error as ErrorComp } from "../../components/utils/Error";
 import { useAuth } from "../../firebase/authContext";
@@ -12,6 +13,26 @@ import { Header } from "../../components/header/Header";
 import styles from "../../styles/showApp.module.css";
 import { Lists } from "../../components/lists/Lists";
 import { functions } from "../../firebase/firebase";
+import { verifyAuthToken } from "../../firebase/verifyAuthToken";
+
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  const { serializedUser } = await verifyAuthToken(ctx);
+
+  if (serializedUser)
+    return {
+      props: {
+        serializedUser,
+      },
+    };
+  else
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/login",
+      },
+      props: {} as never,
+    };
+};
 
 const ShowInvite = () => {
   const router = useRouter();
@@ -127,12 +148,6 @@ const ShowInvite = () => {
       )}
     </>
   );
-};
-
-export const getServerSideProps = async () => {
-  return {
-    props: { protectedRoute: true },
-  };
 };
 
 export default ShowInvite;

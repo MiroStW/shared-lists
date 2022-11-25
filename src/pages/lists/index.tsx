@@ -1,13 +1,30 @@
 import { useRouter } from "next/router";
+import { GetServerSidePropsContext } from "next";
 import { Loading } from "../../components/utils/Loading";
 import { Error } from "../../components/utils/Error";
 import { useLists } from "../../firebase/listsContext";
-import { RouteProps } from "../_app";
+import { verifyAuthToken } from "../../firebase/verifyAuthToken";
 
-export const getStaticProps = async (): Promise<{ props: RouteProps }> => {
-  return {
-    props: { protectedRoute: true },
-  };
+// TODO delete protectedRoute component
+
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  const { serializedUser } = await verifyAuthToken(ctx);
+
+  // TODO directly redirect to /lists/[id] if user is logged in
+  if (serializedUser)
+    return {
+      props: {
+        serializedUser,
+      },
+    };
+  else
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/login",
+      },
+      props: {} as never,
+    };
 };
 
 const App = () => {

@@ -1,4 +1,4 @@
-import { GetStaticPaths, GetStaticProps } from "next";
+import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { AddButton } from "../../components/addButton/AddButton";
@@ -7,8 +7,28 @@ import { ItemAreaContainer } from "../../components/items/ItemAreaContainer";
 import { Lists } from "../../components/lists/Lists";
 import { Loading } from "../../components/utils/Loading";
 import { useLists } from "../../firebase/listsContext";
+import { verifyAuthToken } from "../../firebase/verifyAuthToken";
 import styles from "../../styles/showApp.module.css";
 import { List } from "../../types/types";
+
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  const { serializedUser } = await verifyAuthToken(ctx);
+
+  if (serializedUser)
+    return {
+      props: {
+        serializedUser,
+      },
+    };
+  else
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/login",
+      },
+      props: {} as never,
+    };
+};
 
 const ShowApp = () =>
   // { ssrLists }: { ssrLists: List[] }
@@ -43,37 +63,5 @@ const ShowApp = () =>
       </div>
     );
   };
-// TODO: either try to get lists with SSR / initialProps or go static for only
-// the background rendering
-
-export const getStaticProps: GetStaticProps = async () => {
-  // const user = getAuth(firebase).currentUser;
-
-  // const listsSnapshot = await getDocs(
-  //   query(
-  //     listsRef,
-  //     where("ownerID", "==", user?.uid),
-  //     where("isArchived", "==", false),
-  //     orderBy("createdDate", "asc")
-  //   ).withConverter(listConverter)
-  // );
-
-  // const ssrLists = listsSnapshot.docs.map((doc) => doc.data());
-
-  return {
-    props: {
-      protectedRoute: true,
-      // ssrLists,
-    },
-  };
-};
-
-// works like SSR on intiial load, then loads statically generated page
-export const getStaticPaths: GetStaticPaths = async () => {
-  return {
-    paths: [],
-    fallback: "blocking",
-  };
-};
 
 export default ShowApp;
