@@ -32,6 +32,66 @@ export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<FirestoreError | undefined>(undefined);
 
+  const getOwnedLists = () => {
+    const ownedListsQuery = query(
+      listsRef,
+      where("ownerID", "==", user?.uid),
+      where("isArchived", "==", false),
+      orderBy("createdDate", "asc")
+    ).withConverter(listConverter);
+
+    const unsubscribe = onSnapshot(
+      ownedListsQuery,
+      { includeMetadataChanges: true },
+      async (snapshot) => {
+        const listsnapshot: List[] = [];
+        setLoading(true);
+        snapshot.forEach((doc) => {
+          listsnapshot.push(doc.data());
+        });
+        if (!snapshot.size && user) {
+          addDoc(listsRef, createListData("my first list", user));
+        }
+        setOwnedLists(listsnapshot);
+        setLoading(false);
+      },
+      (err) => {
+        setError(err);
+        setLoading(false);
+      }
+    );
+    return unsubscribe;
+  };
+
+  const getJoinedLists = () => {
+    const joinedListsQuery = query(
+      listsRef,
+      where("contributors", "array-contains", user?.uid),
+      where("isArchived", "==", false),
+      orderBy("createdDate", "asc")
+    ).withConverter(listConverter);
+
+    const unsubscribe = onSnapshot(
+      joinedListsQuery,
+      { includeMetadataChanges: true },
+      async (snapshot) => {
+        const listsnapshot: List[] = [];
+        setLoading(true);
+        snapshot.forEach((doc) => {
+          listsnapshot.push(doc.data());
+        });
+        setJoinedLists(listsnapshot);
+        setLoading(false);
+      },
+      (err) => {
+        setError(err);
+        setLoading(false);
+      }
+    );
+
+    return unsubscribe;
+  };
+
   // useEffect(() => {
   //   console.log("owned: ", ownedLists);
   //   console.log("joined: ", joinedLists);
@@ -39,67 +99,7 @@ export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (user) {
-      const getOwnedLists = () => {
-        const ownedListsQuery = query(
-          listsRef,
-          where("ownerID", "==", user?.uid),
-          where("isArchived", "==", false),
-          orderBy("createdDate", "asc")
-        ).withConverter(listConverter);
-
-        const unsubscribe = onSnapshot(
-          ownedListsQuery,
-          { includeMetadataChanges: true },
-          async (snapshot) => {
-            const listsnapshot: List[] = [];
-            setLoading(true);
-            snapshot.forEach((doc) => {
-              listsnapshot.push(doc.data());
-            });
-            if (!snapshot.size) {
-              addDoc(listsRef, createListData("my first list", user));
-            }
-            setOwnedLists(listsnapshot);
-            setLoading(false);
-          },
-          (err) => {
-            setError(err);
-            setLoading(false);
-          }
-        );
-        return unsubscribe;
-      };
-
       const unsubscribeOwnedLists = getOwnedLists();
-
-      const getJoinedLists = () => {
-        const joinedListsQuery = query(
-          listsRef,
-          where("contributors", "array-contains", user?.uid),
-          where("isArchived", "==", false),
-          orderBy("createdDate", "asc")
-        ).withConverter(listConverter);
-
-        const unsubscribe = onSnapshot(
-          joinedListsQuery,
-          { includeMetadataChanges: true },
-          async (snapshot) => {
-            const listsnapshot: List[] = [];
-            setLoading(true);
-            snapshot.forEach((doc) => {
-              listsnapshot.push(doc.data());
-            });
-            setJoinedLists(listsnapshot);
-            setLoading(false);
-          },
-          (err) => {
-            setError(err);
-            setLoading(false);
-          }
-        );
-
-        return unsubscribe;
-      };
 
       const unsubscribeJoinedLists = getJoinedLists();
 
