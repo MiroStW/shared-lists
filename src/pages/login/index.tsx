@@ -1,3 +1,5 @@
+// eslint-disable-next-line import/no-unresolved
+import * as admin from "firebase-admin/firestore";
 import Head from "next/head";
 import { GetServerSidePropsContext } from "next";
 import { uiConfig } from "../../firebase/firebaseAuthUI.config";
@@ -8,15 +10,30 @@ import { verifyAuthToken } from "../../firebase/verifyAuthToken";
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const { serializedUser } = await verifyAuthToken(ctx);
 
-  if (serializedUser)
+  if (serializedUser) {
+    const firstListId = await admin
+      .getFirestore()
+      .collection("lists")
+      .where("ownerID", "==", JSON.parse(serializedUser).uid)
+      .where("isArchived", "==", false)
+      .orderBy("createdDate", "asc")
+      .limit(1)
+      .get()
+      .then((snapshot) => {
+        if (snapshot.empty) {
+          return null;
+        }
+        return snapshot.docs[0].id;
+      });
+
     return {
       redirect: {
         permanent: false,
-        destination: "/lists",
+        destination: `/lists/${firstListId}`,
       },
       props: {} as never,
     };
-  else
+  } else
     return {
       props: {} as never,
     };
