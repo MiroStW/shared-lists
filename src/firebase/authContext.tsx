@@ -8,7 +8,7 @@ import {
 } from "react";
 import { firebase } from "./firebase";
 import nookies from "nookies";
-// import { useAuthState } from "react-firebase-hooks/auth";
+import { useRouter } from "next/router";
 
 const auth = getAuth(firebase);
 
@@ -24,53 +24,38 @@ const authContext = createContext({
 });
 
 export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
-  // const [user, loading, error] = useAuthState(auth);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<unknown | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       (window as any).nookies = nookies;
     }
-    return auth.onIdTokenChanged(async (user) => {
-      if (!user) {
-        console.log("no token found...");
+    return auth.onIdTokenChanged(async (snap) => {
+      if (!snap) {
+        // console.log("no token found...");
         setUser(null);
         nookies.destroy(null, "token");
         nookies.set(null, "token", "", { path: "/" });
+        router.push("/login");
         return;
       }
       try {
-        console.log("updating token...");
+        // console.log("updating token...");
         setLoading(true);
-        const token = await user.getIdToken();
-        setUser(user);
+        const token = await snap.getIdToken();
+        setUser(snap);
         nookies.destroy(null, "token");
         nookies.set(null, "token", token, { path: "/" });
         setLoading(false);
+        // console.log("done updating token");
       } catch (err) {
         setError(err);
       }
     });
   }, []);
-
-  // useEffect(() => {
-  //   setLoading(true);
-  //   let unsubscribe: Unsubscribe;
-  //   try {
-  //     unsubscribe = auth.onAuthStateChanged((currentuser: User | null) => {
-  //       if (currentuser) {
-  //         setUser(currentuser);
-  //       }
-  //     });
-  //   } catch (err) {
-  //     if (err instanceof Error) setError(err);
-  //     else throw err;
-  //   }
-  //   setLoading(false);
-  //   return () => unsubscribe();
-  // }, [user]);
 
   return (
     <authContext.Provider
