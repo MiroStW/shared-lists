@@ -1,5 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import { DocumentReference, Timestamp } from "firebase/firestore";
+// eslint-disable-next-line import/no-unresolved
+import * as admin from "firebase-admin/firestore";
 
 export interface ListData {
   name: string;
@@ -15,6 +17,17 @@ export class List {
   readonly data: ListData;
 
   constructor(ref: DocumentReference<ListData>, data: ListData) {
+    this.ref = ref;
+    this.data = data;
+  }
+}
+
+export class AdminList {
+  readonly ref: admin.DocumentReference<ListData>;
+
+  readonly data: ListData;
+
+  constructor(ref: admin.DocumentReference<ListData>, data: ListData) {
     this.ref = ref;
     this.data = data;
   }
