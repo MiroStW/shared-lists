@@ -1,6 +1,7 @@
 import * as admin from "firebase-admin";
+// eslint-disable-next-line import/no-unresolved
+import * as fbAdmin from "firebase-admin/firestore";
 import { getApps, getApp } from "firebase-admin/app";
-
 import { firebaseAdminConfig } from "./firebase-config";
 
 const firebaseAdmin = !getApps().length
@@ -13,4 +14,9 @@ const firebaseAdmin = !getApps().length
     })
   : getApp();
 
-export { firebaseAdmin };
+const adminDb = () => {
+  const fsInstance = fbAdmin.getFirestore(firebaseAdmin);
+  return fsInstance;
+};
+
+export { firebaseAdmin, adminDb };
