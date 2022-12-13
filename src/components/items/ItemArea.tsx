@@ -1,6 +1,6 @@
 import { useState } from "react";
 import styles from "../../styles/items.module.css";
-import { Item, List, Section } from "../../types/types";
+import { AdminList, Item, List, Section } from "../../types/types";
 import { Icon } from "../utils/Icon";
 import { Items } from "./Items";
 import { ShareModal } from "./ShareModal";
@@ -10,7 +10,7 @@ const ItemArea = ({
   sections,
   items,
 }: {
-  list: List;
+  list: AdminList;
   sections: Section[];
   items: { [key: string]: Item[] };
 }) => {

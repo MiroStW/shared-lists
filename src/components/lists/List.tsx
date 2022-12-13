@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { useState } from "react";
-import { List as ListType } from "../../types/types";
+import { AdminList, List as ListType } from "../../types/types";
 import styles from "../../styles/list.module.css";
 import { Icon } from "../utils/Icon";
 import { RenameModal } from "./RenameModal";
 import { DeleteModal } from "./DeleteModal";
 
-const List = ({ list }: { list: ListType }) => {
+const List = ({ list }: { list: ListType | AdminList }) => {
   const [isHovering, setIsHovering] = useState(false);
   const [showRenameModual, setShowRenameModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);

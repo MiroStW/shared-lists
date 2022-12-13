@@ -18,7 +18,7 @@ import { Dispatch, ReactNode, SetStateAction, useState } from "react";
 import { useAuth } from "../../firebase/authContext";
 import { createItemData } from "../../firebase/factory";
 import { itemsOfList, itemsOfSection } from "../../firebase/useDb";
-import { Item as ItemType, Section, List } from "../../types/types";
+import { Item as ItemType, Section, List, AdminList } from "../../types/types";
 import { Item } from "./Item";
 
 const ItemDndContext = ({
@@ -30,7 +30,7 @@ const ItemDndContext = ({
   items,
 }: {
   children: ReactNode;
-  list: List;
+  list: AdminList;
   sections?: Section[];
   localItems: { [key: string]: ItemType[] };
   setLocalItems: Dispatch<
@@ -187,7 +187,7 @@ const ItemDndContext = ({
       if (!oldItemOrder.includes(activeItem.ref.id)) {
         overContainer.ref.parent.id === "lists"
           ? addDoc(
-              itemsOfList(overContainer as List),
+              itemsOfList(overContainer as AdminList),
               createItemData({
                 name: activeItem.data.name,
                 authorizedUsers: list.data.contributors

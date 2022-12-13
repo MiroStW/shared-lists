@@ -2,7 +2,7 @@ import { httpsCallable } from "firebase/functions";
 import Router from "next/router";
 import { Dispatch, SetStateAction, useState } from "react";
 import { functions } from "../../firebase/firebase";
-import { List, Section } from "../../types/types";
+import { AdminList, List, Section } from "../../types/types";
 import { Loading } from "../utils/Loading";
 import { Modal } from "../utils/Modal";
 
@@ -10,7 +10,7 @@ const DeleteModal = ({
   collection,
   setShowModal,
 }: {
-  collection: List | Section;
+  collection: List | AdminList | Section;
   setShowModal: Dispatch<SetStateAction<boolean>>;
 }) => {
   const [isDeleting, setIsDeleting] = useState(false);

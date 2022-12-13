@@ -5,14 +5,14 @@ import { useAuth } from "../../firebase/authContext";
 import { createInviteData } from "../../firebase/factory";
 import { functions } from "../../firebase/firebase";
 import { invites } from "../../firebase/useDb";
-import { List } from "../../types/types";
+import { AdminList, List } from "../../types/types";
 import { Modal } from "../utils/Modal";
 
 const ShareModal = ({
   list,
   setShowShareModal,
 }: {
-  list: List;
+  list: AdminList;
   setShowShareModal: Dispatch<SetStateAction<boolean>>;
 }) => {
   const { user } = useAuth();

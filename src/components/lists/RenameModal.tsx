@@ -1,13 +1,20 @@
-import { updateDoc } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
 import { MouseEvent, Dispatch, SetStateAction, useState } from "react";
-import { List, ListData, Section, SectionData } from "../../types/types";
+import { db } from "../../firebase/useDb";
+import {
+  AdminList,
+  List,
+  ListData,
+  Section,
+  SectionData,
+} from "../../types/types";
 import { Modal } from "../utils/Modal";
 
 const RenameModal = ({
   collection,
   setShowModal,
 }: {
-  collection: List | Section;
+  collection: List | AdminList | Section;
   setShowModal: Dispatch<SetStateAction<boolean>>;
 }) => {
   const [collectionTitle, setCollectionTitle] = useState(collection.data.name);
@@ -15,7 +22,7 @@ const RenameModal = ({
   const handleRename = (e: MouseEvent) => {
     e.preventDefault();
     if (collectionTitle && collectionTitle !== collection.data.name) {
-      updateDoc<ListData | SectionData>(collection.ref, {
+      updateDoc(doc(db, collection.ref.path), {
         name: collectionTitle,
       });
       setShowModal(false);
