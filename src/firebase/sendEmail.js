@@ -16,7 +16,7 @@ let transporter = nodemailer.createTransport({
   },
 });
 
-exports.sendEmail = region("europe-west1")
+exports.sendEmail = region("europe-west3")
   .firestore.document("/invites/{documentId}")
   .onCreate(async (snap) => {
     const { inviterID, inviteeEmail, listID } = snap.data();

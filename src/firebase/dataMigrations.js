@@ -8,7 +8,7 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 
-exports.dataMigrations = region("europe-west1").https.onRequest(
+exports.dataMigrations = region("europe-west3").https.onRequest(
   async (req, res) => {
     const getData = async () => {
       const items = admin
