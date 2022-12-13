@@ -10,12 +10,12 @@ import { verifyAuthToken } from "../firebase/verifyAuthToken";
 import styles from "../styles/main.module.css";
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-  const { serializedUser } = await verifyAuthToken(ctx);
+  const { user } = await verifyAuthToken(ctx);
 
   return {
-    props: serializedUser
+    props: user
       ? {
-          serializedUser,
+          serializedUser: JSON.stringify(user),
         }
       : ({} as never),
   };

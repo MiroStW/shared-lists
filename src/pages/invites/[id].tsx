@@ -16,12 +16,12 @@ import { functions } from "../../firebase/firebase";
 import { verifyAuthToken } from "../../firebase/verifyAuthToken";
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-  const { serializedUser } = await verifyAuthToken(ctx);
+  const { user } = await verifyAuthToken(ctx);
 
-  if (serializedUser)
+  if (user)
     return {
       props: {
-        serializedUser,
+        serializedUser: JSON.stringify(user),
       },
     };
   else
