@@ -37,9 +37,9 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
       if (!snap) {
         // console.log("no token found...");
         setUser(null);
-        nookies.destroy(null, "token");
-        nookies.set(null, "token", "", { path: "/" });
-        router.push("/login");
+        nookies.destroy(null, "__session");
+        nookies.set(null, "__session", "", { path: "/" });
+        // router.push("/login");
         return;
       }
       try {
@@ -47,8 +47,8 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
         setLoading(true);
         const token = await snap.getIdToken();
         setUser(snap);
-        nookies.destroy(null, "token");
-        nookies.set(null, "token", token, { path: "/" });
+        nookies.destroy(null, "__session");
+        nookies.set(null, "__session", token, { path: "/" });
         setLoading(false);
         // console.log("done updating token");
       } catch (err) {
