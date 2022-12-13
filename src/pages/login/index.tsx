@@ -1,26 +1,26 @@
 // eslint-disable-next-line import/no-unresolved
-import * as admin from "firebase-admin/firestore";
 import Head from "next/head";
 import { GetServerSidePropsContext } from "next";
 import { uiConfig } from "../../firebase/firebaseAuthUI.config";
 import { useAuth } from "../../firebase/authContext";
 import StyledFirebaseUi from "../../firebase/StyledFirebaseUi";
 import { verifyAuthToken } from "../../firebase/verifyAuthToken";
+import { adminDb } from "../../firebase/firebaseAdmin";
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-  const { serializedUser } = await verifyAuthToken(ctx);
+  const { user } = await verifyAuthToken(ctx);
 
-  if (serializedUser) {
-    const firstListId = await admin
-      .getFirestore()
+  if (user) {
+    const firstListId = await adminDb()
       .collection("lists")
-      .where("ownerID", "==", JSON.parse(serializedUser).uid)
+      .where("ownerID", "==", user.uid)
       .where("isArchived", "==", false)
       .orderBy("createdDate", "asc")
       .limit(1)
       .get()
       .then((snapshot) => {
         if (snapshot.empty) {
+          // TODO: handle creation of initial list here
           return null;
         }
         return snapshot.docs[0].id;
