@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "NODE_OPTIONS='--inspect' next dev",
     "emulate": "firebase emulators:start",
     "serve": "npm run build && firebase emulators:start",
     "build": "next build",
