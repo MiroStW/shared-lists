@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import styles from "../../styles/addMenu.module.css";
 import modalStyles from "../../styles/modal.module.css";
-import { List } from "../../types/types";
+import { AdminList, List } from "../../types/types";
 import { AddNamePicker } from "./AddNamePicker";
 import { Icon } from "../utils/Icon";
 
@@ -10,7 +10,7 @@ const AddMenu = ({
   activeList,
 }: {
   setShowAddMenu: Dispatch<SetStateAction<boolean>>;
-  activeList: List;
+  activeList: AdminList;
 }) => {
   const [type, setType] = useState<"item" | "section" | "list" | null>(null);
 
