@@ -34,7 +34,6 @@ const AuthContextProvider = ({
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<unknown | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -46,7 +45,6 @@ const AuthContextProvider = ({
         setUser(null);
         cookie.remove("__session");
         cookie.set("__session", "", { path: "/" });
-        // router.push("/login");
         return;
       }
       try {
