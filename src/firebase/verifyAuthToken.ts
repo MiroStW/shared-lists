@@ -16,20 +16,16 @@ const verifyAuthToken = async (ctx: GetServerSidePropsContext) => {
       return {
         auth,
         user,
-        fromVerifyAuthToken: "this means token was found and verified",
       };
     }
   } catch (error) {
     console.log("error", error);
     return {
       auth,
-      fromVerifyAuthToken: `this means there was an error in verifyAuthToken: ${error}`,
     };
   }
   return {
     auth,
-    fromVerifyAuthToken:
-      "this means cookies were loaded, but no token cookie found in verifyAuthToken",
   };
 };
 

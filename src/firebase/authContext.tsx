@@ -7,8 +7,6 @@ import {
   useState,
 } from "react";
 import { firebase } from "./firebase";
-// import nookies from "nookies";
-import { useRouter } from "next/router";
 import { Cookie, withCookie } from "next-cookie";
 
 const auth = getAuth(firebase);
