@@ -24,8 +24,9 @@
     "firebaseui": "^6.0.1",
     "material-icons": "^1.11.8",
     "next": "^12.3.4",
+    "next-cookie": "^2.8.0",
+    "next-cookies": "^2.0.3",
     "nodemailer": "^6.7.8",
-    "nookies": "^2.5.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-firebase-hooks": "^5.0.3"

@@ -7,8 +7,9 @@ import {
   useState,
 } from "react";
 import { firebase } from "./firebase";
-import nookies from "nookies";
+// import nookies from "nookies";
 import { useRouter } from "next/router";
+import { Cookie, withCookie } from "next-cookie";
 
 const auth = getAuth(firebase);
 
@@ -23,7 +24,13 @@ const authContext = createContext({
   auth,
 });
 
-export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
+const AuthContextProvider = ({
+  children,
+  cookie,
+}: {
+  children: ReactNode;
+  cookie: Cookie;
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<unknown | null>(null);
@@ -31,14 +38,14 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      (window as any).nookies = nookies;
+      (window as any).cookie = cookie;
     }
     return auth.onIdTokenChanged(async (snap) => {
       if (!snap) {
         // console.log("no token found...");
         setUser(null);
-        nookies.destroy(null, "__session");
-        nookies.set(null, "__session", "", { path: "/" });
+        cookie.remove("__session");
+        cookie.set("__session", "", { path: "/" });
         // router.push("/login");
         return;
       }
@@ -47,15 +54,15 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
         setLoading(true);
         const token = await snap.getIdToken();
         setUser(snap);
-        nookies.destroy(null, "__session");
-        nookies.set(null, "__session", token, { path: "/" });
+        cookie.remove("__session");
+        cookie.set("__session", token, { path: "/" });
         setLoading(false);
         // console.log("done updating token");
       } catch (err) {
         setError(err);
       }
     });
-  }, []);
+  }, [cookie]);
 
   return (
     <authContext.Provider
@@ -70,6 +77,8 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     </authContext.Provider>
   );
 };
+
+export default withCookie(AuthContextProvider);
 
 export const useAuth = () => {
   return useContext(authContext);

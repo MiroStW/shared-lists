@@ -1,17 +1,15 @@
 import { getAuth } from "firebase-admin/auth";
 import { GetServerSidePropsContext } from "next";
 import { firebaseAdmin } from "./firebaseAdmin";
-import nookies from "nookies";
+import cookies from "next-cookies";
 
 const verifyAuthToken = async (ctx: GetServerSidePropsContext) => {
   const auth = getAuth(firebaseAdmin);
   try {
-    const cookies = nookies.get(ctx);
-    if (cookies.__session) {
+    const c = cookies(ctx);
+    if (c.__session) {
       console.log("found token");
-      const token = await getAuth(firebaseAdmin).verifyIdToken(
-        cookies.__session
-      );
+      const token = await getAuth(firebaseAdmin).verifyIdToken(c.__session);
       const { uid } = token;
       console.log("uid found: ", uid);
       const user = await auth.getUser(uid);
