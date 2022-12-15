@@ -12,6 +12,8 @@ import { verifyAuthToken } from "../../firebase/verifyAuthToken";
 import styles from "../../styles/showApp.module.css";
 import { AdminList } from "../../types/types";
 
+// TODO: also prerender items/sections of list with id param
+
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const { user } = await verifyAuthToken(ctx);
 

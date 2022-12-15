@@ -34,9 +34,7 @@ const Home = ({
       {user && <p>Hi {user.displayName},</p>}
       <p>This is an empty home page, to be filled.</p>
       <div className={styles.loginStatus}>
-        {/* {loading && <Loading size={40} />} */}
         {user && (
-          // !loading &&
           <>
             <Link href="/lists">
               <button>open app</button>
@@ -47,7 +45,6 @@ const Home = ({
           </>
         )}
         {!user && (
-          // !loading &&
           <>
             <button>
               <Link href={"/login"}>Login</Link>

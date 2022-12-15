@@ -70,32 +70,6 @@ const ShowInvite = () => {
       const addAuthorizedUser = httpsCallable(functions, "addAuthorizedUser");
       addAuthorizedUser({ listId: invite.data.listID, userId: user?.uid });
 
-      // updateDoc(doc(lists, invite.data.listID), {
-      //   contributors: arrayUnion(user?.uid),
-      // });
-
-      // // query all items of list to update authorizedUsers
-      // const q = query(
-      //   items,
-      //   where("list", "==", invite.data.listID)
-      // ).withConverter(itemConverter);
-      // try {
-      //   const itemsSnapshot = await getDocs(q);
-
-      //   itemsSnapshot.forEach((snapshot) => {
-      //     const item = snapshot.data();
-      //     updateDoc(item.ref, {
-      //       authorizedUsers: [...item.data.authorizedUsers, user?.uid],
-      //     })
-      //       .then(() => console.log("updated item: ", item.data.name))
-      //       .catch((err) =>
-      //         console.error("didnt update item: ", item.data.name, err)
-      //       );
-      //   });
-      // } catch (err) {
-      //   console.log("query went wrong: ", err);
-      // }
-
       router.push(`/lists/${invite?.data.listID}`);
     } else router.push("/lists");
   };
