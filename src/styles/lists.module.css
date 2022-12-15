@@ -23,6 +23,7 @@
 
 .listList {
   margin-bottom: 10px;
+  padding-right: min(30px, 10%);
 }
 /*
 .separator {
