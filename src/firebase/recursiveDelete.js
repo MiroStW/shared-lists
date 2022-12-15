@@ -14,7 +14,7 @@ const firebase_tools = require("firebase-tools");
  *
  * @param {string} data.path the document or collection path to delete.
  */
-exports.recursiveDelete = region("europe-west3")
+exports.recursiveDelete = region("europe-west1")
   .runWith({
     timeoutSeconds: 540,
     memory: "2GB",

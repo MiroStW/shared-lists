@@ -5,7 +5,7 @@ import { firebaseConfig } from "./firebase-config";
 
 const firebase = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-const functions = getFunctions(firebase, "europe-west3");
+const functions = getFunctions(firebase, "europe-west1");
 
 // comment out this line to switch to production db
 if (process.env.NEXT_PUBLIC_DEVELOPMENT === "TRUE")

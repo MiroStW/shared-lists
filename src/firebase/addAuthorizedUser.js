@@ -7,7 +7,7 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 
-exports.addAuthorizedUser = region("europe-west3").https.onCall(
+exports.addAuthorizedUser = region("europe-west1").https.onCall(
   async (data, context) => {
     const { listId } = data;
     const listRef = admin.firestore().doc(`/lists/${listId}`);

@@ -19,7 +19,7 @@ const nextjsServer = next({
 
 const nextjsHandle = nextjsServer.getRequestHandler();
 
-exports.nextjsFunc = region("europe-west3").https.onRequest((req, res) => {
+exports.nextjsFunc = region("europe-west1").https.onRequest((req, res) => {
   return nextjsServer.prepare().then(() => nextjsHandle(req, res));
 });
 
