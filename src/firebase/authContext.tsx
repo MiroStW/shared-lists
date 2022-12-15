@@ -1,7 +1,13 @@
 import { connectAuthEmulator, getAuth, User } from "firebase/auth";
-import { createContext, ReactNode, useContext } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { firebase } from "./firebase";
+import { Cookie, withCookie } from "next-cookie";
 
 const auth = getAuth(firebase);
 
@@ -12,39 +18,63 @@ if (process.env.NEXT_PUBLIC_DEVELOPMENT === "TRUE")
 const authContext = createContext({
   user: null as User | null | undefined,
   loading: true,
-  error: undefined as Error | undefined,
+  error: undefined as unknown | undefined,
   auth,
 });
 
-export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
-  const [user, loading, error] = useAuthState(auth);
-  // const [user, setUser] = useState<User | null>(null);
-  // const [loading, setLoading] = useState(true);
-  // const [error, setError] = useState<Error | null>(null);
+const AuthContextProvider = ({
+  children,
+  cookie,
+}: {
+  children: ReactNode;
+  cookie: Cookie;
+}) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<unknown | null>(null);
 
-  // useEffect(() => {
-  //   setLoading(true);
-  //   let unsubscribe: Unsubscribe;
-  //   try {
-  //     unsubscribe = auth.onAuthStateChanged((currentuser: User | null) => {
-  //       if (currentuser) {
-  //         setUser(currentuser);
-  //       }
-  //     });
-  //   } catch (err) {
-  //     if (err instanceof Error) setError(err);
-  //     else throw err;
-  //   }
-  //   setLoading(false);
-  //   return () => unsubscribe();
-  // }, [user]);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      (window as any).cookie = cookie;
+    }
+    return auth.onIdTokenChanged(async (snap) => {
+      if (!snap) {
+        // console.log("no token found...");
+        setUser(null);
+        cookie.remove("__session");
+        cookie.set("__session", "", { path: "/" });
+        return;
+      }
+      try {
+        // console.log("updating token...");
+        setLoading(true);
+        const token = await snap.getIdToken();
+        setUser(snap);
+        cookie.remove("__session");
+        cookie.set("__session", token, { path: "/" });
+        setLoading(false);
+        // console.log("done updating token");
+      } catch (err) {
+        setError(err);
+      }
+    });
+  }, [cookie]);
 
   return (
-    <authContext.Provider value={{ user, loading, error, auth }}>
+    <authContext.Provider
+      value={{
+        user,
+        loading,
+        error,
+        auth,
+      }}
+    >
       {children}
     </authContext.Provider>
   );
 };
+
+export default withCookie(AuthContextProvider);
 
 export const useAuth = () => {
   return useContext(authContext);

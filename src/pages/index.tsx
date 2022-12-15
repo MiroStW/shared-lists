@@ -1,29 +1,50 @@
-import { signOut } from "firebase/auth";
-import type { NextPage } from "next";
+import { signOut, User } from "firebase/auth";
+import type {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+} from "next";
 import Link from "next/link";
-import { Loading } from "../components/utils/Loading";
+import { useRouter } from "next/router";
 import { useAuth } from "../firebase/authContext";
+import { verifyAuthToken } from "../firebase/verifyAuthToken";
 import styles from "../styles/main.module.css";
 
-const Home: NextPage = () => {
-  const { user, loading, auth } = useAuth();
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  const { user } = await verifyAuthToken(ctx);
+
+  return {
+    props: user
+      ? {
+          serializedUser: JSON.stringify(user),
+        }
+      : ({} as never),
+  };
+};
+
+const Home = ({
+  serializedUser,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+  const user = serializedUser ? (JSON.parse(serializedUser) as User) : null;
+  const { auth } = useAuth();
+  const router = useRouter();
 
   return (
     <>
       <h1>Shared Lists</h1>
+      {user && <p>Hi {user.displayName},</p>}
       <p>This is an empty home page, to be filled.</p>
       <div className={styles.loginStatus}>
-        {loading && <Loading size={40} />}
-
-        {user && !loading && (
+        {user && (
           <>
             <Link href="/lists">
               <button>open app</button>
             </Link>
-            <button onClick={() => signOut(auth)}>logout</button>
+            <button onClick={() => signOut(auth).then(() => router.push("/"))}>
+              logout
+            </button>
           </>
         )}
-        {!user && !loading && (
+        {!user && (
           <>
             <button>
               <Link href={"/login"}>Login</Link>

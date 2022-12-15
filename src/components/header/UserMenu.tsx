@@ -1,5 +1,6 @@
 import { signOut } from "firebase/auth";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { useAuth } from "../../firebase/authContext";
 import styles from "../../styles/userMenu.module.css";
@@ -7,6 +8,7 @@ import styles from "../../styles/userMenu.module.css";
 const UserMenu = () => {
   const { user, auth } = useAuth();
   const [hideMenu, setHideMenu] = useState(true);
+  const router = useRouter();
 
   const clickHandler = () => {
     setHideMenu(!hideMenu);
@@ -35,7 +37,11 @@ const UserMenu = () => {
             <div className={styles.userMenuList}>
               <div
                 className={styles.userMenuItem}
-                onClick={() => signOut(auth)}
+                onClick={() => {
+                  signOut(auth).then(() => {
+                    router.push("/login");
+                  });
+                }}
               >
                 sign out
               </div>

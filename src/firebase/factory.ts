@@ -6,6 +6,7 @@ import {
   SectionData,
   List,
   InviteData,
+  AdminList,
 } from "../types/types";
 
 const createListData = (name: string, user: User): ListData => {
@@ -25,7 +26,7 @@ const createItemData = ({
 }: {
   name: string;
   authorizedUsers: string[];
-  list: List;
+  list: List | AdminList;
   order?: number;
 }): ItemData => {
   return {
@@ -56,7 +57,7 @@ const createSectionData = ({
 const createInviteData = (
   user: User,
   inviteeEmail: string,
-  list: List
+  list: AdminList
 ): InviteData => {
   return {
     inviterID: user.uid,

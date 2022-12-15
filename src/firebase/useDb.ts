@@ -9,6 +9,7 @@ import {
 } from "firebase/firestore";
 // import { useSnackbar } from "components/helpers/snackbar/snackbar";
 import {
+  AdminList,
   InviteData,
   ItemData,
   List,
@@ -45,10 +46,10 @@ const createCollectionGroup = <T = DocumentData>(collectionName: string) => {
 export const lists = createCollection<ListData>("lists");
 export const items = createCollectionGroup<ItemData>("items");
 export const sections = createCollectionGroup<SectionData>("sections");
-export const itemsOfList = (list: List) =>
+export const itemsOfList = (list: List | AdminList) =>
   createCollection<ItemData>(`lists/${list.ref.id}/items`);
 
-export const sectionsOfList = (list: List) =>
+export const sectionsOfList = (list: List | AdminList) =>
   createCollection<SectionData>(`lists/${list.ref.id}/sections`);
 
 export const itemsOfSection = (section: Section) =>

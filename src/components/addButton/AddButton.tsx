@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Icon } from "../utils/Icon";
 import styles from "../../styles/addButton.module.css";
 import { AddMenu } from "./AddMenu";
-import { List } from "../../types/types";
+import { AdminList, List } from "../../types/types";
 
-const AddButton = ({ activeList }: { activeList: List }) => {
+const AddButton = ({ activeList }: { activeList: AdminList }) => {
   const [showAddMenu, setShowAddMenu] = useState(false);
 
   return (

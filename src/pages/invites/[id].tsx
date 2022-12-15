@@ -2,6 +2,7 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
 import { httpsCallable } from "firebase/functions";
 import { useEffect, useState } from "react";
+import { GetServerSidePropsContext } from "next";
 import { Loading } from "../../components/utils/Loading";
 import { Error as ErrorComp } from "../../components/utils/Error";
 import { useAuth } from "../../firebase/authContext";
@@ -12,6 +13,26 @@ import { Header } from "../../components/header/Header";
 import styles from "../../styles/showApp.module.css";
 import { Lists } from "../../components/lists/Lists";
 import { functions } from "../../firebase/firebase";
+import { verifyAuthToken } from "../../firebase/verifyAuthToken";
+
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  const { user } = await verifyAuthToken(ctx);
+
+  if (user)
+    return {
+      props: {
+        serializedUser: JSON.stringify(user),
+      },
+    };
+  else
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/login",
+      },
+      props: {} as never,
+    };
+};
 
 const ShowInvite = () => {
   const router = useRouter();
@@ -48,32 +69,6 @@ const ShowInvite = () => {
 
       const addAuthorizedUser = httpsCallable(functions, "addAuthorizedUser");
       addAuthorizedUser({ listId: invite.data.listID, userId: user?.uid });
-
-      // updateDoc(doc(lists, invite.data.listID), {
-      //   contributors: arrayUnion(user?.uid),
-      // });
-
-      // // query all items of list to update authorizedUsers
-      // const q = query(
-      //   items,
-      //   where("list", "==", invite.data.listID)
-      // ).withConverter(itemConverter);
-      // try {
-      //   const itemsSnapshot = await getDocs(q);
-
-      //   itemsSnapshot.forEach((snapshot) => {
-      //     const item = snapshot.data();
-      //     updateDoc(item.ref, {
-      //       authorizedUsers: [...item.data.authorizedUsers, user?.uid],
-      //     })
-      //       .then(() => console.log("updated item: ", item.data.name))
-      //       .catch((err) =>
-      //         console.error("didnt update item: ", item.data.name, err)
-      //       );
-      //   });
-      // } catch (err) {
-      //   console.log("query went wrong: ", err);
-      // }
 
       router.push(`/lists/${invite?.data.listID}`);
     } else router.push("/lists");
@@ -127,12 +122,6 @@ const ShowInvite = () => {
       )}
     </>
   );
-};
-
-export const getServerSideProps = async () => {
-  return {
-    props: { protectedRoute: true },
-  };
 };
 
 export default ShowInvite;

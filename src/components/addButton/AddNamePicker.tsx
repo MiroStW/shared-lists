@@ -8,7 +8,7 @@ import {
   createSectionData,
 } from "../../firebase/factory";
 import { itemsOfList, lists, sectionsOfList } from "../../firebase/useDb";
-import { List } from "../../types/types";
+import { AdminList, List } from "../../types/types";
 import { Modal } from "../utils/Modal";
 
 const AddNamePicker = ({
@@ -16,7 +16,7 @@ const AddNamePicker = ({
   type,
   setShowAddMenu,
 }: {
-  activeList: List;
+  activeList: AdminList;
   type: "item" | "section" | "list";
   setShowAddMenu: Dispatch<SetStateAction<boolean>>;
 }) => {

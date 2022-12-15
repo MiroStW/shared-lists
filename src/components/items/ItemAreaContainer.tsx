@@ -7,18 +7,15 @@ import {
   sectionConverter,
 } from "../../firebase/firestoreConverter";
 import { items as itemsCol, sectionsOfList } from "../../firebase/useDb";
-import styles from "../../styles/items.module.css";
-import { Item as ItemType, List, Section } from "../../types/types";
+import { AdminList, Item as ItemType, Section } from "../../types/types";
 import { ItemArea } from "./ItemArea";
 import { Loading } from "../utils/Loading";
 import { Error } from "../utils/Error";
 import { ItemDndContext } from "./ItemDndContext";
 
-const ItemAreaContainer = ({ list }: { list: List }) => {
+const ItemAreaContainer = ({ list }: { list: AdminList }) => {
   const { user } = useAuth();
 
-  // IDEA: write to item all users who can access them in field
-  // "authorisedUsers" on item creation and on contributor edit
   const [items, loadingItems, errorItems] = useCollection<ItemType>(
     query(
       itemsCol,
@@ -29,10 +26,6 @@ const ItemAreaContainer = ({ list }: { list: List }) => {
       where("authorizedUsers", "array-contains", user?.uid),
       orderBy("order", "asc")
     ).withConverter(itemConverter)
-    // alternative if nothing works: query items for list & sections
-    // individually?
-    // this would require a rule mandating to update contributor field on all
-    // sub-items and sections, when contributor field is updated
   );
   const [sections, loadingSections, errorSections] = useCollection<Section>(
     query(
@@ -44,12 +37,8 @@ const ItemAreaContainer = ({ list }: { list: List }) => {
     [key: string]: ItemType[];
   }>({});
 
-  // useEffect(() => {
-  //   // console.log("sections: ", sections);
-  //   console.log("localItems: ", localItems);
-  // }, [localItems]);
-
   useEffect(() => {
+    // console.log("list: ", list);
     if (items) {
       const newLocalItems = {
         [list.ref.id]: items?.docs
@@ -69,10 +58,10 @@ const ItemAreaContainer = ({ list }: { list: List }) => {
 
       setLocalItems(newLocalItems);
     }
-  }, [items, list.ref.id, sections]);
+  }, [items, list, sections]);
 
   return (
-    <div className={styles.itemsArea}>
+    <>
       {errorItems && <Error msg={errorItems.message} />}
       {errorSections && <Error msg={errorSections.message} />}
       {loadingItems || loadingSections ? (
@@ -96,7 +85,7 @@ const ItemAreaContainer = ({ list }: { list: List }) => {
           )}
         </>
       )}
-    </div>
+    </>
   );
 };
 export { ItemAreaContainer };
