@@ -8,7 +8,7 @@ import {
   createSectionData,
 } from "../../firebase/factory";
 import { itemsOfList, lists, sectionsOfList } from "../../firebase/useDb";
-import { AdminList, List } from "../../types/types";
+import { AdminList } from "../../types/types";
 import { Modal } from "../utils/Modal";
 
 const AddNamePicker = ({
@@ -30,6 +30,11 @@ const AddNamePicker = ({
     if (user)
       switch (type) {
         case "item": {
+          // instead of creating an item, only add an empty line to the list of
+          // items with focus on the input field
+          // add the item on enter or click outside of the input field or on
+          // blur, but only if the input field is not empty
+
           addDoc(
             itemsOfList(activeList),
             createItemData({
