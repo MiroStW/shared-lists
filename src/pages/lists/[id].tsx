@@ -8,6 +8,7 @@ import { Lists } from "../../components/lists/Lists";
 import { Loading } from "../../components/utils/Loading";
 import { useAuth } from "../../firebase/authContext";
 import { adminDb } from "../../firebase/firebaseAdmin";
+import { ItemsContextProvider } from "../../firebase/itemsContext";
 import { verifyAuthToken } from "../../firebase/verifyAuthToken";
 import styles from "../../styles/showApp.module.css";
 import { AdminList } from "../../types/types";
@@ -112,10 +113,10 @@ const ShowList = ({
         <Lists preFetchedLists={lists || undefined} />
         <div className={styles.itemsArea}>
           {activeList && user ? (
-            <>
+            <ItemsContextProvider list={activeList}>
               <ItemAreaContainer list={activeList} />
               <AddButton activeList={activeList} />
-            </>
+            </ItemsContextProvider>
           ) : (
             <Loading />
           )}
