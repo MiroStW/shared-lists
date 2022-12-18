@@ -34,7 +34,15 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
           (doc) =>
             ({
               data: doc.data(),
-              ref: { ...doc.ref, id: doc.id },
+              ref: {
+                ...doc.ref,
+                id: doc.id,
+                parent: {
+                  ...doc.ref.parent,
+                  id: doc.ref.parent.id,
+                },
+                path: doc.ref.path,
+              },
             } as AdminList)
         );
         // QUESTION: is there a better way to add getter functions like doc.id
