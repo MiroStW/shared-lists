@@ -17,30 +17,19 @@ import { addDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { Dispatch, ReactNode, SetStateAction, useState } from "react";
 import { useAuth } from "../../firebase/authContext";
 import { createItemData } from "../../firebase/factory";
+import { useItems } from "../../firebase/itemsContext";
 import { itemsOfList, itemsOfSection } from "../../firebase/useDb";
 import { Item as ItemType, Section, List, AdminList } from "../../types/types";
-import { Item } from "./Item";
+import { Loading } from "../utils/Loading";
 
-const ItemDndContext = ({
-  children,
-  list,
-  sections,
-  localItems,
-  setLocalItems,
-  items,
-}: {
-  children: ReactNode;
-  list: AdminList;
-  sections?: Section[];
-  localItems: { [key: string]: ItemType[] };
-  setLocalItems: Dispatch<
-    SetStateAction<{
-      [key: string]: ItemType[];
-    }>
-  >;
-  items: ItemType[];
-}) => {
+import { Error } from "../utils/Error";
+import { Item } from "./Item";
+import { ItemArea } from "./ItemArea";
+
+const ItemDndContext = ({ list }: { list: AdminList }) => {
   const { user } = useAuth();
+  const { items, sections, localItems, setLocalItems, loading, error } =
+    useItems();
   const [activeItem, setActiveItem] = useState<ItemType | null>();
 
   // useEffect(() => {
@@ -248,24 +237,29 @@ const ItemDndContext = ({
 
   return (
     <>
-      <DndContext
-        sensors={sensors}
-        modifiers={[restrictToVerticalAxis]}
-        collisionDetection={closestCenter}
-        onDragStart={(e) => handleDragStart(e)}
-        onDragOver={(e) => handleDragOver(e)}
-        onDragEnd={(e) => handleDragEnd(e)}
-      >
-        {children}
+      {error && <Error msg={error.message} />}
+      {loading ? (
+        <Loading />
+      ) : (
+        <DndContext
+          sensors={sensors}
+          modifiers={[restrictToVerticalAxis]}
+          collisionDetection={closestCenter}
+          onDragStart={(e) => handleDragStart(e)}
+          onDragOver={(e) => handleDragOver(e)}
+          onDragEnd={(e) => handleDragEnd(e)}
+        >
+          <ItemArea list={list} sections={sections} items={localItems} />
 
-        <DragOverlay dropAnimation={null}>
-          {activeItem ? (
-            <div>
-              <Item item={activeItem} />
-            </div>
-          ) : null}
-        </DragOverlay>
-      </DndContext>
+          <DragOverlay dropAnimation={null}>
+            {activeItem ? (
+              <div>
+                <Item item={activeItem} />
+              </div>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+      )}
     </>
   );
 };

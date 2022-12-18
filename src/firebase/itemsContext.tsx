@@ -26,16 +26,16 @@ import {
 import { items as itemsCol, sectionsOfList } from "../firebase/useDb";
 import { useCollection } from "react-firebase-hooks/firestore";
 
-const itemsContext = createContext({
-  items: [] as ItemType[],
-  sections: [] as Section[],
-  localItems: {} as { [key: string]: ItemType[] },
-  setLocalItems: undefined as
-    | Dispatch<SetStateAction<{ [key: string]: ItemType[] }>>
-    | undefined,
-  loading: true,
-  error: undefined as FirestoreError | undefined,
-});
+interface ItemsContextType {
+  items: ItemType[];
+  sections: Section[];
+  localItems: { [key: string]: ItemType[] };
+  setLocalItems: Dispatch<SetStateAction<{ [key: string]: ItemType[] }>>;
+  loading: boolean;
+  error?: FirestoreError;
+}
+
+const itemsContext = createContext({} as ItemsContextType);
 
 export const ItemsContextProvider = ({
   children,
@@ -102,8 +102,8 @@ export const ItemsContextProvider = ({
       value={{
         items: items?.docs.map((item) => item.data()) || [],
         sections: sections?.docs.map((section) => section.data()) || [],
-        localItems: localItems,
-        setLocalItems: setLocalItems,
+        localItems,
+        setLocalItems,
         loading: loadingItems || loadingSections,
         error: errorItems || errorSections,
       }}

@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { AddButton } from "../../components/addButton/AddButton";
 import { Header } from "../../components/header/Header";
-import { ItemAreaContainer } from "../../components/items/ItemAreaContainer";
+import { ItemDndContext } from "../../components/items/ItemDndContext";
 import { Lists } from "../../components/lists/Lists";
 import { Loading } from "../../components/utils/Loading";
 import { useAuth } from "../../firebase/authContext";
@@ -114,7 +114,7 @@ const ShowList = ({
         <div className={styles.itemsArea}>
           {activeList && user ? (
             <ItemsContextProvider list={activeList}>
-              <ItemAreaContainer list={activeList} />
+              <ItemDndContext list={activeList} />
               <AddButton activeList={activeList} />
             </ItemsContextProvider>
           ) : (
