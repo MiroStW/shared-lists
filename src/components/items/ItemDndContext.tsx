@@ -14,17 +14,24 @@ import {
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { arrayMove } from "@dnd-kit/sortable";
 import { addDoc, deleteDoc, updateDoc } from "firebase/firestore";
-import { Dispatch, ReactNode, SetStateAction, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "../../firebase/authContext";
 import { createItemData } from "../../firebase/factory";
 import { useItems } from "../../firebase/itemsContext";
 import { itemsOfList, itemsOfSection } from "../../firebase/useDb";
-import { Item as ItemType, Section, List, AdminList } from "../../types/types";
+import { Item as ItemType, Section, AdminList } from "../../types/types";
 import { Loading } from "../utils/Loading";
-
 import { Error } from "../utils/Error";
 import { Item } from "./Item";
 import { ItemArea } from "./ItemArea";
+
+// TODO
+// DONE - moved to context!
+// - use setLocalItems to add temporary item to localItems (with doc()?)
+// - maintain that temporary item through localItem updates
+// - create function that creates temp item in localItems, sets focus, & puts
+// in edit mode
+// - create function that changes order of all subsequent items in localItems
 
 const ItemDndContext = ({ list }: { list: AdminList }) => {
   const { user } = useAuth();
@@ -77,8 +84,10 @@ const ItemDndContext = ({ list }: { list: AdminList }) => {
     return undefined;
   };
 
+  // handle moving an item over a different container, before saving to
+  // db on drag end
+  // TODO: check if allthe sorting is really needed or only on drag end - SEEMS NOT!
   const handleDragOver = (e: DragOverEvent) => {
-    // handle move to new container
     const { active, over } = e;
     const activeContainer = findContainer(active.id);
     const overContainer = findContainer(over?.id);
@@ -92,44 +101,53 @@ const ItemDndContext = ({ list }: { list: AdminList }) => {
     }
 
     setLocalItems((prev) => {
-      const activeItems = prev[activeContainer.ref.id]!;
-      const overItems = prev[overContainer.ref.id]!;
+      // // all items in the container the active item is from
+      // const activeItems = prev[activeContainer.ref.id]!;
+      // // all items in the container the active item is over
+      // const overItems = prev[overContainer.ref.id]!;
 
-      // Find the indexes for the items
-      const activeIndex = activeItems
-        ?.map((item) => item.ref.id)
-        .indexOf(active.data.current?.item.ref.id);
-      const overIndex = overItems
-        ?.map((item) => item.ref.id)
-        .indexOf(over.data.current?.item.ref.id);
-      // console.log("overIndex: ", overIndex);
+      // // Find the indexes for the actively dragged item and the item we're dragging over
+      // const activeIndex = activeItems
+      //   ?.map((item) => item.ref.id)
+      //   .indexOf(active.data.current?.item.ref.id);
+      // const overIndex = overItems
+      //   ?.map((item) => item.ref.id)
+      //   .indexOf(over.data.current?.item.ref.id);
+      // // console.log("overIndex: ", overIndex);
 
-      let newIndex;
-      if (over.id in prev) {
-        // We're at the root droppable of a container
-        newIndex = overItems.length + 1;
-      } else {
-        const isBelowLastItem =
-          over &&
-          overIndex === overItems.length - 1 &&
-          active.rect.current.translated!.top >
-            over.rect.top + over.rect.height;
+      // let newIndex;
+      // // check if we're over a container (header or empty area) and not an item
+      // if (over.id in prev) {
+      //   console.log("over a container");
+      //   // then put item at the end of the container
+      //   // TODO: should this really be +1 or should index start with 0?
+      //   newIndex = overItems.length + 1;
+      // } else {
+      //   const isBelowLastItem =
+      //     over &&
+      //     overIndex === overItems.length - 1 &&
+      //     // if the current pointer position is below the last item
+      //     active.rect.current.translated!.top >
+      //       over.rect.top + over.rect.height;
 
-        const modifier = isBelowLastItem ? 1 : 0;
+      //   if (isBelowLastItem) console.log("below last item");
+      //   const modifier = isBelowLastItem ? 1 : 0;
 
-        newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
-      }
+      //   newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
+      //   console.log("overIndex: ", overIndex);
+      //   console.log("newIndex: ", newIndex);
+      // }
 
       return {
         ...prev,
+        // remove active item from active container
         [activeContainer.ref.id]: [
-          ...activeItems.filter((item) => item.ref.id !== activeItem?.ref.id),
+          ...prev[activeContainer.ref.id]!.filter(
+            (item) => item.ref.id !== activeItem?.ref.id
+          ),
         ],
-        [overContainer.ref.id]: [
-          ...overItems.slice(0, newIndex),
-          activeItems[activeIndex],
-          ...overItems.slice(newIndex, overItems.length),
-        ],
+        // add active item to over container at new index
+        [overContainer.ref.id]: [...prev[overContainer.ref.id]!, activeItem!],
       };
     });
   };
