@@ -1,11 +1,4 @@
-import {
-  addDoc,
-  FirestoreError,
-  onSnapshot,
-  orderBy,
-  query,
-  where,
-} from "firebase/firestore";
+import { FirestoreError, orderBy, query, where } from "firebase/firestore";
 import {
   createContext,
   Dispatch,
@@ -17,12 +10,7 @@ import {
 } from "react";
 import { AdminList, Item as ItemType, Section } from "../types/types";
 import { useAuth } from "./authContext";
-import { createListData } from "./factory";
-import {
-  itemConverter,
-  listConverter,
-  sectionConverter,
-} from "./firestoreConverter";
+import { itemConverter, sectionConverter } from "./firestoreConverter";
 import { items as itemsCol, sectionsOfList } from "../firebase/useDb";
 import { useCollection } from "react-firebase-hooks/firestore";
 
@@ -68,14 +56,6 @@ export const ItemsContextProvider = ({
   }>({});
 
   useEffect(() => {
-    // console.log("list: ", list);
-    // could add temporary item to localItems with doc() providing a
-    // DocumentReference and createItemData() providing the data
-    // that item would also need to be flagged somehow to be put in edit mode &
-    // focus
-    // how can the item be added from the addButton? move localItems to new
-    // items context ?
-    // Why am I not subscribing to items in the list?
     if (items) {
       const newLocalItems = {
         [list.ref.id]: items?.docs
