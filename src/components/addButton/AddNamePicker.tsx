@@ -7,6 +7,7 @@ import {
   createListData,
   createSectionData,
 } from "../../firebase/factory";
+import { useItems } from "../../firebase/itemsContext";
 import { itemsOfList, lists, sectionsOfList } from "../../firebase/useDb";
 import { AdminList } from "../../types/types";
 import { Modal } from "../utils/Modal";
@@ -21,6 +22,7 @@ const AddNamePicker = ({
   setShowAddMenu: Dispatch<SetStateAction<boolean>>;
 }) => {
   const { user } = useAuth();
+  const { localItems } = useItems();
   const [name, setName] = useState("");
 
   const clickHandler = async (
@@ -43,6 +45,7 @@ const AddNamePicker = ({
                 ? [activeList.data.ownerID, ...activeList.data.contributors]
                 : [activeList.data.ownerID],
               list: activeList,
+              order: localItems[activeList.ref.id].length,
             })
           );
           break;
