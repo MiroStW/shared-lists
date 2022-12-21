@@ -261,7 +261,7 @@ const ItemDndContext = ({ list }: { list: AdminList }) => {
           : addDoc(
               itemsOfSection(overContainer as Section),
               createItemData({
-                name: active.data.current?.item.data.name,
+                name: activeItem.data.name,
                 authorizedUsers: list.data.contributors
                   ? [list.data.ownerID, ...list.data.contributors]
                   : [list.data.ownerID],
