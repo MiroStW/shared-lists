@@ -100,43 +100,6 @@ const ItemDndContext = ({ list }: { list: AdminList }) => {
     }
 
     setLocalItems((prev) => {
-      // // all items in the container the active item is from
-      // const activeItems = prev[activeContainer.ref.id]!;
-      // // all items in the container the active item is over
-      // const overItems = prev[overContainer.ref.id]!;
-
-      // // Find the indexes for the actively dragged item and the item we're dragging over
-      // const activeIndex = activeItems
-      //   ?.map((item) => item.ref.id)
-      //   .indexOf(active.data.current?.item.ref.id);
-      // const overIndex = overItems
-      //   ?.map((item) => item.ref.id)
-      //   .indexOf(over.data.current?.item.ref.id);
-      // // console.log("overIndex: ", overIndex);
-
-      // let newIndex;
-      // // check if we're over a container (header or empty area) and not an item
-      // if (over.id in prev) {
-      //   console.log("over a container");
-      //   // then put item at the end of the container
-      //   // TODO: should this really be +1 or should index start with 0?
-      //   newIndex = overItems.length + 1;
-      // } else {
-      //   const isBelowLastItem =
-      //     over &&
-      //     overIndex === overItems.length - 1 &&
-      //     // if the current pointer position is below the last item
-      //     active.rect.current.translated!.top >
-      //       over.rect.top + over.rect.height;
-
-      //   if (isBelowLastItem) console.log("below last item");
-      //   const modifier = isBelowLastItem ? 1 : 0;
-
-      //   newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
-      //   console.log("overIndex: ", overIndex);
-      //   console.log("newIndex: ", newIndex);
-      // }
-
       return {
         ...prev,
         // remove active item from active container
@@ -154,9 +117,14 @@ const ItemDndContext = ({ list }: { list: AdminList }) => {
   // TODO: where to change order property of items? Reuse code from handleDragOver?
   const handleDragEnd = (e: DragEndEvent) => {
     const { active, over } = e;
-    const overItem = over?.data.current?.item;
-    console.log("activeItem id: ", active.data.current?.item.ref.id);
-    console.log("overItem id: ", over?.data.current?.item.ref.id);
+    const overElement = over?.data.current?.element as
+      | AdminList
+      | Section
+      | ItemType;
+    const overType = over?.data.current?.type as "list" | "section" | "item";
+    console.log("activeItem id: ", active.data.current?.element.ref.id);
+    console.log("overElement id: ", over?.data.current?.element.ref.id);
+
     const activeContainer = findContainer(activeItem?.ref.parent.parent?.id)!;
     const overContainer = findContainer(over?.id);
     console.log("activeContainer: ", activeContainer.ref.id);
@@ -167,7 +135,7 @@ const ItemDndContext = ({ list }: { list: AdminList }) => {
       activeContainer &&
       overContainer &&
       activeItem &&
-      overItem &&
+      overElement &&
       user
     ) {
       // all items in the dropped on container
@@ -214,7 +182,7 @@ const ItemDndContext = ({ list }: { list: AdminList }) => {
 
       let newIndex;
       // check if we're over a container (header or empty area) and not an item
-      if (over.id in localItems) {
+      if (overType === "list" || overType === "section") {
         console.log("over a container");
         // then put item at the end of the container
         newIndex = localItems[overContainer.ref.id].length;
@@ -222,8 +190,8 @@ const ItemDndContext = ({ list }: { list: AdminList }) => {
         // find index of item we're dropping on
         const overIndex = localItems[overContainer.ref.id]
           .map((item) => item.ref.id)
-          .indexOf(overItem.ref.id);
-        console.log("overItem: ", overItem.data.name);
+          .indexOf(overElement.ref.id);
+        console.log("overItem: ", overElement.data.name);
         // TODO: overItem is the active item itself, when dropping belowLastItem
         // which is not present in the container if we're dropping on a new container
         console.log("overIndex: ", overIndex);
@@ -344,7 +312,7 @@ const ItemDndContext = ({ list }: { list: AdminList }) => {
   };
 
   const handleDragStart = (e: DragStartEvent) => {
-    setActiveItem(e.active.data.current?.item as ItemType);
+    setActiveItem(e.active.data.current?.element as ItemType);
   };
 
   return (
