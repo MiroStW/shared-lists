@@ -9,20 +9,20 @@ import { SectionHeader } from "./SectionHeader";
 
 const Items = ({
   items,
-  id,
+  containerId,
   section,
 }: {
   items: ItemType[];
-  id: string;
+  containerId: string;
   section?: Section;
 }) => {
-  const { setNodeRef } = useDroppable({ id });
+  const { setNodeRef } = useDroppable({ id: containerId });
 
   return (
     <>
       {items && (
         <SortableContext
-          id={id}
+          id={containerId}
           items={items?.map((item) => item.ref.id)}
           strategy={verticalListSortingStrategy}
         >
