@@ -1,4 +1,4 @@
-import { deleteDoc, updateDoc } from "firebase/firestore";
+import { addDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import {
   ChangeEvent,
   FocusEvent,
@@ -12,15 +12,17 @@ import { Item as ItemType } from "../../types/types";
 import { Icon } from "../utils/Icon";
 import { Checkbox } from "./Checkbox";
 import { Sortable } from "../utils/Sortable";
+import { useItems } from "../../firebase/itemsContext";
 
-const Item = ({ item }: { item: ItemType }) => {
+const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
   const [inlineEdit, setInlineEdit] = useState(false);
   const [itemName, setItemName] = useState(item.data.name);
+  const { setLocalItems } = useItems();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (inlineEdit) inputRef.current?.focus();
-  }, [inlineEdit]);
+    if (inlineEdit || focus) inputRef.current?.focus();
+  }, [focus, inlineEdit, item.ref.id]);
 
   const handleInlineEdit = () => {
     setInlineEdit(true);
@@ -33,9 +35,23 @@ const Item = ({ item }: { item: ItemType }) => {
   const handleRenameSubmit = (
     e: KeyboardEvent<HTMLInputElement> | FocusEvent<HTMLInputElement, Element>
   ) => {
-    if ("preventDefault" in e) e.preventDefault();
+    e.preventDefault();
     if (itemName !== item.data.name) {
-      updateDoc(item.ref, { name: itemName });
+      if (item.ref.id === "newItem") {
+        addDoc(item.ref.parent, { ...item.data, name: itemName });
+      } else {
+        updateDoc(item.ref, { name: itemName });
+      }
+    } else if (item.ref.id === "newItem") {
+      // delete item from localItems if name is empty
+      setLocalItems((prev) => {
+        return {
+          ...prev,
+          [item.ref.parent.parent!.id]: prev[item.ref.parent.parent!.id].filter(
+            (i) => i.ref.id !== item.ref.id
+          ),
+        };
+      });
     }
     setInlineEdit(false);
   };
@@ -52,9 +68,10 @@ const Item = ({ item }: { item: ItemType }) => {
           className={`${styles.item} ${
             item.data.completed ? styles.complete : ""
           }`}
+          id={item.ref.id}
         >
           <Checkbox item={item} />
-          {inlineEdit ? (
+          {inlineEdit || focus ? (
             <input
               ref={inputRef}
               type="text"

@@ -30,7 +30,11 @@ const Items = ({
             {section && <SectionHeader section={section} />}
           </div>
           {items.map((item) => (
-            <Item key={item.ref.id} item={item} />
+            <Item
+              key={item.ref.id}
+              item={item}
+              focus={item.ref.id === "newItem"}
+            />
           ))}
         </SortableContext>
       )}
