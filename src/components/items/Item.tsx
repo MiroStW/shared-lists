@@ -17,7 +17,7 @@ import { useItems } from "../../firebase/itemsContext";
 const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
   const [inlineEdit, setInlineEdit] = useState(false);
   const [itemName, setItemName] = useState(item.data.name);
-  const { setLocalItems } = useItems();
+  const { deleteLocalItem, addLocalItem, localItems } = useItems();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -32,31 +32,56 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
     setItemName(e.target.value);
   };
 
-  const handleRenameSubmit = (
+  // when pressing enter on an empty item, dont create a new item
+  // TODO: new temp item created at end of list, not under current item
+  // currently creates new item at end of list, but when saving, it saves under
+  // current item without updating order of following items
+  const handleEnter = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (itemName !== "") {
+      console.log("this ENTER came from item: ", item, localItems);
+
+      addLocalItem(
+        Math.min(
+          item.data.order + 1,
+          localItems[item.ref.parent.parent!.id].length
+        )
+      );
+    }
+  };
+
+  const submitEdit = (
     e: KeyboardEvent<HTMLInputElement> | FocusEvent<HTMLInputElement, Element>
   ) => {
     e.preventDefault();
     if (itemName !== item.data.name) {
-      if (item.ref.id === "newItem") {
+      if (item.ref.id.startsWith("newItem")) {
+        console.log("delete local item after adding item to db: ", item.ref.id);
         addDoc(item.ref.parent, { ...item.data, name: itemName });
+        // update order of following items
+        localItems[item.ref.parent.parent!.id]
+          .slice(localItems[item.ref.parent.parent!.id].indexOf(item) + 1)
+          .filter((i) => !i.ref.id.startsWith("newItem"))
+          .forEach((i) => {
+            updateDoc(i.ref, { order: i.data.order + 1 });
+          });
+
+        deleteLocalItem(item);
       } else {
         updateDoc(item.ref, { name: itemName });
       }
-    } else if (item.ref.id === "newItem") {
-      // delete item from localItems if name is empty
-      setLocalItems((prev) => {
-        return {
-          ...prev,
-          [item.ref.parent.parent!.id]: prev[item.ref.parent.parent!.id].filter(
-            (i) => i.ref.id !== item.ref.id
-          ),
-        };
-      });
+    }
+    if (item.data.name === "") {
+      deleteLocalItem(item);
     }
     setInlineEdit(false);
   };
 
   const handleDelete = () => {
+    localItems[item.ref.parent.parent!.id]
+      .slice(localItems[item.ref.parent.parent!.id].indexOf(item) + 1)
+      .forEach((i) => {
+        updateDoc(i.ref, { order: i.data.order - 1 });
+      });
     deleteDoc(item.ref);
   };
 
@@ -79,9 +104,11 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
               className={styles.itemName}
               onChange={handleRename}
               onKeyDown={(e) => {
-                if (e.key === "Enter") handleRenameSubmit(e);
+                if (e.key === "Enter") {
+                  handleEnter(e);
+                }
               }}
-              onBlur={handleRenameSubmit}
+              onBlur={submitEdit}
             />
           ) : (
             <div
@@ -90,7 +117,7 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
               className={styles.itemName}
               onClick={handleInlineEdit}
             >
-              {item.data.name}
+              {item.data.order} - {item.data.name}
             </div>
           )}
           <div className={styles.itemHoverMenu}>

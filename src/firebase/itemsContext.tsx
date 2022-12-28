@@ -1,4 +1,4 @@
-import { FirestoreError, orderBy, query, where } from "firebase/firestore";
+import { doc, FirestoreError, orderBy, query, where } from "firebase/firestore";
 import {
   createContext,
   Dispatch,
@@ -11,14 +11,17 @@ import {
 import { AdminList, Item as ItemType, Section } from "../types/types";
 import { useAuth } from "./authContext";
 import { itemConverter, sectionConverter } from "./firestoreConverter";
-import { items as itemsCol, sectionsOfList } from "../firebase/useDb";
+import { db, items as itemsCol, sectionsOfList } from "../firebase/useDb";
 import { useCollection } from "react-firebase-hooks/firestore";
+import { createItemData } from "./factory";
 
 interface ItemsContextType {
   items: ItemType[];
   sections: Section[];
   localItems: { [key: string]: ItemType[] };
   setLocalItems: Dispatch<SetStateAction<{ [key: string]: ItemType[] }>>;
+  deleteLocalItem: (item: ItemType) => void;
+  addLocalItem: (order?: number) => void;
   loading: boolean;
   error?: FirestoreError;
 }
@@ -56,26 +59,86 @@ export const ItemsContextProvider = ({
   }>({});
 
   useEffect(() => {
+    console.log("localItems changed: ", localItems);
+  }, [localItems]);
+
+  // update localItems when items or sections change
+  useEffect(() => {
     if (items) {
-      const newLocalItems = {
+      const newItems = Object.keys(localItems).reduce(
+        (acc, container) => [
+          ...acc,
+          ...localItems[container].filter((item) =>
+            item.ref.id.startsWith("newItem_")
+          ),
+        ],
+        [] as ItemType[]
+      );
+
+      const updatedLocalItems = {
         [list.ref.id]: items?.docs
           .map((item) => item.data())
+          .concat(newItems)
           .filter((item) => item.ref.parent.parent?.id === list.ref.id),
       };
 
       sections?.docs
         .map((section) => section.data())
         .forEach((section) => {
-          newLocalItems[section.ref.id] = items
+          updatedLocalItems[section.ref.id] = items
             ? items.docs
                 .map((item) => item.data())
+                .concat(newItems)
                 .filter((item) => item.ref.parent.parent?.id === section.ref.id)
             : [];
         });
 
-      setLocalItems(newLocalItems);
+      setLocalItems(updatedLocalItems);
     }
   }, [items, list, sections]);
+
+  const deleteLocalItem = (item: ItemType) => {
+    console.log("deleteLocalItem");
+    // delete item from localItems if name is empty
+    setLocalItems((prev) => {
+      return {
+        ...prev,
+        [item.ref.parent.parent!.id]: prev[item.ref.parent.parent!.id].filter(
+          (i) => i.ref.id !== item.ref.id
+        ),
+      };
+    });
+  };
+
+  const addLocalItem = (order: number = localItems[list.ref.id].length) => {
+    console.log(`addLocalItem: newItem_${new Date().getTime()}`);
+    const newItem = {
+      ref: doc(
+        db,
+        `lists/${list.ref.id}/items`,
+        `newItem_${new Date().getTime()}`
+      ),
+      data: createItemData({
+        name: "",
+        authorizedUsers: list.data.contributors
+          ? [list.data.ownerID, ...list.data.contributors]
+          : [list.data.ownerID],
+        list,
+        order,
+      }),
+    };
+
+    setLocalItems((prev) => ({
+      ...prev,
+      [list.ref.id]: [
+        ...prev[list.ref.id].slice(0, order),
+        newItem,
+        ...prev[list.ref.id].slice(order),
+        // .splice(newItem.data.order, 0, newItem),
+        // newItem,
+      ],
+    }));
+  };
 
   return (
     <itemsContext.Provider
@@ -84,6 +147,8 @@ export const ItemsContextProvider = ({
         sections: sections?.docs.map((section) => section.data()) || [],
         localItems,
         setLocalItems,
+        deleteLocalItem,
+        addLocalItem,
         loading: loadingItems || loadingSections,
         error: errorItems || errorSections,
       }}

@@ -23,7 +23,7 @@ const Items = ({
       {items && (
         <SortableContext
           id={containerId}
-          items={items?.map((item) => item.ref.id)}
+          items={items.map((item) => item.ref.id)}
           strategy={verticalListSortingStrategy}
         >
           <div ref={setNodeRef}>
@@ -33,7 +33,7 @@ const Items = ({
             <Item
               key={item.ref.id}
               item={item}
-              focus={item.ref.id === "newItem"}
+              focus={item.ref.id.startsWith("newItem_")}
             />
           ))}
         </SortableContext>
