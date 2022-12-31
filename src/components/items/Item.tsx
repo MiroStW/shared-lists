@@ -232,7 +232,7 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
               className={styles.itemName}
               onClick={handleInlineEdit}
             >
-              {item.data.order} - {item.data.name}
+              {item.data.name}
             </div>
           )}
           <div className={styles.itemHoverMenu}>
