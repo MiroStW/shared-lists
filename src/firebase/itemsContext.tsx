@@ -79,7 +79,8 @@ export const ItemsContextProvider = ({
         [list.ref.id]: items?.docs
           .map((item) => item.data())
           .concat(newItems)
-          .filter((item) => item.ref.parent.parent?.id === list.ref.id),
+          .filter((item) => item.ref.parent.parent?.id === list.ref.id)
+          .sort((a, b) => a.data.order - b.data.order),
       };
 
       sections?.docs
@@ -90,6 +91,7 @@ export const ItemsContextProvider = ({
                 .map((item) => item.data())
                 .concat(newItems)
                 .filter((item) => item.ref.parent.parent?.id === section.ref.id)
+                .sort((a, b) => a.data.order - b.data.order)
             : [];
         });
 
@@ -98,7 +100,7 @@ export const ItemsContextProvider = ({
   }, [items, list, sections]);
 
   const deleteLocalItem = (item: ItemType) => {
-    console.log("deleteLocalItem");
+    console.log("deleteLocalItem: ", item.data.name);
     // delete item from localItems if name is empty
     setLocalItems((prev) => {
       return {
@@ -111,7 +113,7 @@ export const ItemsContextProvider = ({
   };
 
   const addLocalItem = (order: number = localItems[list.ref.id].length) => {
-    console.log(`addLocalItem: newItem_${new Date().getTime()}`);
+    console.log(`addLocalItem: newItem_${new Date().getTime()} at ${order}`);
     const newItem = {
       ref: doc(
         db,
