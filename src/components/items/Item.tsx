@@ -47,12 +47,13 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
     if (itemName !== "") {
       console.log("this ENTER came from item: ", item, localItems);
 
-      addLocalItem(
-        Math.min(
+      addLocalItem({
+        order: Math.min(
           item.data.order + 1,
           localItems[item.ref.parent.parent!.id].length
-        )
-      );
+        ),
+        sectionId: item.ref.parent.parent!.id,
+      });
 
       // TODO: update local order here! needs to be reversed if item gets
       // deleted

@@ -35,7 +35,7 @@ const AddMenu = ({
               className={styles.addMenuItem}
               onClick={() => {
                 console.log("add item from add menu");
-                addLocalItem();
+                addLocalItem({});
                 setShowAddMenu(false);
               }}
             >

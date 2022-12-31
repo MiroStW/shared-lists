@@ -21,7 +21,13 @@ interface ItemsContextType {
   localItems: { [key: string]: ItemType[] };
   setLocalItems: Dispatch<SetStateAction<{ [key: string]: ItemType[] }>>;
   deleteLocalItem: (item: ItemType) => void;
-  addLocalItem: (order?: number) => void;
+  addLocalItem: ({
+    sectionId,
+    order,
+  }: {
+    sectionId?: string;
+    order?: number;
+  }) => void;
   loading: boolean;
   error?: FirestoreError;
 }
@@ -112,12 +118,20 @@ export const ItemsContextProvider = ({
     });
   };
 
-  const addLocalItem = (order: number = localItems[list.ref.id].length) => {
+  const addLocalItem = ({
+    sectionId,
+    order = localItems[sectionId || list.ref.id].length,
+  }: {
+    sectionId?: string;
+    order?: number;
+  }) => {
     console.log(`addLocalItem: newItem_${new Date().getTime()} at ${order}`);
     const newItem = {
       ref: doc(
         db,
-        `lists/${list.ref.id}/items`,
+        sectionId
+          ? `lists/${list.ref.id}/sections/${sectionId}/items`
+          : `lists/${list.ref.id}/items`,
         `newItem_${new Date().getTime()}`
       ),
       data: createItemData({
@@ -132,10 +146,10 @@ export const ItemsContextProvider = ({
 
     setLocalItems((prev) => ({
       ...prev,
-      [list.ref.id]: [
-        ...prev[list.ref.id].slice(0, order),
+      [sectionId || list.ref.id]: [
+        ...prev[sectionId || list.ref.id].slice(0, order),
         newItem,
-        ...prev[list.ref.id].slice(order),
+        ...prev[sectionId || list.ref.id].slice(order),
         // .splice(newItem.data.order, 0, newItem),
         // newItem,
       ],
