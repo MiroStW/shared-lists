@@ -4,6 +4,14 @@
   }
 }
 
+.showMobileLists {
+  display: block !important;
+  position: absolute;
+  z-index: 2;
+  width: 100%;
+  max-width: unset !important;
+}
+
 .listsArea div:checked + label {
   background: #fff;
   color: #5a5243;

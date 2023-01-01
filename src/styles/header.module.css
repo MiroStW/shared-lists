@@ -5,6 +5,7 @@
   height: 35px;
   border-bottom: 1px solid #5f6368;
   display: flex;
+  align-items: center;
 }
 
 .headerTitle {

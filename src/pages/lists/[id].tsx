@@ -89,6 +89,7 @@ const ShowList = ({
   const [activeList, setActiveList] = useState<AdminList | undefined>(
     undefined
   );
+  const [showMobileLists, setShowMobileLists] = useState(false);
 
   useEffect(() => {
     if (serializedLists) {
@@ -107,9 +108,16 @@ const ShowList = ({
 
   return (
     <div id={styles.container}>
-      <Header />
+      <Header
+        showMobileLists={showMobileLists}
+        setShowMobileLists={setShowMobileLists}
+      />
       <div id={styles.main}>
-        <Lists preFetchedLists={lists || undefined} />
+        <Lists
+          preFetchedLists={lists || undefined}
+          showMobileLists={showMobileLists}
+          setShowMobileLists={setShowMobileLists}
+        />
         <div className={styles.itemsArea}>
           {activeList && user ? (
             <>
