@@ -50,81 +50,33 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
     }
   };
 
-  // there is a race condition here, where the item is deleted before the new
-  // item is added as they both grab focus
-  // try to get back to only one newItem at a time
-  // write newName to localItems onChange, and update id to "pending_..."
-  // that takes away the auto-focus and leaves it only for real "newItem_" items
-
-  const submitEdit = (
+  const submitEditOnBlur = (
     e: KeyboardEvent<HTMLInputElement> | FocusEvent<HTMLInputElement, Element>
   ) => {
-    // 1. handleRename
-    // 2. change id to "pending_..."?
-    // 3. save to db
     e.preventDefault();
+    // only update if name has changed
     if (itemName !== item.data.name) {
+      console.log("input blurred, write new name to db: ", itemName);
+      // if item is new, add it to db, otherwise update existing one
       if (item.ref.id.startsWith("newItem")) {
-        console.log("input blurred, write new name to db: ", itemName);
-        // setLocalItems((prev) => {
-        //   return {
-        //     ...prev,
-        //     [item.ref.parent.parent!.id]: [
-        //       ...prev[item.ref.parent.parent!.id],
-        //       {
-        //         data: { ...item.data, name: itemName },
-        //         ref: {
-        //           ...item.ref,
-        //           id: `pending_${item.ref.id}`,
-        //           path: item.ref.path,
-        //           parent: item.ref.parent,
-        //           withConverter: item.ref.withConverter,
-        //         },
-        //       },
-        //     ],
-        //   };
-        // });
         console.log("add item to db: ", item.ref.id);
         addDoc(item.ref.parent, { ...item.data, name: itemName });
-        // 4. update order of following items
+        // update order of following items
         localItems[item.ref.parent.parent!.id]
           .slice(localItems[item.ref.parent.parent!.id].indexOf(item) + 1)
           .filter((i) => !i.ref.id.startsWith("newItem"))
           .forEach((i) => {
             updateDoc(i.ref, { order: i.data.order + 1 });
           });
-
+        // delete local item, it will be re-added from db
         deleteLocalItem(item);
       } else {
         updateDoc(item.ref, { name: itemName });
       }
     }
     if (item.data.name === "" && itemName === "") {
+      // delete item if it was & stays empty
       deleteLocalItem(item);
-      // reorder of following items
-      if (item.data.order < localItems[item.ref.parent.parent!.id].length - 1)
-        setLocalItems((prev) => {
-          return {
-            ...prev,
-            [item.ref.parent.parent!.id]: [
-              ...prev[item.ref.parent.parent!.id].slice(
-                0,
-                localItems[item.ref.parent.parent!.id].indexOf(item)
-              ),
-              ...prev[item.ref.parent.parent!.id]
-                .slice(localItems[item.ref.parent.parent!.id].indexOf(item))
-                .map((i) => {
-                  return {
-                    ...i,
-                    data: {
-                      ...i.data,
-                      order: i.data.order - 1,
-                    },
-                  };
-                }),
-            ],
-          };
-        });
     }
     setInlineEdit(false);
   };
@@ -161,7 +113,7 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
                   handleEnter(e);
                 }
               }}
-              onBlur={submitEdit}
+              onBlur={submitEditOnBlur}
             />
           ) : (
             <div

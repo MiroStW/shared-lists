@@ -107,13 +107,25 @@ export const ItemsContextProvider = ({
 
   const deleteLocalItem = (item: ItemType) => {
     console.log("deleteLocalItem: ", item.data.name);
-    // delete item from localItems if name is empty
+    // delete item from localItems if name is empty & update order of other items
     setLocalItems((prev) => {
+      const filteredItems = prev[item.ref.parent.parent!.id].filter(
+        (i) => i.ref.id !== item.ref.id
+      );
+
+      const reorderedItems = filteredItems.map((i, index) => {
+        return {
+          ...i,
+          data: {
+            ...i.data,
+            order: index,
+          },
+        };
+      });
+
       return {
         ...prev,
-        [item.ref.parent.parent!.id]: prev[item.ref.parent.parent!.id].filter(
-          (i) => i.ref.id !== item.ref.id
-        ),
+        [item.ref.parent.parent!.id]: reorderedItems,
       };
     });
   };
