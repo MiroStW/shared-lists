@@ -64,13 +64,10 @@ export const ItemsContextProvider = ({
     [key: string]: ItemType[];
   }>({});
 
-  useEffect(() => {
-    console.log("localItems changed: ", localItems);
-  }, [localItems]);
-
   // update localItems when items or sections change
   useEffect(() => {
     if (items) {
+      // get newItems that have not been saved to db yet, to persist them in localItems
       const newItems = Object.keys(localItems).reduce(
         (acc, container) => [
           ...acc,
@@ -103,10 +100,10 @@ export const ItemsContextProvider = ({
 
       setLocalItems(updatedLocalItems);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, list, sections]);
 
   const deleteLocalItem = (item: ItemType) => {
-    console.log("deleteLocalItem: ", item.data.name);
     // delete item from localItems if name is empty & update order of other items
     setLocalItems((prev) => {
       const filteredItems = prev[item.ref.parent.parent!.id].filter(
@@ -137,7 +134,6 @@ export const ItemsContextProvider = ({
     sectionId?: string;
     order?: number;
   }) => {
-    console.log(`addLocalItem: newItem_${new Date().getTime()} at ${order}`);
     const newItem = {
       ref: doc(
         db,

@@ -17,8 +17,7 @@ import { useItems } from "../../firebase/itemsContext";
 const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
   const [inlineEdit, setInlineEdit] = useState(false);
   const [itemName, setItemName] = useState(item.data.name);
-  const { deleteLocalItem, addLocalItem, localItems, setLocalItems } =
-    useItems();
+  const { deleteLocalItem, addLocalItem, localItems } = useItems();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -34,12 +33,10 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
   };
 
   // Defocus current item, triggering submitEdit & create new empty item
-  const handleEnter = (e: KeyboardEvent<HTMLInputElement>) => {
+  const handleEnter = () => {
     inputRef.current?.blur();
 
     if (itemName !== "") {
-      console.log("this ENTER came from item: ", item, localItems);
-
       addLocalItem({
         order: Math.min(
           item.data.order + 1,
@@ -56,10 +53,8 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
     e.preventDefault();
     // only update if name has changed
     if (itemName !== item.data.name) {
-      console.log("input blurred, write new name to db: ", itemName);
       // if item is new, add it to db, otherwise update existing one
       if (item.ref.id.startsWith("newItem")) {
-        console.log("add item to db: ", item.ref.id);
         addDoc(item.ref.parent, { ...item.data, name: itemName });
         // update order of following items
         localItems[item.ref.parent.parent!.id]
@@ -110,7 +105,7 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
               onChange={handleRename}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  handleEnter(e);
+                  handleEnter();
                 }
               }}
               onBlur={submitEditOnBlur}
