@@ -61,7 +61,7 @@ export interface ItemData {
 }
 
 export class Item {
-  readonly ref: DocumentReference<ItemData>;
+  readonly ref: DocumentReference<ItemData> | DocumentReference;
 
   readonly data: ItemData;
 

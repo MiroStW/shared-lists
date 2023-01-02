@@ -1,4 +1,4 @@
-import { deleteDoc, updateDoc } from "firebase/firestore";
+import { addDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import {
   ChangeEvent,
   FocusEvent,
@@ -12,15 +12,17 @@ import { Item as ItemType } from "../../types/types";
 import { Icon } from "../utils/Icon";
 import { Checkbox } from "./Checkbox";
 import { Sortable } from "../utils/Sortable";
+import { useItems } from "../../firebase/itemsContext";
 
-const Item = ({ item }: { item: ItemType }) => {
+const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
   const [inlineEdit, setInlineEdit] = useState(false);
   const [itemName, setItemName] = useState(item.data.name);
+  const { deleteLocalItem, addLocalItem, localItems } = useItems();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (inlineEdit) inputRef.current?.focus();
-  }, [inlineEdit]);
+    if (inlineEdit || focus) inputRef.current?.focus();
+  }, [focus, inlineEdit]);
 
   const handleInlineEdit = () => {
     setInlineEdit(true);
@@ -30,17 +32,56 @@ const Item = ({ item }: { item: ItemType }) => {
     setItemName(e.target.value);
   };
 
-  const handleRenameSubmit = (
+  // Defocus current item, triggering submitEdit & create new empty item
+  const handleEnter = () => {
+    inputRef.current?.blur();
+
+    if (itemName !== "") {
+      addLocalItem({
+        order: Math.min(
+          item.data.order + 1,
+          localItems[item.ref.parent.parent!.id].length
+        ),
+        sectionId: item.ref.parent.parent!.id,
+      });
+    }
+  };
+
+  const submitEditOnBlur = (
     e: KeyboardEvent<HTMLInputElement> | FocusEvent<HTMLInputElement, Element>
   ) => {
-    if ("preventDefault" in e) e.preventDefault();
+    e.preventDefault();
+    // only update if name has changed
     if (itemName !== item.data.name) {
-      updateDoc(item.ref, { name: itemName });
+      // if item is new, add it to db, otherwise update existing one
+      if (item.ref.id.startsWith("newItem")) {
+        addDoc(item.ref.parent, { ...item.data, name: itemName });
+        // update order of following items
+        localItems[item.ref.parent.parent!.id]
+          .slice(localItems[item.ref.parent.parent!.id].indexOf(item) + 1)
+          .filter((i) => !i.ref.id.startsWith("newItem"))
+          .forEach((i) => {
+            updateDoc(i.ref, { order: i.data.order + 1 });
+          });
+        // delete local item, it will be re-added from db
+        deleteLocalItem(item);
+      } else {
+        updateDoc(item.ref, { name: itemName });
+      }
+    }
+    if (item.data.name === "" && itemName === "") {
+      // delete item if it was & stays empty
+      deleteLocalItem(item);
     }
     setInlineEdit(false);
   };
 
   const handleDelete = () => {
+    localItems[item.ref.parent.parent!.id]
+      .slice(localItems[item.ref.parent.parent!.id].indexOf(item) + 1)
+      .forEach((i) => {
+        updateDoc(i.ref, { order: i.data.order - 1 });
+      });
     deleteDoc(item.ref);
   };
 
@@ -52,9 +93,10 @@ const Item = ({ item }: { item: ItemType }) => {
           className={`${styles.item} ${
             item.data.completed ? styles.complete : ""
           }`}
+          id={item.ref.id}
         >
           <Checkbox item={item} />
-          {inlineEdit ? (
+          {inlineEdit || focus ? (
             <input
               ref={inputRef}
               type="text"
@@ -62,9 +104,11 @@ const Item = ({ item }: { item: ItemType }) => {
               className={styles.itemName}
               onChange={handleRename}
               onKeyDown={(e) => {
-                if (e.key === "Enter") handleRenameSubmit(e);
+                if (e.key === "Enter") {
+                  handleEnter();
+                }
               }}
-              onBlur={handleRenameSubmit}
+              onBlur={submitEditOnBlur}
             />
           ) : (
             <div
@@ -73,7 +117,7 @@ const Item = ({ item }: { item: ItemType }) => {
               className={styles.itemName}
               onClick={handleInlineEdit}
             >
-              {item.data.name}
+              {item.data.order} - {item.data.name}
             </div>
           )}
           <div className={styles.itemHoverMenu}>

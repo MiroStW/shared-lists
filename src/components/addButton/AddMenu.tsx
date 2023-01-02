@@ -4,6 +4,7 @@ import modalStyles from "../../styles/modal.module.css";
 import { AdminList, List } from "../../types/types";
 import { AddNamePicker } from "./AddNamePicker";
 import { Icon } from "../utils/Icon";
+import { useItems } from "../../firebase/itemsContext";
 
 const AddMenu = ({
   setShowAddMenu,
@@ -13,6 +14,7 @@ const AddMenu = ({
   activeList: AdminList;
 }) => {
   const [type, setType] = useState<"item" | "section" | "list" | null>(null);
+  const { addLocalItem } = useItems();
 
   return (
     <>
@@ -32,7 +34,8 @@ const AddMenu = ({
             <div
               className={styles.addMenuItem}
               onClick={() => {
-                setType("item");
+                addLocalItem({});
+                setShowAddMenu(false);
               }}
             >
               <Icon iconName="add" style="filled" size={36} />

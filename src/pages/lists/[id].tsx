@@ -3,11 +3,12 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { AddButton } from "../../components/addButton/AddButton";
 import { Header } from "../../components/header/Header";
-import { ItemAreaContainer } from "../../components/items/ItemAreaContainer";
+import { ItemDndContext } from "../../components/items/ItemDndContext";
 import { Lists } from "../../components/lists/Lists";
 import { Loading } from "../../components/utils/Loading";
 import { useAuth } from "../../firebase/authContext";
 import { adminDb } from "../../firebase/firebaseAdmin";
+import { ItemsContextProvider } from "../../firebase/itemsContext";
 import { verifyAuthToken } from "../../firebase/verifyAuthToken";
 import styles from "../../styles/showApp.module.css";
 import { AdminList } from "../../types/types";
@@ -33,7 +34,15 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
           (doc) =>
             ({
               data: doc.data(),
-              ref: { ...doc.ref, id: doc.id },
+              ref: {
+                ...doc.ref,
+                id: doc.id,
+                parent: {
+                  ...doc.ref.parent,
+                  id: doc.ref.parent.id,
+                },
+                path: doc.ref.path,
+              },
             } as AdminList)
         );
         // QUESTION: is there a better way to add getter functions like doc.id
@@ -120,10 +129,10 @@ const ShowList = ({
         />
         <div className={styles.itemsArea}>
           {activeList && user ? (
-            <>
-              <ItemAreaContainer list={activeList} />
+            <ItemsContextProvider list={activeList}>
+              <ItemDndContext list={activeList} />
               <AddButton activeList={activeList} />
-            </>
+            </ItemsContextProvider>
           ) : (
             <Loading />
           )}

@@ -14,39 +14,31 @@ import {
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { arrayMove } from "@dnd-kit/sortable";
 import { addDoc, deleteDoc, updateDoc } from "firebase/firestore";
-import { Dispatch, ReactNode, SetStateAction, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "../../firebase/authContext";
 import { createItemData } from "../../firebase/factory";
+import { useItems } from "../../firebase/itemsContext";
 import { itemsOfList, itemsOfSection } from "../../firebase/useDb";
-import { Item as ItemType, Section, List, AdminList } from "../../types/types";
+import { Item as ItemType, Section, AdminList } from "../../types/types";
+import { Loading } from "../utils/Loading";
+import { Error } from "../utils/Error";
 import { Item } from "./Item";
+import { ItemArea } from "./ItemArea";
 
-const ItemDndContext = ({
-  children,
-  list,
-  sections,
-  localItems,
-  setLocalItems,
-  items,
-}: {
-  children: ReactNode;
-  list: AdminList;
-  sections?: Section[];
-  localItems: { [key: string]: ItemType[] };
-  setLocalItems: Dispatch<
-    SetStateAction<{
-      [key: string]: ItemType[];
-    }>
-  >;
-  items: ItemType[];
-}) => {
+// TODO
+// DONE - moved to context!
+// DONE - fix item order on drag
+// - use setLocalItems to add temporary item to localItems (with doc()?)
+// - maintain that temporary item through localItem updates
+// - create function that creates temp item in localItems, sets focus, & puts
+// in edit mode
+// - create function that changes order of all subsequent items in localItems
+
+const ItemDndContext = ({ list }: { list: AdminList }) => {
   const { user } = useAuth();
+  const { items, sections, localItems, setLocalItems, loading, error } =
+    useItems();
   const [activeItem, setActiveItem] = useState<ItemType | null>();
-
-  // useEffect(() => {
-  //   if (activeItem)
-  //     console.log("picked up: ", activeItem.data.name, activeItem.ref.id);
-  // }, [activeItem]);
 
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: {
@@ -88,8 +80,9 @@ const ItemDndContext = ({
     return undefined;
   };
 
+  // handle moving an item over a different container, before saving to
+  // db on drag end
   const handleDragOver = (e: DragOverEvent) => {
-    // handle move to new container
     const { active, over } = e;
     const activeContainer = findContainer(active.id);
     const overContainer = findContainer(over?.id);
@@ -103,88 +96,100 @@ const ItemDndContext = ({
     }
 
     setLocalItems((prev) => {
-      const activeItems = prev[activeContainer.ref.id]!;
-      const overItems = prev[overContainer.ref.id]!;
-
-      // Find the indexes for the items
-      const activeIndex = activeItems
-        ?.map((item) => item.ref.id)
-        .indexOf(active.data.current?.item.ref.id);
-      const overIndex = overItems
-        ?.map((item) => item.ref.id)
-        .indexOf(over.data.current?.item.ref.id);
-      // console.log("overIndex: ", overIndex);
-
-      let newIndex;
-      if (over.id in prev) {
-        // We're at the root droppable of a container
-        newIndex = overItems.length + 1;
-      } else {
-        const isBelowLastItem =
-          over &&
-          overIndex === overItems.length - 1 &&
-          active.rect.current.translated!.top >
-            over.rect.top + over.rect.height;
-
-        const modifier = isBelowLastItem ? 1 : 0;
-
-        newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
-      }
-
       return {
         ...prev,
+        // remove active item from active container
         [activeContainer.ref.id]: [
-          ...activeItems.filter((item) => item.ref.id !== activeItem?.ref.id),
+          ...prev[activeContainer.ref.id]!.filter(
+            (item) => item.ref.id !== activeItem?.ref.id
+          ),
         ],
-        [overContainer.ref.id]: [
-          ...overItems.slice(0, newIndex),
-          activeItems[activeIndex],
-          ...overItems.slice(newIndex, overItems.length),
-        ],
+        // add active item to over container at new index
+        [overContainer.ref.id]: [...prev[overContainer.ref.id]!, activeItem!],
       };
     });
   };
 
   const handleDragEnd = (e: DragEndEvent) => {
     const { active, over } = e;
-    const overItem = over?.data.current?.item;
+    const overElement = over?.data.current?.element as
+      | AdminList
+      | Section
+      | ItemType;
+    const overType = over?.data.current?.type as "list" | "section" | "item";
+    // console.log("activeItem id: ", active.data.current?.element.ref.id);
+    // console.log("overElement id: ", over?.data.current?.element.ref.id);
 
-    const activeContainer = findContainer(active.id);
+    const activeContainer = findContainer(activeItem?.ref.parent.parent?.id)!;
     const overContainer = findContainer(over?.id);
+    // console.log("activeContainer: ", activeContainer.ref.id);
+    // console.log("overContainer: ", overContainer?.ref.id);
 
     if (
       items &&
       activeContainer &&
       overContainer &&
       activeItem &&
-      overItem &&
+      overElement &&
       user
     ) {
+      // all items in the dropped on container
       const overContainerItems = items.filter(
         (item) => item.ref.parent.parent?.id === overContainer.ref.id
       );
 
-      // establish new order
-      const oldItemOrder = overContainerItems.map((item) => item.ref.id);
+      // all items in the original container
+      const activeContainerItems = items.filter(
+        (item) => item.ref.parent.parent?.id === activeContainer.ref.id
+      );
 
-      const newIndex = localItems[overContainer.ref.id]!.map(
-        (item) => item.ref.id
-      ).indexOf(over?.id as string);
-      const oldIndex = oldItemOrder.indexOf(active.id as string);
-      // console.log("newIndex: ", newIndex);
-      // console.log(oldIndex, newIndex);
+      // create array of item ids in current order
+      const oldOverOrder = overContainerItems.map((item) => item.ref.id);
+      const oldActiveOrder = activeContainerItems.map((item) => item.ref.id);
 
-      // newItemOrder based on newIndex & whether item moved to new container
-      const newItemOrder = oldItemOrder.includes(activeItem.ref.id)
-        ? arrayMove(oldItemOrder, oldIndex, newIndex)
-        : [
-            ...oldItemOrder.slice(0, newIndex),
-            activeItem.ref.id,
-            ...oldItemOrder.slice(newIndex, oldItemOrder.length),
-          ];
+      // find index of item we're dragging
+      const oldOverIndex = oldOverOrder.indexOf(active.id as string);
+      const oldActiveIndex = oldActiveOrder.indexOf(active.id as string);
 
-      // if item moved to new container, delete it in old & add in new container
-      if (!oldItemOrder.includes(activeItem.ref.id)) {
+      const newIndex =
+        overType === "list" || overType === "section"
+          ? // put item at end of container if dropped on container
+            localItems[overContainer.ref.id].length
+          : // put item at index of dropped on item
+            localItems[overContainer.ref.id]
+              .map((item) => item.ref.id)
+              .indexOf(overElement.ref.id);
+
+      if (overContainer.ref.id === activeContainer.ref.id) {
+        // console.log("dropped on same container");
+        // create array of item ids in new order & add active item if it's new to container
+        const newOverOrder = arrayMove(oldOverOrder, oldOverIndex, newIndex);
+        // console.log("newOverOrder: ", newOverOrder);
+
+        newOverOrder
+          // find all items that between the old and new index of the active item
+          .filter((id, index) => index !== oldOverOrder.indexOf(id))
+          .forEach((id) => {
+            // get ref of item by id:
+            const itemObj = overContainerItems.find(
+              (item) => item.ref.id === id
+            );
+            // console.log("updating: ", itemObj?.data.name);
+
+            if (itemObj) {
+              updateDoc(itemObj.ref, "order", newOverOrder.indexOf(id));
+            }
+          });
+      } else {
+        const newActiveOrder = oldActiveOrder.filter((id) => id !== active.id);
+
+        const newOverOrder = [
+          ...oldOverOrder.slice(0, newIndex),
+          activeItem.ref.id,
+          ...oldOverOrder.slice(newIndex, oldOverOrder.length),
+        ];
+
+        // if item moved to new container, delete it in old & add in new container
         overContainer.ref.parent.id === "lists"
           ? addDoc(
               itemsOfList(overContainer as AdminList),
@@ -200,7 +205,7 @@ const ItemDndContext = ({
           : addDoc(
               itemsOfSection(overContainer as Section),
               createItemData({
-                name: active.data.current?.item.data.name,
+                name: activeItem.data.name,
                 authorizedUsers: list.data.contributors
                   ? [list.data.ownerID, ...list.data.contributors]
                   : [list.data.ownerID],
@@ -208,64 +213,73 @@ const ItemDndContext = ({
                 order: newIndex,
               })
             );
-        deleteDoc(active.data.current?.item.ref);
-        // console.log(
-        //   "written moved item to db: ",
-        //   active.data.current?.item.data.name
-        // );
+        deleteDoc(activeItem.ref);
+
+        // check if other items changed order
+        newOverOrder
+          // find all items that between the old and new index of the active item
+          .filter((id, index) => index !== oldOverOrder.indexOf(id))
+          .forEach((id) => {
+            // get ref of item by id:
+            const itemObj = overContainerItems.find(
+              (item) => item.ref.id === id
+            );
+
+            if (itemObj) {
+              updateDoc(itemObj.ref, "order", newOverOrder.indexOf(id));
+            }
+          });
+
+        // update order of items in old container if item moved to new container
+        if (overContainer.ref.id !== activeContainer.ref.id)
+          oldActiveOrder
+            // find all items below the active item
+            .slice(oldActiveIndex + 1)
+            .forEach((id) => {
+              // get ref of item by id:
+              const itemObj = activeContainerItems.find(
+                (item) => item.ref.id === id
+              );
+
+              if (itemObj) {
+                updateDoc(itemObj.ref, "order", newActiveOrder.indexOf(id));
+              }
+            });
       }
-      // console.log("old order: ", oldItemOrder);
-      // console.log("new order: ", newItemOrder);
 
-      // check if other items changed order
-      newItemOrder.forEach((id, index) => {
-        if (newItemOrder.indexOf(id) !== oldItemOrder.indexOf(id)) {
-          // get ref of item by id:
-          const itemObj = overContainerItems.find((item) => item.ref.id === id);
-
-          if (itemObj) {
-            updateDoc(itemObj.ref, "order", index);
-            // console.log(
-            //   "written new order to db for item: ",
-            //   itemObj.data.name
-            // );
-          }
-        }
-        // check if localItems order is unchanged, but db order differs -> bug?
-        else if (
-          newItemOrder.indexOf(id) !==
-          overContainerItems.find((item) => item.ref.id === id)?.data.order
-        )
-          console.log("ALARM at ", id);
-      });
       setActiveItem(null);
     }
   };
 
   const handleDragStart = (e: DragStartEvent) => {
-    setActiveItem(e.active.data.current?.item as ItemType);
+    setActiveItem(e.active.data.current?.element as ItemType);
   };
 
   return (
     <>
-      <DndContext
-        sensors={sensors}
-        modifiers={[restrictToVerticalAxis]}
-        collisionDetection={closestCenter}
-        onDragStart={(e) => handleDragStart(e)}
-        onDragOver={(e) => handleDragOver(e)}
-        onDragEnd={(e) => handleDragEnd(e)}
-      >
-        {children}
+      {error && <Error msg={error.message} />}
+      {loading ? (
+        <Loading />
+      ) : (
+        <DndContext
+          sensors={sensors}
+          modifiers={[restrictToVerticalAxis]}
+          collisionDetection={closestCenter}
+          onDragStart={(e) => handleDragStart(e)}
+          onDragOver={(e) => handleDragOver(e)}
+          onDragEnd={(e) => handleDragEnd(e)}
+        >
+          <ItemArea list={list} sections={sections} items={localItems} />
 
-        <DragOverlay dropAnimation={null}>
-          {activeItem ? (
-            <div>
-              <Item item={activeItem} />
-            </div>
-          ) : null}
-        </DragOverlay>
-      </DndContext>
+          <DragOverlay dropAnimation={null}>
+            {activeItem ? (
+              <div>
+                <Item item={activeItem} />
+              </div>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+      )}
     </>
   );
 };

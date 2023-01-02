@@ -2,13 +2,9 @@ import { addDoc } from "firebase/firestore";
 import router from "next/router";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useAuth } from "../../firebase/authContext";
-import {
-  createItemData,
-  createListData,
-  createSectionData,
-} from "../../firebase/factory";
-import { itemsOfList, lists, sectionsOfList } from "../../firebase/useDb";
-import { AdminList, List } from "../../types/types";
+import { createListData, createSectionData } from "../../firebase/factory";
+import { lists, sectionsOfList } from "../../firebase/useDb";
+import { AdminList } from "../../types/types";
 import { Modal } from "../utils/Modal";
 
 const AddNamePicker = ({
@@ -29,19 +25,6 @@ const AddNamePicker = ({
     e.preventDefault();
     if (user)
       switch (type) {
-        case "item": {
-          addDoc(
-            itemsOfList(activeList),
-            createItemData({
-              name: name === "" ? `new ${type}` : name,
-              authorizedUsers: activeList.data.contributors
-                ? [activeList.data.ownerID, ...activeList.data.contributors]
-                : [activeList.data.ownerID],
-              list: activeList,
-            })
-          );
-          break;
-        }
         case "list": {
           const newList = await addDoc(
             lists,

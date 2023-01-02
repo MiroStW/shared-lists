@@ -26,7 +26,6 @@ const RenameModal = ({
         name: collectionTitle,
       });
       setShowModal(false);
-      console.log("rename");
     }
   };
 
