@@ -33,17 +33,10 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
     setItemName(e.target.value);
   };
 
-  // when pressing enter on an empty item, dont create a new item
-  // TODO: new temp item created at end of list, not under current item
-  // currently creates new item at end of list, but when saving, it saves under
-  // current item without updating order of following items
+  // Defocus current item, triggering submitEdit & create new empty item
   const handleEnter = (e: KeyboardEvent<HTMLInputElement>) => {
-    // 1. handleRename
-    // 2. change id to "pending_..."?
-    // 3. save to db
-    // 4. defocus / blur
-    inputRef.current?.blur(); // triggering 1.-3.
-    // 5. add new item, which will grab focus next
+    inputRef.current?.blur();
+
     if (itemName !== "") {
       console.log("this ENTER came from item: ", item, localItems);
 
@@ -54,61 +47,6 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
         ),
         sectionId: item.ref.parent.parent!.id,
       });
-
-      // TODO: update local order here! needs to be reversed if item gets
-      // deleted
-      if (item.data.order < localItems[item.ref.parent.parent!.id].length - 1)
-        setLocalItems((prev) => {
-          return {
-            ...prev,
-            [item.ref.parent.parent!.id]: [
-              ...prev[item.ref.parent.parent!.id].slice(
-                0,
-                localItems[item.ref.parent.parent!.id].indexOf(item) + 1
-              ),
-              prev[item.ref.parent.parent!.id].find((i) =>
-                i.ref.id.startsWith("newItem")
-              )!,
-              ...prev[item.ref.parent.parent!.id]
-                .slice(localItems[item.ref.parent.parent!.id].indexOf(item) + 1)
-                .filter((i) => !i.ref.id.startsWith("newItem"))
-                .map((i) => {
-                  return {
-                    ...i,
-                    data: {
-                      ...i.data,
-                      order: i.data.order + 1,
-                    },
-                  };
-                }),
-            ],
-          };
-        });
-
-      // localItems[item.ref.parent.parent!.id]
-      //   .slice(localItems[item.ref.parent.parent!.id].indexOf(item) + 1)
-      //   .filter((i) => !i.ref.id.startsWith("newItem"))
-      //   .forEach((i) => {
-      //     setLocalItems((prev) => {
-      //       return {
-      //         ...prev,
-      //         [item.ref.parent.parent!.id]: [
-      //           ...prev[item.ref.parent.parent!.id].map((i) => {
-      //             if (i.ref.id !== item.ref.id) {
-      //               return {
-      //                 ...i,
-      //                 data: {
-      //                   ...i.data,
-      //                   order: i.data.order + 1,
-      //                 },
-      //               };
-      //             }
-      //             return i;
-      //           }),
-      //         ],
-      //       };
-      //     }
-      //   });
     }
   };
 
@@ -232,7 +170,7 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
               className={styles.itemName}
               onClick={handleInlineEdit}
             >
-              {item.data.name}
+              {item.data.order} - {item.data.name}
             </div>
           )}
           <div className={styles.itemHoverMenu}>

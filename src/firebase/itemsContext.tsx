@@ -144,14 +144,21 @@ export const ItemsContextProvider = ({
       }),
     };
 
+    // add new item locally & update order of other items
     setLocalItems((prev) => ({
       ...prev,
       [sectionId || list.ref.id]: [
         ...prev[sectionId || list.ref.id].slice(0, order),
         newItem,
-        ...prev[sectionId || list.ref.id].slice(order),
-        // .splice(newItem.data.order, 0, newItem),
-        // newItem,
+        ...prev[sectionId || list.ref.id].slice(order).map((i) => {
+          return {
+            ...i,
+            data: {
+              ...i.data,
+              order: i.data.order + 1,
+            },
+          };
+        }),
       ],
     }));
   };
