@@ -16,6 +16,7 @@ const ItemArea = ({
   items: { [key: string]: Item[] };
 }) => {
   const [showShareModal, setShowShareModal] = useState(false);
+  const [hideCompleted, setHideCompleted] = useState(false);
 
   const Droppable = ({
     container,
@@ -46,9 +47,19 @@ const ItemArea = ({
           <div className={styles.listOptions}>
             <div
               className={styles.listOption}
+              onClick={() => setHideCompleted(!hideCompleted)}
+            >
+              {hideCompleted ? (
+                <Icon iconName={"unpublished"} size={20} style={"outlined"} />
+              ) : (
+                <Icon iconName={"check_circle"} size={20} style={"outlined"} />
+              )}
+            </div>
+            <div
+              className={styles.listOption}
               onClick={() => setShowShareModal(true)}
             >
-              <Icon iconName={"share"} />
+              <Icon iconName={"share"} size={20} />
             </div>
           </div>
         </div>
@@ -63,7 +74,11 @@ const ItemArea = ({
               <div>No items yet</div>
             ) : (
               <>
-                <Items containerId={list.ref.id} items={items[list.ref.id]} />
+                <Items
+                  containerId={list.ref.id}
+                  items={items[list.ref.id]}
+                  hideCompleted={hideCompleted}
+                />
                 {sections.length > 0 &&
                   sections.map((section) => (
                     <div key={section.ref.id}>
@@ -71,6 +86,7 @@ const ItemArea = ({
                         section={section}
                         containerId={section.ref.id}
                         items={items[section.ref.id]}
+                        hideCompleted={hideCompleted}
                       />
                     </div>
                   ))}

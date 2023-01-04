@@ -11,10 +11,12 @@ const Items = ({
   items,
   containerId,
   section,
+  hideCompleted,
 }: {
   items: ItemType[];
   containerId: string;
   section?: Section;
+  hideCompleted: boolean;
 }) => {
   const { setNodeRef } = useDroppable({ id: containerId });
 
@@ -23,19 +25,23 @@ const Items = ({
       {items && (
         <SortableContext
           id={containerId}
-          items={items.map((item) => item.ref.id)}
+          items={items
+            .filter((item) => hideCompleted || !item.data.completed)
+            .map((item) => item.ref.id)}
           strategy={verticalListSortingStrategy}
         >
           <div ref={setNodeRef}>
             {section && <SectionHeader section={section} />}
           </div>
-          {items.map((item) => (
-            <Item
-              key={item.ref.id}
-              item={item}
-              focus={item.ref.id.startsWith("newItem_")}
-            />
-          ))}
+          {items
+            .filter((item) => hideCompleted || !item.data.completed)
+            .map((item) => (
+              <Item
+                key={item.ref.id}
+                item={item}
+                focus={item.ref.id.startsWith("newItem_")}
+              />
+            ))}
         </SortableContext>
       )}
     </>
