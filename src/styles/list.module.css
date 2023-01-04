@@ -4,7 +4,7 @@
 }
 
 .list div {
-  height: 1em;
+  height: 18px;
 }
 
 @media (max-width: 500px) {
