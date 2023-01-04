@@ -14,6 +14,11 @@
   margin: 0;
 }
 
+.listOptions {
+  display: flex;
+  gap: 10px;
+}
+
 .listOption {
   cursor: pointer;
 }
