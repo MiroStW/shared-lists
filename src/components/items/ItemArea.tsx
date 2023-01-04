@@ -50,9 +50,9 @@ const ItemArea = ({
               onClick={() => setHideCompleted(!hideCompleted)}
             >
               {hideCompleted ? (
-                <Icon iconName={"unpublished"} size={20} style={"outlined"} />
-              ) : (
                 <Icon iconName={"check_circle"} size={20} style={"outlined"} />
+              ) : (
+                <Icon iconName={"unpublished"} size={20} style={"outlined"} />
               )}
             </div>
             <div
