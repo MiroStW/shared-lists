@@ -43,6 +43,7 @@ const ShowInvite = () => {
   const [invite, setInvite] = useState<Invite | null>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>();
+  const [showMobileLists, setShowMobileLists] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -84,9 +85,15 @@ const ShowInvite = () => {
       ) : (
         <>
           <div id={styles.container}>
-            <Header />
+            <Header
+              showMobileLists={showMobileLists}
+              setShowMobileLists={setShowMobileLists}
+            />
             <div id={styles.main}>
-              <Lists />
+              <Lists
+                showMobileLists={showMobileLists}
+                setShowMobileLists={setShowMobileLists}
+              />
               <div
                 style={{
                   position: "relative",
