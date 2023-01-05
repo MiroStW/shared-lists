@@ -11,6 +11,10 @@ function MyApp({ Component, pageProps }: AppProps) {
       <Head>
         <title>Shared Lists</title>
         <meta property="og:title" content="Shared Lists" key="title" />
+        <meta
+          name="description"
+          content="The easiest way to create checklists together."
+        />
       </Head>
       <AuthContextProvider cookie={new Cookie()}>
         <ListsContextProvider>
