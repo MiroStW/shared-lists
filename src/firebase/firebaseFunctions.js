@@ -19,9 +19,11 @@ const nextjsServer = next({
 
 const nextjsHandle = nextjsServer.getRequestHandler();
 
-exports.nextjsFunc = region("europe-west1").https.onRequest((req, res) => {
-  return nextjsServer.prepare().then(() => nextjsHandle(req, res));
-});
+exports.nextjsFunc = region("europe-west1")
+  .runWith({ minInstances: 1 })
+  .https.onRequest((req, res) => {
+    return nextjsServer.prepare().then(() => nextjsHandle(req, res));
+  });
 
 exports.sendEmail = sendEmail.sendEmail;
 exports.addAuthorizedUser = addAuthorizedUser.addAuthorizedUser;
