@@ -1,5 +1,7 @@
-import Home from "./Home";
+import Link from "next/link";
 import { verifyAuthToken } from "./context/verifyAuthToken";
+import SignOutBtn from "./SignOutBtn";
+import styles from "../styles/main.module.css";
 
 const getUser = async () => {
   const { user, auth } = await verifyAuthToken();
@@ -9,12 +11,32 @@ const getUser = async () => {
 };
 
 const Page = async () => {
-  const { user, auth } = await getUser();
-  // const user = serializedUser
-  //   ? (JSON.parse(serializedUser) as User)
-  //   : undefined;
+  const { user } = await getUser();
 
-  return <Home user={user} />;
+  return (
+    <>
+      <h1>Shared Lists</h1>
+      {user && <p>Hi {user.displayName},</p>}
+      <p>This is an empty home page, to be filled!</p>
+      <div className={styles.loginStatus}>
+        {user && (
+          <>
+            <Link href="/lists">
+              <button>open app</button>
+            </Link>
+            <SignOutBtn />
+          </>
+        )}
+        {!user && (
+          <>
+            <button>
+              <Link href={"/login"}>Login</Link>
+            </button>
+          </>
+        )}
+      </div>
+    </>
+  );
 };
 
 export default Page;
