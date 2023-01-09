@@ -1,16 +1,11 @@
-// eslint-disable-next-line import/no-unresolved
-import Head from "next/head";
-import { GetServerSidePropsContext } from "next";
-import { uiConfig } from "../../firebase/firebaseAuthUI.config";
-import { useAuth } from "../../firebase/authContext";
-import StyledFirebaseUi from "../../firebase/StyledFirebaseUi";
+import { redirect } from "next/navigation";
 import { verifyAuthToken } from "../context/verifyAuthToken";
 import { adminDb } from "../../firebase/firebaseAdmin";
 import Login from "./Login";
+import { createAdminListData } from "../../firebase/adminFactory";
 
-const redirectToFirstList = async () => {
+const getFirstListId = async () => {
   const { user } = await verifyAuthToken();
-
   if (user) {
     const firstListId = await adminDb()
       .collection("lists")
@@ -21,26 +16,22 @@ const redirectToFirstList = async () => {
       .get()
       .then((snapshot) => {
         if (snapshot.empty) {
-          // TODO: handle creation of initial list here
+          adminDb()
+            .collection("lists")
+            .add(createAdminListData("my first list", user));
           return null;
         }
         return snapshot.docs[0].id;
       });
-
-    return {
-      redirect: {
-        permanent: false,
-        destination: `/lists/${firstListId}`,
-      },
-      props: {} as never,
-    };
-  } else
-    return {
-      props: {} as never,
-    };
+    return firstListId;
+  }
+  return null;
 };
 
 const Page = async () => {
+  const firstListId = await getFirstListId();
+  if (firstListId) redirect(`/lists/${firstListId}`);
+
   return <Login />;
 };
 
