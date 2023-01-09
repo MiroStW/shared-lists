@@ -26,6 +26,7 @@
     "no-unused-expressions": ["error", { "allowTernary": true }],
     "arrow-body-style": "off",
     "no-else-return": "off",
+    "import/no-unresolved": "off",
     "import/extensions": "off",
     "import/prefer-default-export": "off",
     "react-hooks/rules-of-hooks": "error", // Checks rules of Hooks
