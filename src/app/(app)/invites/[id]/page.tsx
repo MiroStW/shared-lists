@@ -3,17 +3,19 @@ import { useRouter } from "next/router";
 import { httpsCallable } from "firebase/functions";
 import { useEffect, useState } from "react";
 import { GetServerSidePropsContext } from "next";
-import { Loading } from "../../../components/utils/Loading";
-import { Error as ErrorComp } from "../../../components/utils/Error";
-import { useAuth } from "../../../firebase/authContext";
-import { inviteConverter } from "../../../firebase/firestoreConverter";
-import { invites } from "../../../firebase/useDb";
-import { Invite } from "../../../types/types";
-import { Header } from "../../../components/header/Header";
-import styles from "../../styles/showApp.module.css";
-import { Lists } from "../../../components/lists/Lists";
-import { functions } from "../../../firebase/firebase";
-import { verifyAuthToken } from "../../../firebase/verifyAuthToken";
+import { Loading } from "../../../../components/utils/Loading";
+import { Error as ErrorComp } from "../../../../components/utils/Error";
+import { useAuth } from "../../../../firebase/authContext";
+import { inviteConverter } from "../../../../firebase/firestoreConverter";
+import { invites } from "../../../../firebase/useDb";
+import { Invite } from "../../../../types/types";
+import { Header } from "../../../../components/header/Header";
+import styles from "../../lists/[id]/showApp.module.css";
+import { Lists } from "../../../../components/lists/Lists";
+import { functions } from "../../../../firebase/firebase";
+import { verifyAuthToken } from "../../../../firebase/verifyAuthToken";
+
+// going forward invites could become a modal on the lists page
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const { user } = await verifyAuthToken(ctx);

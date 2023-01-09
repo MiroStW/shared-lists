@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
-import { verifyAuthToken } from "../context/verifyAuthToken";
+import { verifyAuthToken } from "../verifyAuthToken";
 import { adminDb } from "../../firebase/firebaseAdmin";
-import Login from "./Login";
+import ShowLogin from "./ShowLogin";
 import { createAdminListData } from "../../firebase/adminFactory";
 
 const getFirstListId = async () => {
@@ -32,7 +32,7 @@ const Page = async () => {
   const firstListId = await getFirstListId();
   if (firstListId) redirect(`/lists/${firstListId}`);
 
-  return <Login />;
+  return <ShowLogin />;
 };
 
 export default Page;

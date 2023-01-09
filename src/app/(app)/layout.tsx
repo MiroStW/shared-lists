@@ -1,12 +1,10 @@
+import { verifyAuthToken } from "app/verifyAuthToken";
 import { redirect } from "next/navigation";
-import { adminDb } from "../../../firebase/firebaseAdmin";
-import { AdminList } from "../../../types/types";
-import { verifyAuthToken } from "../../context/verifyAuthToken";
+import { AdminList } from "types/types";
+import { adminDb } from "../../firebase/firebaseAdmin";
 import ShowApp from "./ShowApp";
 
-// TODO: also prerender items/sections of list with id param
-
-export const getLists = async () => {
+const getLists = async () => {
   const { user } = await verifyAuthToken();
 
   if (user) {
@@ -69,15 +67,12 @@ export const getLists = async () => {
   } else return null;
 };
 
-const page = async ({ params }: { params: { id: string } }) => {
+const AppLayout = async ({ children }: { children: React.ReactNode }) => {
   const serializedLists = await getLists();
   if (!serializedLists) redirect("/login");
-
   const prefetchedLists = JSON.parse(serializedLists) as AdminList[];
-  const activeList = prefetchedLists.find((list) => list.ref.id === params.id);
-  if (!activeList) redirect("/lists");
 
-  return <ShowApp prefetchedLists={prefetchedLists} activeList={activeList} />;
+  return <ShowApp prefetchedLists={prefetchedLists}>{children}</ShowApp>;
 };
 
-export default page;
+export default AppLayout;

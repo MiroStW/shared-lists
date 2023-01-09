@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  addDoc,
   FirestoreError,
   onSnapshot,
   orderBy,
@@ -15,11 +14,10 @@ import {
   useEffect,
   useState,
 } from "react";
-import { List } from "../types/types";
-import { useAuth } from "./authContext";
-import { createListData } from "./factory";
-import { listConverter } from "./firestoreConverter";
-import { lists as listsRef } from "./useDb";
+import { List } from "types/types";
+import { lists as listsRef } from "../../firebase/useDb";
+import { listConverter } from "../../firebase/firestoreConverter";
+import { useAuth } from "../authContext";
 
 const listsContext = createContext({
   lists: [] as List[] | undefined,
@@ -51,9 +49,6 @@ export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
         snapshot.forEach((doc) => {
           listsnapshot.push(doc.data());
         });
-        if (!snapshot.size && user) {
-          addDoc(listsRef, createListData("my first list", user));
-        }
         setOwnedLists(listsnapshot);
         setLoading(false);
       },

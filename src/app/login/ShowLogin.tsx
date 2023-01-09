@@ -2,9 +2,9 @@
 
 import { uiConfig } from "../../firebase/firebaseAuthUI.config";
 import AuthUi from "./AuthUi";
-import { useAuth } from "../context/authContext";
+import { useAuth } from "../authContext";
 
-const Login = () => {
+const ShowLogin = () => {
   const { auth } = useAuth();
   return (
     <>
@@ -18,4 +18,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ShowLogin;

@@ -10,12 +10,19 @@ import {
   useEffect,
   useState,
 } from "react";
-import { AdminList, Item as ItemType, Section } from "../types/types";
-import { useAuth } from "./authContext";
-import { itemConverter, sectionConverter } from "./firestoreConverter";
-import { db, items as itemsCol, sectionsOfList } from "../firebase/useDb";
 import { useCollection } from "react-firebase-hooks/firestore";
-import { createItemData } from "./factory";
+import { AdminList, Item as ItemType, Section } from "../../../../types/types";
+import { useAuth } from "../../../authContext";
+import {
+  db,
+  items as itemsCol,
+  sectionsOfList,
+} from "../../../../firebase/useDb";
+import {
+  itemConverter,
+  sectionConverter,
+} from "../../../../firebase/firestoreConverter";
+import { createItemData } from "../../../../firebase/factory";
 
 interface ItemsContextType {
   items: ItemType[];
