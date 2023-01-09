@@ -1,22 +1,13 @@
-import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { AddButton } from "../../../components/addButton/AddButton";
-import { Header } from "../../../components/header/Header";
-import { ItemDndContext } from "../../../components/items/ItemDndContext";
-import { Lists } from "../../../components/lists/Lists";
-import { Loading } from "../../../components/utils/Loading";
-import { useAuth } from "../../../firebase/authContext";
+import { redirect } from "next/navigation";
 import { adminDb } from "../../../firebase/firebaseAdmin";
-import { ItemsContextProvider } from "../../../firebase/itemsContext";
-import { verifyAuthToken } from "../../../firebase/verifyAuthToken";
-import styles from "../../styles/showApp.module.css";
 import { AdminList } from "../../../types/types";
+import { verifyAuthToken } from "../../context/verifyAuthToken";
+import ShowApp from "./ShowApp";
 
 // TODO: also prerender items/sections of list with id param
 
-export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-  const { user } = await verifyAuthToken(ctx);
+export const getLists = async () => {
+  const { user } = await verifyAuthToken();
 
   if (user) {
     const ownedLists = adminDb()
@@ -73,73 +64,20 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       values.flat()
     );
 
-    return {
-      props: {
-        serializedLists: JSON.stringify(lists),
-      },
-    };
-  } else
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/login",
-      },
-      props: {} as never,
-    };
+    // TODO: do i still need to stringify the lists?
+    return JSON.stringify(lists);
+  } else return null;
 };
 
-const ShowList = ({
-  serializedLists,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const router = useRouter();
-  const { id } = router.query;
-  const { user } = useAuth();
-  const [lists, setLists] = useState<AdminList[] | null>(null);
-  const [activeList, setActiveList] = useState<AdminList | undefined>(
-    undefined
-  );
-  const [showMobileLists, setShowMobileLists] = useState(false);
+const page = async ({ params }: { params: { id: string } }) => {
+  const serializedLists = await getLists();
+  if (!serializedLists) redirect("/login");
 
-  useEffect(() => {
-    if (serializedLists) {
-      const preFetchedLists = JSON.parse(serializedLists) as AdminList[];
-      const foundActiveList = preFetchedLists.find(
-        (list) => list.ref.id === id
-      );
-      if (!foundActiveList) {
-        router.push("/lists");
-      } else {
-        setActiveList(foundActiveList);
-      }
-      setLists(preFetchedLists);
-    }
-  }, [id, router, serializedLists]);
+  const prefetchedLists = JSON.parse(serializedLists) as AdminList[];
+  const activeList = prefetchedLists.find((list) => list.ref.id === params.id);
+  if (!activeList) redirect("/lists");
 
-  return (
-    <div id={styles.container}>
-      <Header
-        showMobileLists={showMobileLists}
-        setShowMobileLists={setShowMobileLists}
-      />
-      <div id={styles.main}>
-        <Lists
-          preFetchedLists={lists || undefined}
-          showMobileLists={showMobileLists}
-          setShowMobileLists={setShowMobileLists}
-        />
-        <div className={styles.itemsArea}>
-          {activeList && user ? (
-            <ItemsContextProvider list={activeList}>
-              <ItemDndContext list={activeList} />
-              <AddButton activeList={activeList} />
-            </ItemsContextProvider>
-          ) : (
-            <Loading />
-          )}
-        </div>
-      </div>
-    </div>
-  );
+  return <ShowApp prefetchedLists={prefetchedLists} activeList={activeList} />;
 };
 
-export default ShowList;
+export default page;
