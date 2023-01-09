@@ -1,6 +1,5 @@
 import { UserRecord } from "firebase-admin/auth";
-import { User } from "firebase/auth";
-import { Timestamp } from "firebase/firestore";
+import { Timestamp } from "firebase-admin/firestore";
 import {
   ListData,
   ItemData,
@@ -10,7 +9,7 @@ import {
   AdminList,
 } from "../types/types";
 
-const createListData = (name: string, user: User): ListData => {
+const createAdminListData = (name: string, user: UserRecord): ListData => {
   return {
     name,
     createdDate: Timestamp.now(),
@@ -19,7 +18,7 @@ const createListData = (name: string, user: User): ListData => {
   };
 };
 
-const createItemData = ({
+const createAdminItemData = ({
   name,
   authorizedUsers,
   list,
@@ -41,7 +40,7 @@ const createItemData = ({
   };
 };
 
-const createSectionData = ({
+const createAdminSectionData = ({
   name,
   authorizedUsers,
 }: {
@@ -55,8 +54,8 @@ const createSectionData = ({
   };
 };
 
-const createInviteData = (
-  user: User,
+const createAdminInviteData = (
+  user: UserRecord,
   inviteeEmail: string,
   list: AdminList
 ): InviteData => {
@@ -71,4 +70,9 @@ const createInviteData = (
   };
 };
 
-export { createListData, createItemData, createSectionData, createInviteData };
+export {
+  createAdminListData,
+  createAdminItemData,
+  createAdminSectionData,
+  createAdminInviteData,
+};
