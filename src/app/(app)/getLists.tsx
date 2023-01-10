@@ -1,6 +1,6 @@
 import { verifyAuthToken } from "app/verifyAuthToken";
-import { adminDb } from "firebase/firebaseAdmin";
 import { AdminList } from "types/types";
+import { adminDb } from "../../firebase/firebaseAdmin";
 
 export const getLists = async () => {
   const { user } = await verifyAuthToken();
