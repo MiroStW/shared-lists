@@ -1,4 +1,4 @@
-import { getLists } from "app/(app)/layout";
+import { getLists } from "app/(app)/getLists";
 import { redirect } from "next/navigation";
 import { AdminList } from "types/types";
 import ShowItems from "./ShowItems";
