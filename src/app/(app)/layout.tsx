@@ -4,7 +4,7 @@ import { AdminList } from "types/types";
 import { adminDb } from "../../firebase/firebaseAdmin";
 import ShowApp from "./ShowApp";
 
-const getLists = async () => {
+export const getLists = async () => {
   const { user } = await verifyAuthToken();
 
   if (user) {
