@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
+import { useLists } from "app/(app)/listsContext";
 import List from "./List";
 import styles from "../../styles/lists.module.css";
-import { useLists } from "../../firebase/listsContext";
 import { Error } from "../utils/Error";
 import { AdminList } from "../../types/types";
 import { Loading } from "../utils/Loading";
