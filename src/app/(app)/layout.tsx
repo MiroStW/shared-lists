@@ -53,7 +53,15 @@ export const getLists = async () => {
           (doc) =>
             ({
               data: doc.data(),
-              ref: { ...doc.ref, id: doc.id },
+              ref: {
+                ...doc.ref,
+                id: doc.id,
+                parent: {
+                  ...doc.ref.parent,
+                  id: doc.ref.parent.id,
+                },
+                path: doc.ref.path,
+              },
             } as AdminList)
         );
       });
