@@ -91,3 +91,14 @@ export class Invite {
     this.data = data;
   }
 }
+
+export class AdminInvite {
+  readonly ref: admin.DocumentReference<InviteData>;
+
+  readonly data: InviteData;
+
+  constructor(ref: admin.DocumentReference<InviteData>, data: InviteData) {
+    this.ref = ref;
+    this.data = data;
+  }
+}

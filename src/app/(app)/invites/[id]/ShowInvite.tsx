@@ -1,20 +1,23 @@
-import { useAuth } from "app/authContext";
-import { updateDoc } from "firebase/firestore";
+"use client";
+
+import { doc, updateDoc } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import { useRouter } from "next/navigation";
-import { Invite } from "types/types";
+import { AdminInvite } from "types/types";
+import { db } from "../../../../firebase/useDb";
 import { functions } from "../../../../firebase/firebase";
 
-const ShowInvite = ({ invite }: { invite: Invite }) => {
+const ShowInvite = ({ invite }: { invite: AdminInvite }) => {
   const router = useRouter();
-  const { user } = useAuth();
 
   const handleJoinList = async (response: boolean) => {
     if (invite && response) {
-      updateDoc(invite.ref, { status: response ? "accepted" : "declined" });
+      updateDoc(doc(db, invite.ref.path), {
+        status: response ? "accepted" : "declined",
+      });
 
       const addAuthorizedUser = httpsCallable(functions, "addAuthorizedUser");
-      addAuthorizedUser({ listId: invite.data.listID, userId: user?.uid });
+      addAuthorizedUser({ listId: invite.data.listID });
 
       router.push(`/lists/${invite?.data.listID}`);
     } else router.push("/lists");
