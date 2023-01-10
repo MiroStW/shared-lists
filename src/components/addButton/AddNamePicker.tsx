@@ -1,7 +1,7 @@
+import { useAuth } from "app/authContext";
 import { addDoc } from "firebase/firestore";
-import router from "next/router";
+import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useState } from "react";
-import { useAuth } from "../../firebase/authContext";
 import { createListData, createSectionData } from "../../firebase/factory";
 import { lists, sectionsOfList } from "../../firebase/useDb";
 import { AdminList } from "../../types/types";
@@ -18,6 +18,7 @@ const AddNamePicker = ({
 }) => {
   const { user } = useAuth();
   const [name, setName] = useState("");
+  const router = useRouter();
 
   const clickHandler = async (
     e: React.MouseEvent<HTMLInputElement, MouseEvent>

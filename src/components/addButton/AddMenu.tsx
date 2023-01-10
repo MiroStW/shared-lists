@@ -1,10 +1,10 @@
 import { Dispatch, SetStateAction, useState } from "react";
+import { AdminList } from "types/types";
+import { useItems } from "app/(app)/lists/[id]/itemsContext";
 import styles from "../../styles/addMenu.module.css";
 import modalStyles from "../../styles/modal.module.css";
-import { AdminList, List } from "../../types/types";
 import { AddNamePicker } from "./AddNamePicker";
 import { Icon } from "../utils/Icon";
-import { useItems } from "../../firebase/itemsContext";
 
 const AddMenu = ({
   setShowAddMenu,
