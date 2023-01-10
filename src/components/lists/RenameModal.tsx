@@ -1,13 +1,7 @@
 import { doc, updateDoc } from "firebase/firestore";
 import { MouseEvent, Dispatch, SetStateAction, useState } from "react";
 import { db } from "../../firebase/useDb";
-import {
-  AdminList,
-  List,
-  ListData,
-  Section,
-  SectionData,
-} from "../../types/types";
+import { AdminList, List, Section } from "../../types/types";
 import { Modal } from "../utils/Modal";
 
 const RenameModal = ({
