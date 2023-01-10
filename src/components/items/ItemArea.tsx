@@ -1,7 +1,7 @@
 import { useDroppable } from "@dnd-kit/core";
 import { useState } from "react";
+import { AdminList, Item, Section } from "types/types";
 import styles from "../../styles/items.module.css";
-import { AdminList, Item, Section } from "../../types/types";
 import { Icon } from "../utils/Icon";
 import { Items } from "./Items";
 import { ShareModal } from "./ShareModal";

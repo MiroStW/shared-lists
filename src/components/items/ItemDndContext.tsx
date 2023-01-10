@@ -13,13 +13,13 @@ import {
 } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { arrayMove } from "@dnd-kit/sortable";
+import { useAuth } from "app/authContext";
 import { addDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { useState } from "react";
-import { useAuth } from "../../firebase/authContext";
+import { useItems } from "app/(app)/lists/[id]/itemsContext";
+import { Item as ItemType, Section, AdminList } from "types/types";
 import { createItemData } from "../../firebase/factory";
-import { useItems } from "../../firebase/itemsContext";
 import { itemsOfList, itemsOfSection } from "../../firebase/useDb";
-import { Item as ItemType, Section, AdminList } from "../../types/types";
 import { Loading } from "../utils/Loading";
 import { Error } from "../utils/Error";
 import { Item } from "./Item";

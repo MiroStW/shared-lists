@@ -7,12 +7,12 @@ import {
   useRef,
   useState,
 } from "react";
+import { useItems } from "app/(app)/lists/[id]/itemsContext";
 import styles from "../../styles/item.module.css";
 import { Item as ItemType } from "../../types/types";
 import { Icon } from "../utils/Icon";
 import { Checkbox } from "./Checkbox";
 import { Sortable } from "../utils/Sortable";
-import { useItems } from "../../firebase/itemsContext";
 
 const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
   const [inlineEdit, setInlineEdit] = useState(false);
