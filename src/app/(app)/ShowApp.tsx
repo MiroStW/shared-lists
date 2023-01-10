@@ -18,22 +18,22 @@ const ShowApp = ({
 
   return (
     <>
-      <ListsContextProvider>
-        <div id={styles.container}>
-          <Header
-            showMobileLists={showMobileLists}
-            setShowMobileLists={setShowMobileLists}
-          />
-          <div id={styles.main}>
+      <div id={styles.container}>
+        <Header
+          showMobileLists={showMobileLists}
+          setShowMobileLists={setShowMobileLists}
+        />
+        <div id={styles.main}>
+          <ListsContextProvider>
             <Lists
               preFetchedLists={prefetchedLists}
               showMobileLists={showMobileLists}
               setShowMobileLists={setShowMobileLists}
             />
-            <div className={styles.itemsArea}>{children}</div>
-          </div>
+          </ListsContextProvider>
+          <div className={styles.itemsArea}>{children}</div>
         </div>
-      </ListsContextProvider>
+      </div>
     </>
   );
 };
