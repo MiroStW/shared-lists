@@ -1,20 +1,21 @@
+import { getLists } from "app/(app)/layout";
 import { redirect } from "next/navigation";
 import { AdminList } from "types/types";
-import { adminDb } from "../../../../firebase/firebaseAdmin";
-import { verifyAuthToken } from "../../../verifyAuthToken";
 import ShowItems from "./ShowItems";
 
 // TODO: also prerender items/sections of list with id param
 
-// TODO: I need the Lists object here, should I refetch it or import it as
-// layout is also server-component?
+// TODO: check if the call to getLists() is automatically deduped, if not
+// whether it can be avoided
 const page = async ({ params }: { params: { id: string } }) => {
+  const serializedLists = await getLists();
+  if (!serializedLists) redirect("/login");
+  const prefetchedLists = JSON.parse(serializedLists) as AdminList[];
+
   const activeList = prefetchedLists.find((list) => list.ref.id === params.id);
   if (!activeList) redirect("/lists");
 
-  return (
-    <ShowItems prefetchedLists={prefetchedLists} activeList={activeList} />
-  );
+  return <ShowItems activeList={activeList} />;
 };
 
 export default page;

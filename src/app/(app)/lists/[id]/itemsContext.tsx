@@ -11,8 +11,8 @@ import {
   useState,
 } from "react";
 import { useCollection } from "react-firebase-hooks/firestore";
-import { AdminList, Item as ItemType, Section } from "../../../../types/types";
-import { useAuth } from "../../../authContext";
+import { AdminList, Item as ItemType, Section } from "types/types";
+import { User } from "firebase/auth";
 import {
   db,
   items as itemsCol,
@@ -45,13 +45,13 @@ const itemsContext = createContext({} as ItemsContextType);
 
 export const ItemsContextProvider = ({
   children,
+  user,
   list,
 }: {
   children: ReactNode;
+  user: User;
   list: AdminList;
 }) => {
-  const { user } = useAuth();
-
   const [items, loadingItems, errorItems] = useCollection<ItemType>(
     query(
       itemsCol,
