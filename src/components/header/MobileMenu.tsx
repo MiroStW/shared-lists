@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 import { Icon } from "../utils/Icon";
 import styles from "../../styles/mobileMenu.module.css";
 
@@ -9,8 +9,6 @@ const MobileMenu = ({
   showMobileLists: boolean;
   setShowMobileLists: Dispatch<SetStateAction<boolean>>;
 }) => {
-  // use a forwardRef to get the ref of the list area
-
   return (
     <div
       className={styles.mobileMenuBtn}

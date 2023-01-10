@@ -1,8 +1,10 @@
+"use client";
+
+import { useAuth } from "app/authContext";
 import { signOut } from "firebase/auth";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useAuth } from "../../firebase/authContext";
 import styles from "../../styles/userMenu.module.css";
 
 const UserMenu = () => {
