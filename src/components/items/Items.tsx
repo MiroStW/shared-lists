@@ -34,7 +34,7 @@ const Items = ({
             {section && <SectionHeader section={section} />}
           </div>
           {items
-            .filter((item) => hideCompleted || !item.data.completed)
+            .filter((item) => !hideCompleted || !item.data.completed)
             .map((item) => (
               <Item
                 key={item.ref.id}
