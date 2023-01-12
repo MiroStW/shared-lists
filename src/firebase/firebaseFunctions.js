@@ -1,7 +1,7 @@
 /* eslint-disable import/no-unresolved */
 /* eslint-disable global-require */
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { region } = require("firebase-functions");
+const { onRequest } = require("firebase-functions/v2/https");
 const { default: next } = require("next");
 const sendEmail = require("./sendEmail");
 const addAuthorizedUser = require("./addAuthorizedUser");
@@ -19,11 +19,15 @@ const nextjsServer = next({
 
 const nextjsHandle = nextjsServer.getRequestHandler();
 
-exports.nextjsFunc = region("europe-west1")
-  .runWith({ minInstances: 1 })
-  .https.onRequest((req, res) => {
+exports.nextjsfunc = onRequest(
+  {
+    region: "europe-west1",
+    runWith: { minInstances: 1 },
+  },
+  (req, res) => {
     return nextjsServer.prepare().then(() => nextjsHandle(req, res));
-  });
+  }
+);
 
 exports.sendEmail = sendEmail.sendEmail;
 exports.addAuthorizedUser = addAuthorizedUser.addAuthorizedUser;
