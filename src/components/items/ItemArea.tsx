@@ -1,10 +1,8 @@
-import { useDroppable } from "@dnd-kit/core";
 import { useState } from "react";
 import { AdminList, Item, Section } from "types/types";
 import styles from "../../styles/items.module.css";
-import { Icon } from "../utils/Icon";
 import { Items } from "./Items";
-import { ShareModal } from "./ShareModal";
+import ListHeader from "./ListHeader";
 
 const ItemArea = ({
   list,
@@ -15,55 +13,15 @@ const ItemArea = ({
   sections: Section[];
   items: { [key: string]: Item[] };
 }) => {
-  const [showShareModal, setShowShareModal] = useState(false);
   const [hideCompleted, setHideCompleted] = useState(false);
-
-  const Droppable = ({
-    container,
-    children,
-  }: {
-    container: AdminList | Section;
-    children: React.ReactNode;
-  }) => {
-    const type = container.ref.parent.id === "lists" ? "list" : "section";
-    const { setNodeRef } = useDroppable({
-      id: container.ref.id,
-      data: {
-        type,
-        element: container,
-      },
-    });
-
-    return <div ref={setNodeRef}>{children}</div>;
-  };
 
   return (
     <>
-      <Droppable container={list}>
-        <div className={styles.itemsHeader}>
-          <div className={styles.listTitle}>
-            <h2>{list.data.name}</h2>
-          </div>
-          <div className={styles.listOptions}>
-            <div
-              className={styles.listOption}
-              onClick={() => setHideCompleted(!hideCompleted)}
-            >
-              {hideCompleted ? (
-                <Icon iconName={"check_circle"} size={20} style={"outlined"} />
-              ) : (
-                <Icon iconName={"unpublished"} size={20} style={"outlined"} />
-              )}
-            </div>
-            <div
-              className={styles.listOption}
-              onClick={() => setShowShareModal(true)}
-            >
-              <Icon iconName={"share"} size={20} />
-            </div>
-          </div>
-        </div>
-      </Droppable>
+      <ListHeader
+        list={list}
+        setHideCompleted={setHideCompleted}
+        hideCompleted={hideCompleted}
+      />
       <div className={styles.itemsList}>
         {Object.keys(items).length > 0 && (
           <>
@@ -95,9 +53,6 @@ const ItemArea = ({
           </>
         )}
       </div>
-      {showShareModal && (
-        <ShareModal setShowShareModal={setShowShareModal} list={list} />
-      )}
     </>
   );
 };
