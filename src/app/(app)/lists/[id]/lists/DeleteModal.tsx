@@ -1,5 +1,5 @@
-import { Loading } from "app/(app)/shared/Loading";
-import { Modal } from "app/(app)/shared/Modal";
+import { Loading } from "app/shared/Loading";
+import { Modal } from "app/shared/Modal";
 import { httpsCallable } from "firebase/functions";
 import Router from "next/router";
 import { AdminList, List, Section } from "types/types";

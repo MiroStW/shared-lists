@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AdminList, List as ListType } from "types/types";
-import { Icon } from "app/(app)/shared/Icon";
+import { Icon } from "app/shared/Icon";
 import styles from "./list.module.css";
 import { RenameModal } from "./RenameModal";
 import { DeleteModal } from "./DeleteModal";

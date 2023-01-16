@@ -1,5 +1,5 @@
 import { useDroppable } from "@dnd-kit/core";
-import { Icon } from "app/(app)/shared/Icon";
+import { Icon } from "app/shared/Icon";
 import { Dispatch, SetStateAction, useState } from "react";
 import { AdminList, Section } from "types/types";
 import styles from "./items.module.css";

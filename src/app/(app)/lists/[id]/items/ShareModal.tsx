@@ -1,4 +1,4 @@
-import { Modal } from "app/(app)/shared/Modal";
+import { Modal } from "app/shared/Modal";
 import { useAuth } from "app/authContext";
 import { createInviteData } from "db/factory";
 import { invites } from "db/useDb";

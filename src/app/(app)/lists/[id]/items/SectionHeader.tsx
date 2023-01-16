@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Section } from "types/types";
 import { DeleteModal } from "app/(app)/lists/[id]/lists/DeleteModal";
 import { RenameModal } from "app/(app)/lists/[id]/lists/RenameModal";
-import { Icon } from "app/(app)/shared/Icon";
+import { Icon } from "app/shared/Icon";
 import styles from "./section.module.css";
 
 const SectionHeader = ({ section }: { section: Section }) => {

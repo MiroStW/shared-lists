@@ -1,8 +1,8 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { AdminList } from "types/types";
 import { useItems } from "app/(app)/lists/[id]/itemsContext";
-import modalStyles from "app/(app)/shared/modal.module.css";
-import { Icon } from "app/(app)/shared/Icon";
+import modalStyles from "app/shared/modal.module.css";
+import { Icon } from "app/shared/Icon";
 import styles from "./addMenu.module.css";
 import { AddNamePicker } from "./AddNamePicker";
 

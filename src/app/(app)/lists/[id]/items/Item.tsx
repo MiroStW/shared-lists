@@ -9,7 +9,7 @@ import {
 } from "react";
 import { useItems } from "app/(app)/lists/[id]/itemsContext";
 import { Item as ItemType } from "types/types";
-import { Icon } from "app/(app)/shared/Icon";
+import { Icon } from "app/shared/Icon";
 import { Checkbox } from "./Checkbox";
 import styles from "./item.module.css";
 import { Sortable } from "./dnd/Sortable";

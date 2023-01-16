@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
-import { Icon } from "../shared/Icon";
+import { Icon } from "../../shared/Icon";
 import styles from "./mobileMenu.module.css";
 
 const MobileMenu = ({

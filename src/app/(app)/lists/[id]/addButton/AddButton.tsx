@@ -1,4 +1,4 @@
-import { Icon } from "app/(app)/shared/Icon";
+import { Icon } from "app/shared/Icon";
 import { useState } from "react";
 import { AdminList } from "types/types";
 import styles from "./addButton.module.css";

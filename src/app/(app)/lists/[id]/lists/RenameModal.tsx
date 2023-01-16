@@ -1,4 +1,4 @@
-import { Modal } from "app/(app)/shared/Modal";
+import { Modal } from "app/shared/Modal";
 import { db } from "db/useDb";
 import { doc, updateDoc } from "firebase/firestore";
 import { MouseEvent, Dispatch, SetStateAction, useState } from "react";

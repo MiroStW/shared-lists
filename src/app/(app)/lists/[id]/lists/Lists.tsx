@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 import { useLists } from "app/(app)/listsContext";
-import { Loading } from "app/(app)/shared/Loading";
-import { Error } from "app/(app)/shared/Error";
+import { Loading } from "app/shared/Loading";
+import { Error } from "app/shared/Error";
 import { AdminList } from "types/types";
 import List from "./List";
 import styles from "./lists.module.css";

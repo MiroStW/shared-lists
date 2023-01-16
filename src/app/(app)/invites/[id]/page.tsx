@@ -1,6 +1,6 @@
 import { AdminInvite } from "types/types";
-import { Error as ErrorComp } from "app/(app)/shared/Error";
-import { adminDb } from "../../../../firebase/firebaseAdmin";
+import { Error as ErrorComp } from "app/shared/Error";
+import { adminDb } from "@firebase/firebaseAdmin";
 import ShowInvite from "./ShowInvite";
 
 // going forward invites could become a modal on the lists page

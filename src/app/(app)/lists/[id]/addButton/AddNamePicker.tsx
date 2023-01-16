@@ -1,4 +1,4 @@
-import { Modal } from "app/(app)/shared/Modal";
+import { Modal } from "app/shared/Modal";
 import { useAuth } from "app/authContext";
 import { createListData, createSectionData } from "db/factory";
 import { lists, sectionsOfList } from "db/useDb";
