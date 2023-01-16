@@ -16,8 +16,8 @@ import {
   ListData,
   Section,
   SectionData,
-} from "../types/types";
-import { firebase } from "./firebase";
+} from "types/types";
+import { firebase } from "@firebase/firebase";
 
 export const db = getFirestore(firebase);
 

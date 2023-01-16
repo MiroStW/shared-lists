@@ -7,7 +7,7 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 
-let transporter = nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
   host: "smtp.sendgrid.net",
   port: 587,
   auth: {
@@ -49,7 +49,7 @@ exports.sendEmail = region("europe-west1")
         } else {
           const update = await snap.ref.update({ email_status: "success" });
           console.log("update: ", update);
-          console.log("Email sent: " + info.response);
+          console.log("Email sent: ", info.response);
         }
       },
     };

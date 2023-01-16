@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { https, logger, region } = require("firebase-functions");
 const admin = require("firebase-admin");
-const firebase_tools = require("firebase-tools");
+const firebaseTools = require("firebase-tools");
 // const cors = require("cors")({ origin: true });
 
 /**
@@ -28,7 +28,7 @@ exports.recursiveDelete = region("europe-west1")
       );
     }
 
-    const path = data.path;
+    const { path } = data;
     logger.log("path: ", path);
 
     // Check if user owns the record
@@ -69,7 +69,7 @@ exports.recursiveDelete = region("europe-west1")
     // Run a recursive delete on the given document or collection path.
     // The 'token' must be set in the functions config, and can be generated
     // at the command line by running 'firebase login:ci'.
-    await firebase_tools.firestore.delete(path, {
+    await firebaseTools.firestore.delete(path, {
       project: process.env.GCLOUD_PROJECT,
       recursive: true,
       force: true,
@@ -77,6 +77,6 @@ exports.recursiveDelete = region("europe-west1")
     });
 
     return {
-      path: path,
+      path,
     };
   });

@@ -25,6 +25,7 @@ exports.nextjsfunc = onRequest(
     runWith: { minInstances: 1 },
   },
   (req, res) => {
+    console.log("nextServer start ", Date.now());
     return nextjsServer.prepare().then(() => nextjsHandle(req, res));
   }
 );
