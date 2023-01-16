@@ -16,7 +16,10 @@ const ShowInvite = ({ invite }: { invite: AdminInvite }) => {
         status: response ? "accepted" : "declined",
       });
 
-      const addAuthorizedUser = httpsCallable(functions, "addAuthorizedUser");
+      const addAuthorizedUser = httpsCallable<
+        { listId: string },
+        { listId: string; userId: string; updatedRecords: number }
+      >(functions, "addAuthorizedUser");
       addAuthorizedUser({ listId: invite.data.listID });
 
       router.push(`/lists/${invite?.data.listID}`);
