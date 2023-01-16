@@ -1,4 +1,4 @@
-const Head = ({ params }: { params: { slug: string } }) => {
+const Head = () => {
   return (
     <>
       <title>Shared Lists</title>

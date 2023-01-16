@@ -1,4 +1,3 @@
-import { UserRecord } from "firebase-admin/auth";
 import { User } from "firebase/auth";
 import { Timestamp } from "firebase/firestore";
 import {
