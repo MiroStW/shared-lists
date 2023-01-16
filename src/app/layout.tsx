@@ -1,4 +1,4 @@
-import AuthContextProvider from "./authContext";
+import AuthContextProvider from "./login/authContext";
 import "./global.css";
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {

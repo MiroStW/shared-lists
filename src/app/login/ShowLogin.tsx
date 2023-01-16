@@ -2,7 +2,7 @@
 
 import { uiConfig } from "../../firebase/firebaseAuthUI.config";
 import AuthUi from "./AuthUi";
-import { useAuth } from "../authContext";
+import { useAuth } from "./authContext";
 
 const ShowLogin = () => {
   const { auth } = useAuth();

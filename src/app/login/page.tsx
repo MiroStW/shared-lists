@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { verifyAuthToken } from "../verifyAuthToken";
+import { verifyAuthToken } from "./verifyAuthToken";
 import { adminDb } from "../../firebase/firebaseAdmin";
 import ShowLogin from "./ShowLogin";
 import { createAdminListData } from "../../firebase/adminFactory";

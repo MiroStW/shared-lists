@@ -1,7 +1,7 @@
 "use client";
 
-import { Header } from "components/header/Header";
-import { Lists } from "components/lists/Lists";
+import { Header } from "app/(app)/header/Header";
+import { Lists } from "app/(app)/lists/[id]/lists/Lists";
 import { useState } from "react";
 import { AdminList } from "types/types";
 import { ListsContextProvider } from "./listsContext";

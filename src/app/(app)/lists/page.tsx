@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { adminDb } from "../../../firebase/firebaseAdmin";
-import { verifyAuthToken } from "../../verifyAuthToken";
+import { verifyAuthToken } from "../../login/verifyAuthToken";
 
 const getFirstListId = async () => {
   const { user } = await verifyAuthToken();

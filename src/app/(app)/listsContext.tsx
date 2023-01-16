@@ -17,7 +17,7 @@ import {
 import { List } from "types/types";
 import { lists as listsRef } from "../../firebase/useDb";
 import { listConverter } from "../../firebase/firestoreConverter";
-import { useAuth } from "../authContext";
+import { useAuth } from "../login/authContext";
 
 const listsContext = createContext({
   lists: [] as List[] | undefined,

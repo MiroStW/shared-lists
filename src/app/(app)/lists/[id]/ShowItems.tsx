@@ -1,8 +1,8 @@
 "use client";
 
-import { useAuth } from "app/authContext";
-import { AddButton } from "components/addButton/AddButton";
-import { ItemDndContext } from "components/items/ItemDndContext";
+import { useAuth } from "app/login/authContext";
+import { AddButton } from "app/(app)/lists/[id]/addButton/AddButton";
+import { ItemDndContext } from "app/(app)/lists/[id]/items/ItemDndContext";
 import { AdminList } from "types/types";
 import { ItemsContextProvider } from "./itemsContext";
 

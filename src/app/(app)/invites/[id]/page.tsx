@@ -1,5 +1,5 @@
-import { AdminInvite, Invite } from "types/types";
-import { Error as ErrorComp } from "components/utils/Error";
+import { AdminInvite } from "types/types";
+import { Error as ErrorComp } from "app/(app)/shared/Error";
 import { adminDb } from "../../../../firebase/firebaseAdmin";
 import ShowInvite from "./ShowInvite";
 

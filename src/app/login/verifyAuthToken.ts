@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 // eslint-disable-next-line import/no-unresolved
 import { getAuth } from "firebase-admin/auth";
-import { firebaseAdmin } from "../firebase/firebaseAdmin";
+import { firebaseAdmin } from "../../firebase/firebaseAdmin";
 // import cookies from "next-cookies";
 
 const verifyAuthToken = async () => {

@@ -1,12 +1,10 @@
 import Link from "next/link";
-import { verifyAuthToken } from "./verifyAuthToken";
+import { verifyAuthToken } from "./login/verifyAuthToken";
 import SignOutBtn from "./SignOutBtn";
-import styles from "../styles/main.module.css";
+import styles from "./main.module.css";
 
 const getUser = async () => {
   const { user, auth } = await verifyAuthToken();
-  console.log("user", user);
-  // JSON.stringify(user?.toJSON()); //
   return { user, auth };
 };
 

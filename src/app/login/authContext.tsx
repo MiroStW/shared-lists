@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 import { Cookie, withCookie } from "next-cookie";
-import { firebase } from "../firebase/firebase";
+import { firebase } from "../../firebase/firebase";
 
 const auth = getAuth(firebase);
 

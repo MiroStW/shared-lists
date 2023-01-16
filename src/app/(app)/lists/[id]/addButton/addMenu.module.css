@@ -1,0 +1,39 @@
+.addMenu {
+  right: 15px;
+  bottom: 30px;
+  padding: 0 !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.addMenuItem {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.addMenuItem:hover {
+  background-color: #7c8188;
+}
+
+.addMenuItem:nth-child(even) {
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+}
+
+.addMenuTitle {
+  flex: 1;
+  padding-left: 10px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(0 0 0 / 29%);
+}
