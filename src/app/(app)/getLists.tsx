@@ -1,4 +1,4 @@
-import { verifyAuthToken } from "app/login/verifyAuthToken";
+import { verifyAuthToken } from "auth/verifyAuthToken";
 import { AdminList } from "types/types";
 import { adminDb } from "../../firebase/firebaseAdmin";
 

@@ -4,8 +4,8 @@ import { doc, updateDoc } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import { useRouter } from "next/navigation";
 import { AdminInvite } from "types/types";
-import { db } from "../../../../firebase/useDb";
-import { functions } from "../../../../firebase/firebase";
+import { db } from "db/useDb";
+import { functions } from "@firebase/firebase";
 
 const ShowInvite = ({ invite }: { invite: AdminInvite }) => {
   const router = useRouter();

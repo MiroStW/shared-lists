@@ -4,7 +4,7 @@ import { httpsCallable } from "firebase/functions";
 import Router from "next/router";
 import { AdminList, List, Section } from "types/types";
 import { Dispatch, SetStateAction, useState } from "react";
-import { functions } from "../../../../../firebase/firebase";
+import { functions } from "@firebase/firebase";
 
 const DeleteModal = ({
   collection,

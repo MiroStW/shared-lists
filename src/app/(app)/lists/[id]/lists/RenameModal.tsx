@@ -1,8 +1,8 @@
 import { Modal } from "app/(app)/shared/Modal";
+import { db } from "db/useDb";
 import { doc, updateDoc } from "firebase/firestore";
 import { MouseEvent, Dispatch, SetStateAction, useState } from "react";
 import { AdminList, List, Section } from "types/types";
-import { db } from "../../../../../firebase/useDb";
 
 const RenameModal = ({
   collection,

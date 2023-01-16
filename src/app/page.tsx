@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { verifyAuthToken } from "./login/verifyAuthToken";
+import { verifyAuthToken } from "../auth/verifyAuthToken";
 import SignOutBtn from "./SignOutBtn";
 import styles from "./main.module.css";
 

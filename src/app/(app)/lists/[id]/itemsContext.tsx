@@ -13,16 +13,9 @@ import {
 import { useCollection } from "react-firebase-hooks/firestore";
 import { AdminList, Item as ItemType, Section } from "types/types";
 import { User } from "firebase/auth";
-import {
-  db,
-  items as itemsCol,
-  sectionsOfList,
-} from "../../../../firebase/useDb";
-import {
-  itemConverter,
-  sectionConverter,
-} from "../../../../firebase/firestoreConverter";
-import { createItemData } from "../../../../firebase/factory";
+import { db, items as itemsCol, sectionsOfList } from "db/useDb";
+import { createItemData } from "db/factory";
+import { itemConverter, sectionConverter } from "db/firestoreConverter";
 
 interface ItemsContextType {
   items: ItemType[];

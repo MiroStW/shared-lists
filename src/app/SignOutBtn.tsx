@@ -2,7 +2,7 @@
 
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { useAuth } from "./login/authContext";
+import { useAuth } from "./authContext";
 
 const SignOutBtn = () => {
   const { auth } = useAuth();

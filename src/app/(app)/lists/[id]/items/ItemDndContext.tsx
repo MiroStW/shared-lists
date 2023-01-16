@@ -13,26 +13,17 @@ import {
 } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { arrayMove } from "@dnd-kit/sortable";
-import { useAuth } from "app/login/authContext";
+import { useAuth } from "app/authContext";
 import { addDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { useState } from "react";
 import { useItems } from "app/(app)/lists/[id]/itemsContext";
 import { Loading } from "app/(app)/shared/Loading";
 import { Error } from "app/(app)/shared/Error";
 import { Item as ItemType, Section, AdminList } from "types/types";
-import { createItemData } from "../../../../../firebase/factory";
-import { itemsOfList, itemsOfSection } from "../../../../../firebase/useDb";
+import { createItemData } from "db/factory";
+import { itemsOfList, itemsOfSection } from "db/useDb";
 import { Item } from "./Item";
 import { ItemArea } from "./ItemArea";
-
-// TODO
-// DONE - moved to context!
-// DONE - fix item order on drag
-// - use setLocalItems to add temporary item to localItems (with doc()?)
-// - maintain that temporary item through localItem updates
-// - create function that creates temp item in localItems, sets focus, & puts
-// in edit mode
-// - create function that changes order of all subsequent items in localItems
 
 const ItemDndContext = ({ list }: { list: AdminList }) => {
   const { user } = useAuth();

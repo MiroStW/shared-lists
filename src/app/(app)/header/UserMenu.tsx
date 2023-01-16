@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "app/login/authContext";
+import { useAuth } from "app/authContext";
 import { signOut } from "firebase/auth";
 import Image from "next/image";
 import { useRouter } from "next/navigation";

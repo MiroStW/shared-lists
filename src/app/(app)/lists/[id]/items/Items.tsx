@@ -3,8 +3,8 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { useDroppable } from "@dnd-kit/core";
+import { Item as ItemType, Section } from "types/types";
 import { Item } from "./Item";
-import { Item as ItemType, Section } from "../../../../../types/types";
 import { SectionHeader } from "./SectionHeader";
 
 const Items = ({

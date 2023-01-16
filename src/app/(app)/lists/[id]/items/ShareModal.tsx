@@ -1,10 +1,10 @@
 import { Modal } from "app/(app)/shared/Modal";
-import { useAuth } from "app/login/authContext";
+import { useAuth } from "app/authContext";
+import { createInviteData } from "db/factory";
+import { invites } from "db/useDb";
 import { addDoc } from "firebase/firestore";
 import { Dispatch, SetStateAction, useState } from "react";
 import { AdminList } from "types/types";
-import { createInviteData } from "../../../../../firebase/factory";
-import { invites } from "../../../../../firebase/useDb";
 
 const ShareModal = ({
   list,

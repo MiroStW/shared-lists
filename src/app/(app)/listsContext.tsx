@@ -1,5 +1,6 @@
 "use client";
 
+import { listConverter } from "db/firestoreConverter";
 import {
   FirestoreError,
   onSnapshot,
@@ -15,9 +16,8 @@ import {
   useState,
 } from "react";
 import { List } from "types/types";
-import { lists as listsRef } from "../../firebase/useDb";
-import { listConverter } from "../../firebase/firestoreConverter";
-import { useAuth } from "../login/authContext";
+import { lists as listsRef } from "db/useDb";
+import { useAuth } from "../authContext";
 
 const listsContext = createContext({
   lists: [] as List[] | undefined,
