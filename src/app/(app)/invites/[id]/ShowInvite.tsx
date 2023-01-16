@@ -27,32 +27,22 @@ const ShowInvite = ({ invite }: { invite: AdminInvite }) => {
   };
 
   return (
-    // TODO: handle 404 invite not found?
     <>
-      <div
-        style={{
-          position: "relative",
-          flex: "1",
-          paddingRight: "18px",
-          paddingLeft: "18px",
-        }}
-      >
-        {invite?.data.status === "accepted" ? (
-          <p>Invite already {invite?.data.status}</p>
-        ) : (
-          <>
-            <h2>Invite</h2>
-            <p>
-              You were invited by {invite?.data.inviterName} to join the list
-              &ldquo;{invite?.data.listName}&rdquo;.
-            </p>
-            <p>
-              <button onClick={() => handleJoinList(true)}>accept</button> or
-              <button onClick={() => handleJoinList(false)}>decline</button>
-            </p>
-          </>
-        )}
-      </div>
+      {invite?.data.status === "accepted" ? (
+        <p>Invite already {invite?.data.status}</p>
+      ) : (
+        <>
+          <h2>Invite</h2>
+          <p>
+            You were invited by {invite?.data.inviterName} to join the list
+            &ldquo;{invite?.data.listName}&rdquo;.
+          </p>
+          <p>
+            <button onClick={() => handleJoinList(true)}>accept</button> or
+            <button onClick={() => handleJoinList(false)}>decline</button>
+          </p>
+        </>
+      )}
     </>
   );
 };
