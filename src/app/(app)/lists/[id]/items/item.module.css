@@ -16,6 +16,10 @@
   cursor: pointer;
 }
 
+.item:hover .itemName {
+  margin-right: 0;
+}
+
 .item:focus-within {
   background: rgb(255 255 255 / 12%);
 }
@@ -34,6 +38,8 @@
   align-items: center;
   flex: 1;
   padding: 8px 0;
+  margin-right: 26px;
+  word-break: break-word;
 }
 
 .item.complete .itemName {
