@@ -1,7 +1,7 @@
 import { AdminInvite } from "types/types";
-import { Error as ErrorComp } from "app/shared/Error";
 import { adminDb } from "@firebase/firebaseAdmin";
 import ShowInvite from "./ShowInvite";
+import { ShowError } from "app/shared/ShowError";
 
 // going forward invites could become a modal on the lists page
 
@@ -27,7 +27,7 @@ const getInvite = async (id: string) => {
 
 const page = async ({ params }: { params: { id: string } }) => {
   const serializedInvite = await getInvite(params.id);
-  if (!serializedInvite) return <ErrorComp msg="Invite not found" />;
+  if (!serializedInvite) return <ShowError msg="Invite not found" />;
   const invite = JSON.parse(serializedInvite) as AdminInvite;
 
   return <ShowInvite invite={invite} />;

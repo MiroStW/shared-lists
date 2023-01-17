@@ -1,10 +1,10 @@
 import { Dispatch, SetStateAction } from "react";
 import { useLists } from "app/(app)/listsContext";
 import { Loading } from "app/shared/Loading";
-import { Error } from "app/shared/Error";
 import { AdminList } from "types/types";
 import List from "./List";
 import styles from "./lists.module.css";
+import { ShowError } from "app/shared/ShowError";
 
 const Lists = ({
   preFetchedLists,
@@ -26,7 +26,7 @@ const Lists = ({
       <div className="listsHeader">
         <h2>Lists</h2>
       </div>
-      {error && <Error msg={error.message} />}
+      {error && <ShowError msg={error.message} />}
       <div className={styles.listList}>
         {
           // render prefetched lists on initial load
