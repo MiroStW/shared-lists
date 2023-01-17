@@ -3,9 +3,11 @@ const nextConfig = {
   env: {
     FIREBASE_PROJECT_ID: "shared-lists-8fc29",
   },
+  experimental: {
+    appDir: true,
+  },
   distDir: "build",
   reactStrictMode: true,
-  swcMinify: true,
   images: {
     domains: [
       "lh1.googleusercontent.com",

@@ -1,0 +1,23 @@
+.itemsHeader {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.listTitle {
+  flex: 1;
+  margin: 0;
+}
+
+.listOptions {
+  display: flex;
+  gap: 10px;
+}
+
+.listOption {
+  cursor: pointer;
+}
+
+.itemList {
+  margin-bottom: 10px;
+}

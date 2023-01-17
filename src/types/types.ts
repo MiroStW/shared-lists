@@ -6,7 +6,7 @@ import * as admin from "firebase-admin/firestore";
 export interface ListData {
   name: string;
   isArchived: boolean;
-  createdDate: Timestamp;
+  createdDate: Timestamp | admin.Timestamp;
   ownerID: string;
   contributors?: string[];
 }
@@ -35,7 +35,7 @@ export class AdminList {
 
 export interface SectionData {
   name: string;
-  createdDate: Timestamp;
+  createdDate: Timestamp | admin.Timestamp;
   authorizedUsers: string[];
 }
 
@@ -54,7 +54,7 @@ export interface ItemData {
   name: string;
   completed: boolean;
   description: string;
-  createdDate: Timestamp;
+  createdDate: Timestamp | admin.Timestamp;
   authorizedUsers: string[];
   order: number;
   list: string;
@@ -78,7 +78,7 @@ export interface InviteData {
   listID: string;
   listName: string;
   status: "pending" | "accepted" | "declined";
-  createdDate: Timestamp;
+  createdDate: Timestamp | admin.Timestamp;
 }
 
 export class Invite {
@@ -87,6 +87,17 @@ export class Invite {
   readonly data: InviteData;
 
   constructor(ref: DocumentReference<InviteData>, data: InviteData) {
+    this.ref = ref;
+    this.data = data;
+  }
+}
+
+export class AdminInvite {
+  readonly ref: admin.DocumentReference<InviteData>;
+
+  readonly data: InviteData;
+
+  constructor(ref: admin.DocumentReference<InviteData>, data: InviteData) {
     this.ref = ref;
     this.data = data;
   }
