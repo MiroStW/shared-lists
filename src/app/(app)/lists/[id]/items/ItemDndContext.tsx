@@ -18,10 +18,10 @@ import { addDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { useState } from "react";
 import { useItems } from "app/(app)/lists/[id]/itemsContext";
 import { Loading } from "app/shared/Loading";
-import { Error } from "app/shared/Error";
 import { Item as ItemType, Section, AdminList } from "types/types";
 import { createItemData } from "db/factory";
 import { itemsOfList, itemsOfSection } from "db/useDb";
+import { ShowError } from "app/shared/ShowError";
 import { Item } from "./Item";
 import { ItemArea } from "./ItemArea";
 
@@ -248,7 +248,7 @@ const ItemDndContext = ({ list }: { list: AdminList }) => {
 
   return (
     <>
-      {error && <Error msg={error.message} />}
+      {error && <ShowError msg={error.message} />}
       {loading ? (
         <Loading />
       ) : (
