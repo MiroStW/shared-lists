@@ -5,13 +5,11 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en">
       <body>
-        <>
-          <AuthContextProvider>
-            {/* <ListsContextProvider> */}
-            {children}
-            {/* </ListsContextProvider> */}
-          </AuthContextProvider>
-        </>
+        <AuthContextProvider>
+          {/* <ListsContextProvider> */}
+          {children}
+          {/* </ListsContextProvider> */}
+        </AuthContextProvider>
       </body>
     </html>
   );
