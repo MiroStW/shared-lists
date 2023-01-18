@@ -6,23 +6,35 @@ import { useRouter } from "next/navigation";
 import { AdminInvite } from "types/types";
 import { db } from "db/useDb";
 import { functions } from "@firebase/firebase";
+import { useState } from "react";
 
 const ShowInvite = ({ invite }: { invite: AdminInvite }) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const handleJoinList = async (response: boolean) => {
     if (invite && response) {
-      updateDoc(doc(db, invite.ref.path), {
-        status: response ? "accepted" : "declined",
-      });
+      setLoading(true);
 
-      const addAuthorizedUser = httpsCallable<
-        { listId: string },
-        { listId: string; userId: string; updatedRecords: number }
-      >(functions, "addAuthorizedUser");
-      addAuthorizedUser({ listId: invite.data.listID });
-
-      router.push(`/lists/${invite?.data.listID}`);
+      const addAuthorizedUser = httpsCallable(functions, "addauthorizeduser");
+      addAuthorizedUser({ listId: invite.data.listID })
+        .then(() =>
+          updateDoc(doc(db, invite.ref.path), {
+            status: response ? "accepted" : "declined",
+          })
+        )
+        .then(() => router.push(`/lists/${invite?.data.listID}`))
+        .catch((err: unknown) => {
+          if (typeof err === "string") {
+            console.log("error", err);
+            setError(err);
+          } else if (err instanceof Error) {
+            console.log("error", err.message);
+            setError(err.message);
+            setLoading(false);
+          }
+        });
     } else router.push("/lists");
   };
 
@@ -37,8 +49,13 @@ const ShowInvite = ({ invite }: { invite: AdminInvite }) => {
             You were invited by {invite?.data.inviterName} to join the list
             &ldquo;{invite?.data.listName}&rdquo;.
           </p>
+
+          {error && <p style={{ color: "red" }}>{error}</p>}
           <p>
-            <button onClick={() => handleJoinList(true)}>accept</button> or
+            <button onClick={() => handleJoinList(true)}>
+              {loading ? "joining list..." : "accept"}
+            </button>{" "}
+            or
             <button onClick={() => handleJoinList(false)}>decline</button>
           </p>
         </>

@@ -6,28 +6,23 @@ const { FieldValue } = require("firebase-admin/firestore");
 if (!admin.apps.length) {
   admin.initializeApp();
 }
+const updateRecords = async (userId, listRef) => {
+  const listSnapshot = await listRef.get();
 
-exports.addAuthorizedUser = region("europe-west1").https.onCall(
-  async (data, context) => {
-    const { listId } = data;
-    const listRef = admin.firestore().doc(`/lists/${listId}`);
-    const userId = context.auth.uid;
+  if (!listSnapshot.exists) {
+    throw new https.HttpsError("not-found", "List not found");
+  }
 
-    const listSnapshot = await listRef.get();
+  const list = listSnapshot.data();
 
-    if (!listSnapshot.exists) {
-      throw new https.HttpsError("not-found", "List not found");
-    }
+  if (list.contributors?.includes(userId) || list.ownerID === userId) {
+    throw new https.HttpsError(
+      "already-exists",
+      "You already joined this list"
+    );
+  }
 
-    const list = listSnapshot.data();
-
-    if (list.contributors?.includes(userId) || list.ownerID === userId) {
-      throw new https.HttpsError(
-        "already-exists",
-        "User is already authorized"
-      );
-    }
-
+  try {
     const listUpdate = await listRef.update({
       contributors: FieldValue.arrayUnion(userId),
     });
@@ -78,7 +73,19 @@ exports.addAuthorizedUser = region("europe-west1").https.onCall(
       });
       console.log("updated records: ", updatedRecords);
     });
+  } catch (error) {
+    console.error(error);
+    throw new https.HttpsError("unknown", "Something went wrong");
+  }
+};
 
-    return { listId, userId, updatedRecords };
+exports.addauthorizeduser = region("europe-west1").https.onCall(
+  async (data, context) => {
+    const { listId } = data;
+    const listRef = admin.firestore().doc(`/lists/${listId}`);
+    // console.log(JSON.stringify(context, null, 4));
+    const userId = context.auth.uid;
+
+    return updateRecords(userId, listRef);
   }
 );
