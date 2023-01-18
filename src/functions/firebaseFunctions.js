@@ -4,7 +4,7 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { default: next } = require("next");
 const sendEmail = require("./sendEmail");
-const addAuthorizedUser = require("./addAuthorizedUser");
+const addauthorizeduser = require("./addauthorizeduser");
 const dataMigrations = require("./dataMigrations");
 const recursiveDelete = require("./recursiveDelete");
 const nextConfig = require("../../next.config.js");
@@ -31,6 +31,6 @@ exports.nextjsfunc = onRequest(
 );
 
 exports.sendEmail = sendEmail.sendEmail;
-exports.addAuthorizedUser = addAuthorizedUser.addAuthorizedUser;
+exports.addauthorizeduser = addauthorizeduser.addauthorizeduser;
 exports.dataMigrations = dataMigrations.dataMigrations;
 exports.recursiveDelete = recursiveDelete.recursiveDelete;
