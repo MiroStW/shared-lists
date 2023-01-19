@@ -22,7 +22,7 @@ const nextjsHandle = nextjsServer.getRequestHandler();
 exports.nextjsfunc = onRequest(
   {
     region: "europe-west1",
-    runWith: { minInstances: 1 },
+    minInstances: 1,
   },
   (req, res) => {
     console.log("nextServer start ", Date.now());
