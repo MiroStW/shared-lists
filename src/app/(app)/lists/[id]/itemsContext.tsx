@@ -12,10 +12,10 @@ import {
 } from "react";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { AdminList, Item as ItemType, Section } from "types/types";
-import { User } from "firebase/auth";
 import { db, items as itemsCol, sectionsOfList } from "db/useDb";
 import { createItemData } from "db/factory";
 import { itemConverter, sectionConverter } from "db/firestoreConverter";
+import { UserRecord } from "firebase-admin/auth";
 
 interface ItemsContextType {
   items: ItemType[];
@@ -42,7 +42,7 @@ export const ItemsContextProvider = ({
   list,
 }: {
   children: ReactNode;
-  user: User;
+  user: UserRecord;
   list: AdminList;
 }) => {
   const [items, loadingItems, errorItems] = useCollection<ItemType>(
@@ -103,7 +103,7 @@ export const ItemsContextProvider = ({
       setLocalItems(updatedLocalItems);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items, list, sections]);
+  }, [items, sections]);
 
   const deleteLocalItem = (item: ItemType) => {
     // delete item from localItems if name is empty & update order of other items

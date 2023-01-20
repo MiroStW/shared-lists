@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { uiConfig } from "@firebase/firebaseAuthUI.config";
-import { useAuth } from "../authContext";
 import "firebaseui/dist/firebaseui.css";
+import { useAuth } from "app/authContext";
 
 const ShowLogin = () => {
   const { auth } = useAuth();
