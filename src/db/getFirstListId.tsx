@@ -1,5 +1,6 @@
 import { adminDb } from "@firebase/firebaseAdmin";
 import { verifyAuthToken } from "auth/verifyAuthToken";
+import { createAdminListData } from "./adminFactory";
 
 export const getFirstListId = async () => {
   const { user } = await verifyAuthToken();
@@ -13,6 +14,9 @@ export const getFirstListId = async () => {
       .get();
 
     if (snapshot.empty) {
+      adminDb()
+        .collection("lists")
+        .add(createAdminListData("my first list", user));
       return null;
     }
 
