@@ -64,11 +64,8 @@ export const getLists = async () => {
         );
       });
 
-    const lists = await Promise.all([ownedLists, joinedLists]).then((values) =>
-      values.flat()
-    );
+    const lists = (await Promise.all([ownedLists, joinedLists])).flat();
 
-    // TODO: do i still need to stringify the lists?
     return JSON.stringify(lists);
   } else return null;
 };

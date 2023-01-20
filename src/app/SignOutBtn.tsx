@@ -9,7 +9,12 @@ const SignOutBtn = () => {
   const router = useRouter();
 
   return (
-    <button onClick={() => signOut(auth).then(() => router.push("/"))}>
+    <button
+      onClick={async () => {
+        await signOut(auth);
+        router.push("/");
+      }}
+    >
       logout
     </button>
   );
