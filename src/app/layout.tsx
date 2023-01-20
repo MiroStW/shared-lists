@@ -13,9 +13,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
     <html lang="en">
       <body>
         <ServerAuthContextProvider user={user}>
-          {/* <ListsContextProvider> */}
           {children}
-          {/* </ListsContextProvider> */}
         </ServerAuthContextProvider>
       </body>
     </html>
