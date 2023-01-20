@@ -1,0 +1,43 @@
+.animatePulse {
+  animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.item {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  padding: 0 8px;
+}
+
+.itemName {
+  display: flex;
+  flex: 1;
+  margin: 8px 0;
+  background: rgb(255 255 255 / 4%);
+}
+
+.checkbox {
+  display: flex;
+}
+
+.checkbox [type="checkbox"] + label {
+  background-color: grey;
+  margin: 10.5px 0px;
+  font-size: 14px;
+}
+
+.listTitle {
+  height: 23px;
+  margin: 10px 0;
+  background: rgba(255, 255, 255, 0.04);
+}
