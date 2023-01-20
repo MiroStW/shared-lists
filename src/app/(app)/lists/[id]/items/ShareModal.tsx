@@ -5,6 +5,7 @@ import { invites } from "db/useDb";
 import { addDoc } from "firebase/firestore";
 import { Dispatch, SetStateAction, useState } from "react";
 import { AdminList } from "types/types";
+import { User } from "firebase/auth";
 
 const ShareModal = ({
   list,
@@ -13,7 +14,7 @@ const ShareModal = ({
   list: AdminList;
   setShowShareModal: Dispatch<SetStateAction<boolean>>;
 }) => {
-  const { user } = useAuth();
+  const { user } = useAuth() as unknown as { user: User };
   const [email, setEmail] = useState("");
   const handleShare = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     e.preventDefault();

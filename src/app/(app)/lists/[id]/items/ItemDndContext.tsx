@@ -17,13 +17,13 @@ import { useAuth } from "app/authContext";
 import { addDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { useState } from "react";
 import { useItems } from "app/(app)/lists/[id]/itemsContext";
-import { Loading } from "app/shared/Loading";
 import { Item as ItemType, Section, AdminList } from "types/types";
 import { createItemData } from "db/factory";
 import { itemsOfList, itemsOfSection } from "db/useDb";
 import { ShowError } from "app/shared/ShowError";
 import { Item } from "./Item";
 import { ItemArea } from "./ItemArea";
+import LoadingItems from "app/shared/LoadingItems";
 
 const ItemDndContext = ({ list }: { list: AdminList }) => {
   const { user } = useAuth();
@@ -250,7 +250,7 @@ const ItemDndContext = ({ list }: { list: AdminList }) => {
     <>
       {error && <ShowError msg={error.message} />}
       {loading ? (
-        <Loading />
+        <LoadingItems />
       ) : (
         <DndContext
           sensors={sensors}

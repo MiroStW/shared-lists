@@ -6,6 +6,7 @@ import { addDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useState } from "react";
 import { AdminList } from "types/types";
+import { User } from "firebase/auth";
 
 const AddNamePicker = ({
   activeList,
@@ -16,7 +17,7 @@ const AddNamePicker = ({
   type: "item" | "section" | "list";
   setShowAddMenu: Dispatch<SetStateAction<boolean>>;
 }) => {
-  const { user } = useAuth();
+  const { user } = useAuth() as unknown as { user: User };
   const [name, setName] = useState("");
   const router = useRouter();
 

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { AdminList } from "types/types";
-import { getLists } from "./getLists";
+import { getLists } from "db/getLists";
 import ShowApp from "./ShowApp";
 
 const AppLayout = async ({ children }: { children: React.ReactNode }) => {
