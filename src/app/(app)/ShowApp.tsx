@@ -16,6 +16,7 @@ const ShowApp = ({
 }) => {
   const [showMobileLists, setShowMobileLists] = useState(false);
 
+  // TODO potentially use state library for showMobileLists to make this a RSC
   return (
     <>
       <div id={styles.container}>

@@ -19,11 +19,27 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
   const [inlineEdit, setInlineEdit] = useState(false);
   const [itemName, setItemName] = useState(item.data.name);
   const { deleteLocalItem, addLocalItem, localItems } = useItems();
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const divRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (inlineEdit || focus) inputRef.current?.focus();
-  }, [focus, inlineEdit]);
+    if (inlineEdit || focus) {
+      textareaRef.current?.focus();
+      setTimeout(() => {
+        textareaRef.current?.setSelectionRange(-1, -1);
+        textareaRef.current?.scrollIntoView({
+          block: "end",
+          inline: "nearest",
+          behavior: "smooth",
+        });
+      }, 0);
+    }
+    // else {
+    //   setTimeout(() => {
+    //     divRef.current?.scrollIntoView();
+    //   }, 0);
+    // }
+  }, [focus, inlineEdit, itemName.length]);
 
   const handleInlineEdit = () => {
     setInlineEdit(true);
@@ -36,7 +52,7 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
   // Defocus current item, triggering submitEdit & create new empty item
   const handleEnter = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     e.preventDefault();
-    inputRef.current?.blur();
+    textareaRef.current?.blur();
 
     if (itemName !== "") {
       addLocalItem({
@@ -103,15 +119,9 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
           {inlineEdit || focus ? (
             <TextareaAutosize
               maxRows={10}
-              ref={inputRef}
+              ref={textareaRef}
               value={itemName}
               className={styles.itemName}
-              onFocus={() =>
-                inputRef.current?.setSelectionRange(
-                  itemName.length,
-                  itemName.length
-                )
-              }
               onChange={handleRename}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
@@ -121,15 +131,12 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
               onBlur={submitEditOnBlur}
             />
           ) : (
-            // <input
-            //   ref={inputRef}
-            //   type="text"
-            // />
             <div
               {...listeners}
               {...attributes}
               className={styles.itemName}
               onClick={handleInlineEdit}
+              ref={divRef}
             >
               {item.data.name}
             </div>
