@@ -11,6 +11,7 @@ import { useItems } from "app/(app)/lists/[id]/itemsContext";
 import { Item as ItemType } from "types/types";
 import { Icon } from "app/shared/Icon";
 import { Checkbox } from "./Checkbox";
+import TextareaAutosize from "@mui/base/TextareaAutosize";
 import styles from "./item.module.css";
 import { Sortable } from "./dnd/Sortable";
 
@@ -18,7 +19,7 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
   const [inlineEdit, setInlineEdit] = useState(false);
   const [itemName, setItemName] = useState(item.data.name);
   const { deleteLocalItem, addLocalItem, localItems } = useItems();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (inlineEdit || focus) inputRef.current?.focus();
@@ -28,12 +29,13 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
     setInlineEdit(true);
   };
 
-  const handleRename = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleRename = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setItemName(e.target.value);
   };
 
   // Defocus current item, triggering submitEdit & create new empty item
-  const handleEnter = () => {
+  const handleEnter = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    e.preventDefault();
     inputRef.current?.blur();
 
     if (itemName !== "") {
@@ -48,7 +50,9 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
   };
 
   const submitEditOnBlur = (
-    e: KeyboardEvent<HTMLInputElement> | FocusEvent<HTMLInputElement, Element>
+    e:
+      | KeyboardEvent<HTMLTextAreaElement>
+      | FocusEvent<HTMLTextAreaElement, Element>
   ) => {
     e.preventDefault();
     // only update if name has changed
@@ -97,20 +101,30 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
         >
           <Checkbox item={item} />
           {inlineEdit || focus ? (
-            <input
+            <TextareaAutosize
+              maxRows={10}
               ref={inputRef}
-              type="text"
               value={itemName}
               className={styles.itemName}
+              onFocus={() =>
+                inputRef.current?.setSelectionRange(
+                  itemName.length,
+                  itemName.length
+                )
+              }
               onChange={handleRename}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  handleEnter();
+                  handleEnter(e);
                 }
               }}
               onBlur={submitEditOnBlur}
             />
           ) : (
+            // <input
+            //   ref={inputRef}
+            //   type="text"
+            // />
             <div
               {...listeners}
               {...attributes}
