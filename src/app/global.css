@@ -58,6 +58,10 @@ button {
   cursor: pointer;
 }
 
+button.noMargin {
+  margin: 0;
+}
+
 button:disabled {
   border-color: rgba(255, 255, 255, 0.3);
   cursor: default;

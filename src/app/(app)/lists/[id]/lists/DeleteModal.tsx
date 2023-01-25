@@ -47,7 +47,12 @@ const DeleteModal = ({
           Are you really sure you want to permanently delete{" "}
           {collection.data.name} including its items? This cannot be undone.
         </p>
-        <button onClick={deleteHandler} disabled={isDeleting}>
+        <br />
+        <button
+          onClick={deleteHandler}
+          disabled={isDeleting}
+          className={"noMargin"}
+        >
           {!isDeleting ? (
             "delete"
           ) : (
