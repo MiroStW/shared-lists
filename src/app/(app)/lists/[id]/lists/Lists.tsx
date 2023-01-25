@@ -27,34 +27,32 @@ const Lists = ({
         <h2>Lists</h2>
       </div>
       {error && <ShowError msg={error.message} />}
-      <div className={styles.listList}>
-        {
-          // render prefetched lists on initial load
-          preFetchedLists && lists?.length === 0
-            ? preFetchedLists.map((list) => (
-                <div
-                  onClick={() => setShowMobileLists(false)}
-                  key={`pfl${list.ref.id}`}
-                >
-                  <List list={list} />
-                </div>
-              ))
-            : null
-        }
-        {
-          // listen to lists changes after intial load
-          lists &&
-            lists.map((list) => (
+      {
+        // render prefetched lists on initial load
+        preFetchedLists && lists?.length === 0
+          ? preFetchedLists.map((list) => (
               <div
                 onClick={() => setShowMobileLists(false)}
-                key={`crl${list.ref.id}`}
+                key={`pfl${list.ref.id}`}
               >
                 <List list={list} />
               </div>
             ))
-        }
-        {lists?.length === 0 && preFetchedLists?.length === 0 && <Loading />}
-      </div>
+          : null
+      }
+      {
+        // listen to lists changes after intial load
+        lists &&
+          lists.map((list) => (
+            <div
+              onClick={() => setShowMobileLists(false)}
+              key={`crl${list.ref.id}`}
+            >
+              <List list={list} />
+            </div>
+          ))
+      }
+      {lists?.length === 0 && preFetchedLists?.length === 0 && <Loading />}
     </div>
   );
 };

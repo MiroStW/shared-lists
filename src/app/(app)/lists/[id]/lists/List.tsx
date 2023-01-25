@@ -12,33 +12,31 @@ const List = ({ list }: { list: ListType | AdminList }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   return (
-    <>
-      <Link href={`/lists/${list.ref.id}`}>
-        <div
-          className={`${styles.list} ${isHovering && styles.hover}`}
-          onMouseEnter={() => setIsHovering(true)}
-          onMouseLeave={() => setIsHovering(false)}
-        >
-          <div className={styles.listTitle}>{list.data.name}</div>
-          {isHovering && (
-            <div className={styles.listMenu}>
-              <div onClick={() => setShowRenameModal(true)}>
-                <Icon iconName={"edit"} />
-              </div>
-              <div onClick={() => setShowDeleteModal(true)}>
-                <Icon iconName={"delete"} />
-              </div>
-            </div>
-          )}
-        </div>
+    <div
+      className={`${styles.list} ${isHovering && styles.hover}`}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
+      <Link href={`/lists/${list.ref.id}`} className={styles.listTitle}>
+        <div>{list.data.name}</div>
       </Link>
+      {isHovering && (
+        <div className={styles.listMenu}>
+          <div onClick={() => setShowRenameModal(true)}>
+            <Icon iconName={"edit"} />
+          </div>
+          <div onClick={() => setShowDeleteModal(true)}>
+            <Icon iconName={"delete"} />
+          </div>
+        </div>
+      )}
       {showRenameModual && (
         <RenameModal collection={list} setShowModal={setShowRenameModal} />
       )}
       {showDeleteModal && (
         <DeleteModal collection={list} setShowModal={setShowDeleteModal} />
       )}
-    </>
+    </div>
   );
 };
 

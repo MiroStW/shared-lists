@@ -4,14 +4,6 @@
   }
 }
 
-.showMobileLists {
-  display: block !important;
-  position: absolute;
-  z-index: 2;
-  width: 100%;
-  max-width: unset !important;
-}
-
 .listsArea div:checked + label {
   background: #fff;
   color: #5a5243;
@@ -25,15 +17,23 @@
   max-width: 250px;
   background: #202124;
   padding-left: 10px;
+  padding-right: min(30px, 10%);
+  margin-bottom: 10px;
   border-right: 1px solid #5f6368;
   height: 100%;
 }
 
-.listList {
-  margin-bottom: 10px;
-  padding-right: min(30px, 10%);
+@media (max-width: 500px) {
+  .listsArea {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .showMobileLists {
+    display: block !important;
+    position: absolute;
+    z-index: 2;
+    width: 100%;
+    max-width: unset !important;
+  }
 }
-/*
-.separator {
-  height: 10px;
-} */
