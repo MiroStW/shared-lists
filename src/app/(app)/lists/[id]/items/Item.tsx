@@ -10,10 +10,10 @@ import {
 import { useItems } from "app/(app)/lists/[id]/itemsContext";
 import { Item as ItemType } from "types/types";
 import { Icon } from "app/shared/Icon";
-import { Checkbox } from "./Checkbox";
 import TextareaAutosize from "@mui/base/TextareaAutosize";
 import styles from "./item.module.css";
 import { Sortable } from "./dnd/Sortable";
+import Checkbox from "@mui/material/Checkbox";
 
 const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
   const [inlineEdit, setInlineEdit] = useState(false);
@@ -115,7 +115,19 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
           }`}
           id={item.ref.id}
         >
-          <Checkbox item={item} />
+          <Checkbox
+            checked={item.data.completed}
+            size="small"
+            sx={{
+              color: "white",
+              "&.Mui-checked": {
+                color: "grey",
+              },
+            }}
+            onChange={() =>
+              updateDoc(item.ref, { completed: !item.data.completed })
+            }
+          />
           {inlineEdit || focus ? (
             <TextareaAutosize
               maxRows={10}
