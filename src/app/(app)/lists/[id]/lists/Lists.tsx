@@ -31,11 +31,8 @@ const Lists = ({
         // render prefetched lists on initial load
         preFetchedLists && lists?.length === 0
           ? preFetchedLists.map((list) => (
-              <div
-                onClick={() => setShowMobileLists(false)}
-                key={`pfl${list.ref.id}`}
-              >
-                <List list={list} />
+              <div key={`pfl${list.ref.id}`}>
+                <List list={list} setShowMobileLists={setShowMobileLists} />
               </div>
             ))
           : null
@@ -44,11 +41,8 @@ const Lists = ({
         // listen to lists changes after intial load
         lists &&
           lists.map((list) => (
-            <div
-              onClick={() => setShowMobileLists(false)}
-              key={`crl${list.ref.id}`}
-            >
-              <List list={list} />
+            <div key={`crl${list.ref.id}`}>
+              <List list={list} setShowMobileLists={setShowMobileLists} />
             </div>
           ))
       }

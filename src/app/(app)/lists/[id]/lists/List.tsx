@@ -1,12 +1,18 @@
 import Link from "next/link";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { AdminList, List as ListType } from "types/types";
 import { Icon } from "app/shared/Icon";
 import styles from "./list.module.css";
 import { RenameModal } from "./RenameModal";
 import { DeleteModal } from "./DeleteModal";
 
-const List = ({ list }: { list: ListType | AdminList }) => {
+const List = ({
+  list,
+  setShowMobileLists,
+}: {
+  list: ListType | AdminList;
+  setShowMobileLists: Dispatch<SetStateAction<boolean>>;
+}) => {
   const [isHovering, setIsHovering] = useState(false);
   const [showRenameModual, setShowRenameModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -18,7 +24,7 @@ const List = ({ list }: { list: ListType | AdminList }) => {
       onMouseLeave={() => setIsHovering(false)}
     >
       <Link href={`/lists/${list.ref.id}`} className={styles.listTitle}>
-        <div>{list.data.name}</div>
+        <div onClick={() => setShowMobileLists(false)}>{list.data.name}</div>
       </Link>
       {isHovering && (
         <div className={styles.listMenu}>
