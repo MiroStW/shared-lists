@@ -1,34 +1,70 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Shared lists app
 
-## Getting Started
+Link to production: https://shared-lists-8fc29.web.app/
 
-First, run the development server:
+**Key features**
 
-```bash
-npm run dev
-# or
-yarn dev
-```
+- google firebase backend, incl. nosql database and auth service
+- live updates & offline capability
+- responsive design
+- React 18
+- [NextJS 13](https://nextjs.org/blog/next-13) with server-side components, streaming, suspense
+- fully typed app
+
+## Run the app with emulators
+
+- run `npm run emulate` for local auth & firestore instances
+- run `npm run dev` for dev environment & hot reloading
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+## Run the app on your own firebase project
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+To run the app, you must have a Firebase project set up. After cloning the project locally follow these steps to set up your own firebase backend:
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+1. Create a new firebase project
+   - go to https://console.firebase.google.com/
+   - click `add project`
+2. Create web app
+   - On the main project page click the `</>` button to add a web app
+   - no firebase hosting required
+3. add firebase config to local repo
+   - create a new file called `firebase-config.js` in the `src` directory
+   - paste your `firebaseConfig` like this:
 
-## Learn More
+```
+const firebaseConfig = {
+  apiKey: "YOURAPIKEY",
+  authDomain: "YOURPROJECTNAME.firebaseapp.com",
+  projectId: "YOURPROJECTNAME",
+  storageBucket: "YOURPROJECTNAME.appspot.com",
+  messagingSenderId: "YOURSENDERID",
+  appId: "YOURAPPID"
+};
+export {firebaseConfig};
+```
 
-To learn more about Next.js, take a look at the following resources:
+4. Add database
+   - Go to Cloud Firestore
+   - click `create database`, choose test mode
+5. Add auth service
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   - Go to Authentification and click `get started`
+   - enable sign-in providers `Email/Password` and if you like `Google`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+6. Push security rules & indices
 
-## Deploy on Vercel
+   - cd into main directory
+   - run `npm install`
+   - run `npx firebase login`, enter your google credentials
+   - run `npx firebase deploy --only firestore`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+7. (optional) switch to local emulators for auth & firestore
+   - go to `useDb.ts` and uncomment the line
+   ```
+   connectFirestoreEmulator(firestore, "localhost", 8080);
+   ```
+   - go to `index.ts` and uncomment the line
+   ```
+   connectAuthEmulator(auth, "http://localhost:9099");
+   ```
