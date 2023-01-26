@@ -5,7 +5,7 @@ Link to production: https://shared-lists-8fc29.web.app/
 **Key features**
 
 - google firebase backend, incl. nosql database and auth service
-- live updates & offline capability
+- live updates
 - responsive design
 - React 18
 - [NextJS 13](https://nextjs.org/blog/next-13) with server-side components, streaming, suspense
@@ -18,7 +18,7 @@ Link to production: https://shared-lists-8fc29.web.app/
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Run the app on your own firebase project
+## Run the app in your own firebase project
 
 To run the app, you must have a Firebase project set up. After cloning the project locally follow these steps to set up your own firebase backend:
 
