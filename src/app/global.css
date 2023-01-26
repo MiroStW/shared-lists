@@ -22,6 +22,20 @@ body {
   grid-column-end: -1;
   grid-column-start: 1;
 }
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #202124;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #f5deb2;
+}
 
 .hiddenIcon {
   display: none;

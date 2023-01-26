@@ -18,4 +18,6 @@
   padding-right: 18px;
   padding-left: 18px;
   padding-bottom: 36px;
+  overflow-y: auto;
+  height: 100vh;
 }
