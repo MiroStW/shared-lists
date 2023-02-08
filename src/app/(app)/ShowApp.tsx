@@ -32,7 +32,7 @@ const ShowApp = ({
               setShowMobileLists={setShowMobileLists}
             />
           </ListsContextProvider>
-          <div className={styles.itemsArea}>{children}</div>
+          <div className={`${styles.itemsArea} hoverScrollbar`}>{children}</div>
         </div>
       </div>
     </>

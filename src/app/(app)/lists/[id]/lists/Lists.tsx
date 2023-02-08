@@ -21,7 +21,7 @@ const Lists = ({
     <div
       className={`${styles.listsArea} ${
         showMobileLists && styles.showMobileLists
-      }`}
+      } hoverScrollbar`}
     >
       <div className="listsHeader">
         <h2>Lists</h2>
