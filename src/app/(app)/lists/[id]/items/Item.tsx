@@ -110,8 +110,8 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
       item={item}
       render={(listeners, attributes) => (
         <div
-          className={`${styles.item} ${
-            item.data.completed ? styles.complete : ""
+          className={`${styles.item}${
+            item.data.completed ? ` ${styles.complete}` : ""
           }`}
           id={item.ref.id}
         >

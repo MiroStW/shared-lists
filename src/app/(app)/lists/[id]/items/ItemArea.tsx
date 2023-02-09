@@ -22,7 +22,7 @@ const ItemArea = ({
         setHideCompleted={setHideCompleted}
         hideCompleted={hideCompleted}
       />
-      <div className={styles.itemsList}>
+      <div>
         {Object.keys(items).length > 0 && (
           <>
             {Object.keys(items).reduce(
