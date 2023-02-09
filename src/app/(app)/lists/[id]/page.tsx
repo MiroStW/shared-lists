@@ -15,7 +15,7 @@ const page = async ({ params }: { params: { id: string } }) => {
   if (!serializedUser) redirect("/login");
   const { user } = JSON.parse(serializedUser) as { user: UserRecord };
 
-  const serializedLists = await getLists();
+  const serializedLists = await getLists(user);
   if (!serializedLists) redirect("/login");
   const prefetchedLists = JSON.parse(serializedLists) as AdminList[];
 

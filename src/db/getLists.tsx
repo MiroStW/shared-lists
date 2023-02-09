@@ -1,10 +1,8 @@
-import { verifyAuthToken } from "auth/verifyAuthToken";
+import { UserRecord } from "firebase-admin/auth";
 import { AdminList } from "types/types";
 import { adminDb } from "../firebase/firebaseAdmin";
 
-export const getLists = async () => {
-  const { user } = await verifyAuthToken();
-
+export const getLists = async (user?: UserRecord) => {
   if (user) {
     const ownedLists = adminDb()
       .collection("lists")
@@ -67,5 +65,5 @@ export const getLists = async () => {
     const lists = (await Promise.all([ownedLists, joinedLists])).flat();
 
     return JSON.stringify(lists);
-  } else return null;
+  } else return undefined;
 };
