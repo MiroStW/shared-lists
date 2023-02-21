@@ -1,32 +1,6 @@
 import { redirect } from "next/navigation";
-import { verifyAuthToken } from "../../auth/verifyAuthToken";
-import { adminDb } from "../../firebase/firebaseAdmin";
 import ShowLogin from "./ShowLogin";
-import { createAdminListData } from "../../db/adminFactory";
-
-const getFirstListId = async () => {
-  const { user } = await verifyAuthToken();
-  if (user) {
-    const firstListId = await adminDb()
-      .collection("lists")
-      .where("ownerID", "==", user.uid)
-      .where("isArchived", "==", false)
-      .orderBy("createdDate", "asc")
-      .limit(1)
-      .get()
-      .then((snapshot) => {
-        if (snapshot.empty) {
-          adminDb()
-            .collection("lists")
-            .add(createAdminListData("my first list", user));
-          return null;
-        }
-        return snapshot.docs[0].id;
-      });
-    return firstListId;
-  }
-  return null;
-};
+import { getFirstListId } from "db/getFirstListId";
 
 const Page = async () => {
   const firstListId = await getFirstListId();

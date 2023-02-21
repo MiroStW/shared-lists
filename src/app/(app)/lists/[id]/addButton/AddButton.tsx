@@ -1,3 +1,5 @@
+"use client";
+
 import { Icon } from "app/shared/Icon";
 import { useState } from "react";
 import { AdminList } from "types/types";

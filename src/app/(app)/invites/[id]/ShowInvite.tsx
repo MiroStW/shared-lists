@@ -18,23 +18,22 @@ const ShowInvite = ({ invite }: { invite: AdminInvite }) => {
       setLoading(true);
 
       const addAuthorizedUser = httpsCallable(functions, "addauthorizeduser");
-      addAuthorizedUser({ listId: invite.data.listID })
-        .then(() =>
-          updateDoc(doc(db, invite.ref.path), {
-            status: response ? "accepted" : "declined",
-          })
-        )
-        .then(() => router.push(`/lists/${invite?.data.listID}`))
-        .catch((err: unknown) => {
-          if (typeof err === "string") {
-            console.log("error", err);
-            setError(err);
-          } else if (err instanceof Error) {
-            console.log("error", err.message);
-            setError(err.message);
-            setLoading(false);
-          }
+      try {
+        await addAuthorizedUser({ listId: invite.data.listID });
+        updateDoc(doc(db, invite.ref.path), {
+          status: response ? "accepted" : "declined",
         });
+        router.push(`/lists/${invite?.data.listID}`);
+      } catch (err: unknown) {
+        if (typeof err === "string") {
+          console.log("error", err);
+          setError(err);
+        } else if (err instanceof Error) {
+          console.log("error", err.message);
+          setError(err.message);
+          setLoading(false);
+        }
+      }
     } else router.push("/lists");
   };
 

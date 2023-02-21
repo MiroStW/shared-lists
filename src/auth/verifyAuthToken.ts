@@ -9,7 +9,6 @@ const verifyAuthToken = async () => {
   try {
     const session = cookies().get("__session");
     if (session?.value) {
-      console.log("found token");
       const token = await auth.verifyIdToken(session.value);
       const { uid } = token;
       console.log("uid found: ", uid);

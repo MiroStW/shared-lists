@@ -2,7 +2,6 @@
   display: flex;
   align-items: stretch;
   gap: 8px;
-  padding: 0 8px;
   touch-action: manipulation;
 }
 
@@ -14,6 +13,10 @@
 .item:hover {
   background: rgb(255 255 255 / 4%);
   cursor: pointer;
+}
+
+.item:hover .itemName {
+  margin-right: 0;
 }
 
 .item:focus-within {
@@ -34,6 +37,8 @@
   align-items: center;
   flex: 1;
   padding: 8px 0;
+  margin-right: 26px;
+  word-break: break-word;
 }
 
 .item.complete .itemName {

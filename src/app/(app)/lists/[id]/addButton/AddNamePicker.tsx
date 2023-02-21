@@ -57,7 +57,7 @@ const AddNamePicker = ({
   // TODO: add status message
   // TODO: add close button
   return (
-    <Modal setOpenModal={setShowAddMenu} title={`New ${type}`} center={false}>
+    <Modal setOpenModal={setShowAddMenu} title={`New ${type}`} center={true}>
       <form>
         <label htmlFor="name">Name:</label>
         <input

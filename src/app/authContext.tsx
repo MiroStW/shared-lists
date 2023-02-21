@@ -11,6 +11,7 @@ import {
 import { firebase } from "../firebase/firebase";
 import { UserRecord } from "firebase-admin/auth";
 import { Cookie, withCookie } from "next-cookie";
+import { useRouter } from "next/navigation";
 
 const auth = getAuth(firebase);
 
@@ -21,6 +22,7 @@ if (process.env.NEXT_PUBLIC_DEVELOPMENT === "TRUE")
 const serverAuthContext = createContext({
   user: null as UserRecord | null | undefined,
   auth,
+  loading: true,
 });
 
 const ServerAuthContextProvider = ({
@@ -29,23 +31,29 @@ const ServerAuthContextProvider = ({
   cookie,
 }: {
   children: ReactNode;
-  user: UserRecord;
+  user?: UserRecord;
   cookie: Cookie;
 }) => {
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       (window as any).cookie = cookie;
     }
-    return auth.onIdTokenChanged(async (snap) => {
+    const unsubscribe = auth.onIdTokenChanged(async (snap) => {
+      setLoading(true);
       if (!snap) {
         cookie.remove("__session");
         cookie.set("__session", "", { path: "/" });
         return;
       }
       const token = await snap.getIdToken();
+      // console.log("auth token verified/refreshed at: ", new Date());
       cookie.remove("__session");
       cookie.set("__session", token, { path: "/" });
+      setLoading(false);
     });
+    return unsubscribe;
   }, [cookie]);
 
   return (
@@ -53,6 +61,7 @@ const ServerAuthContextProvider = ({
       value={{
         user,
         auth,
+        loading,
       }}
     >
       {children}
@@ -70,7 +79,7 @@ const CookieProvider = ({
   user,
 }: {
   children: ReactNode;
-  user: UserRecord;
+  user?: UserRecord;
 }) => {
   const [cookie, setCookie] = useState<Cookie>();
   useEffect(() => {

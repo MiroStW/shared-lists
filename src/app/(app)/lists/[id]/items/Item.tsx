@@ -10,31 +10,49 @@ import {
 import { useItems } from "app/(app)/lists/[id]/itemsContext";
 import { Item as ItemType } from "types/types";
 import { Icon } from "app/shared/Icon";
-import { Checkbox } from "./Checkbox";
+import TextareaAutosize from "@mui/base/TextareaAutosize";
 import styles from "./item.module.css";
 import { Sortable } from "./dnd/Sortable";
+import Checkbox from "@mui/material/Checkbox";
 
 const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
   const [inlineEdit, setInlineEdit] = useState(false);
   const [itemName, setItemName] = useState(item.data.name);
   const { deleteLocalItem, addLocalItem, localItems } = useItems();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const divRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (inlineEdit || focus) inputRef.current?.focus();
-  }, [focus, inlineEdit]);
+    if (inlineEdit || focus) {
+      textareaRef.current?.focus();
+      setTimeout(() => {
+        textareaRef.current?.setSelectionRange(-1, -1);
+        textareaRef.current?.scrollIntoView({
+          block: "end",
+          inline: "nearest",
+          behavior: "smooth",
+        });
+      }, 0);
+    }
+    // else {
+    //   setTimeout(() => {
+    //     divRef.current?.scrollIntoView();
+    //   }, 0);
+    // }
+  }, [focus, inlineEdit, itemName.length]);
 
   const handleInlineEdit = () => {
     setInlineEdit(true);
   };
 
-  const handleRename = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleRename = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setItemName(e.target.value);
   };
 
   // Defocus current item, triggering submitEdit & create new empty item
-  const handleEnter = () => {
-    inputRef.current?.blur();
+  const handleEnter = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    e.preventDefault();
+    textareaRef.current?.blur();
 
     if (itemName !== "") {
       addLocalItem({
@@ -48,7 +66,9 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
   };
 
   const submitEditOnBlur = (
-    e: KeyboardEvent<HTMLInputElement> | FocusEvent<HTMLInputElement, Element>
+    e:
+      | KeyboardEvent<HTMLTextAreaElement>
+      | FocusEvent<HTMLTextAreaElement, Element>
   ) => {
     e.preventDefault();
     // only update if name has changed
@@ -90,22 +110,34 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
       item={item}
       render={(listeners, attributes) => (
         <div
-          className={`${styles.item} ${
-            item.data.completed ? styles.complete : ""
+          className={`${styles.item}${
+            item.data.completed ? ` ${styles.complete}` : ""
           }`}
           id={item.ref.id}
         >
-          <Checkbox item={item} />
+          <Checkbox
+            checked={item.data.completed}
+            size="small"
+            sx={{
+              color: "white",
+              "&.Mui-checked": {
+                color: "grey",
+              },
+            }}
+            onChange={() =>
+              updateDoc(item.ref, { completed: !item.data.completed })
+            }
+          />
           {inlineEdit || focus ? (
-            <input
-              ref={inputRef}
-              type="text"
+            <TextareaAutosize
+              maxRows={10}
+              ref={textareaRef}
               value={itemName}
               className={styles.itemName}
               onChange={handleRename}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  handleEnter();
+                  handleEnter(e);
                 }
               }}
               onBlur={submitEditOnBlur}
@@ -116,6 +148,7 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
               {...attributes}
               className={styles.itemName}
               onClick={handleInlineEdit}
+              ref={divRef}
             >
               {item.data.name}
             </div>

@@ -1,10 +1,10 @@
 import { Loading } from "app/shared/Loading";
 import { Modal } from "app/shared/Modal";
 import { httpsCallable } from "firebase/functions";
-import Router from "next/router";
 import { AdminList, List, Section } from "types/types";
 import { Dispatch, SetStateAction, useState } from "react";
 import { functions } from "@firebase/firebase";
+import { useRouter } from "next/navigation";
 
 const DeleteModal = ({
   collection,
@@ -15,20 +15,27 @@ const DeleteModal = ({
 }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState("");
+  const router = useRouter();
 
-  const deleteHandler = () => {
+  const deleteHandler = async () => {
     setIsDeleting(true);
     // need to add recursive delete
     const deleteFn = httpsCallable(functions, "recursiveDelete");
-    deleteFn({ path: collection.ref.path })
-      .then(() => {
-        setShowModal(false);
-        if (collection.ref.parent?.id === "lists") Router.push("/lists");
-      })
-      .catch((err) => {
+    try {
+      await deleteFn({ path: collection.ref.path });
+      setShowModal(false);
+      if (collection.ref.parent?.id === "lists") router.push("/lists");
+    } catch (err: unknown) {
+      if (typeof err === "string") {
+        console.log("error", err);
+        setError(err);
+      } else if (err instanceof Error) {
+        console.log("error", err.message);
         setError(err.message);
-        setIsDeleting(false);
-      });
+      }
+      setIsDeleting(false);
+    }
+
     // add spinner and redirect to first list
     // maybe extract util function to be sahred between lists and sections
   };
@@ -40,7 +47,12 @@ const DeleteModal = ({
           Are you really sure you want to permanently delete{" "}
           {collection.data.name} including its items? This cannot be undone.
         </p>
-        <button onClick={deleteHandler} disabled={isDeleting}>
+        <br />
+        <button
+          onClick={deleteHandler}
+          disabled={isDeleting}
+          className={"noMargin"}
+        >
           {!isDeleting ? (
             "delete"
           ) : (
@@ -48,7 +60,6 @@ const DeleteModal = ({
               <Loading size={20} inline={true} /> deleting...
             </>
           )}
-          {/* TODO: add inline flag to Loading comp, instead of absolute center */}
         </button>
         {error && (
           <p style={{ color: "red" }}>

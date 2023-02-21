@@ -1,3 +1,5 @@
+"use client";
+
 import {
   useSensor,
   TouchSensor,
@@ -20,15 +22,13 @@ import { useItems } from "app/(app)/lists/[id]/itemsContext";
 import { Item as ItemType, Section, AdminList } from "types/types";
 import { createItemData } from "db/factory";
 import { itemsOfList, itemsOfSection } from "db/useDb";
-import { ShowError } from "app/shared/ShowError";
 import { Item } from "./Item";
 import { ItemArea } from "./ItemArea";
 import LoadingItems from "app/shared/LoadingItems";
 
 const ItemDndContext = ({ list }: { list: AdminList }) => {
   const { user } = useAuth();
-  const { items, sections, localItems, setLocalItems, loading, error } =
-    useItems();
+  const { items, sections, localItems, setLocalItems, loading } = useItems();
   const [activeItem, setActiveItem] = useState<ItemType | null>();
 
   const touchSensor = useSensor(TouchSensor, {
@@ -248,7 +248,6 @@ const ItemDndContext = ({ list }: { list: AdminList }) => {
 
   return (
     <>
-      {error && <ShowError msg={error.message} />}
       {loading ? (
         <LoadingItems />
       ) : (

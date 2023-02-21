@@ -1,9 +1,10 @@
+import { verifyAuthToken } from "auth/verifyAuthToken";
 import { getLists } from "db/getLists";
-import { getUser } from "db/getUser";
-import { UserRecord } from "firebase-admin/auth";
 import { redirect } from "next/navigation";
 import { AdminList } from "types/types";
-import ShowItems from "./ShowItems";
+import { AddButton } from "./addButton/AddButton";
+import { ItemDndContext } from "./items/ItemDndContext";
+import { ItemsContextProvider } from "./itemsContext";
 
 // TODO: also prerender items/sections of list with id param
 
@@ -11,18 +12,27 @@ import ShowItems from "./ShowItems";
 // whether it can be avoided
 
 const page = async ({ params }: { params: { id: string } }) => {
-  const serializedUser = await getUser();
-  if (!serializedUser) redirect("/login");
-  const { user } = JSON.parse(serializedUser) as { user: UserRecord };
+  const { user } = await verifyAuthToken();
+  const cleanUser = user ? JSON.parse(JSON.stringify(user)) : undefined;
 
-  const serializedLists = await getLists();
-  if (!serializedLists) redirect("/login");
-  const prefetchedLists = JSON.parse(serializedLists) as AdminList[];
+  const serializedLists = user ? await getLists(user) : undefined;
+  const prefetchedLists = serializedLists
+    ? (JSON.parse(serializedLists) as AdminList[])
+    : undefined;
 
-  const activeList = prefetchedLists.find((list) => list.ref.id === params.id);
+  const activeList = prefetchedLists?.find((list) => list.ref.id === params.id);
   if (!activeList) redirect("/lists");
 
-  return <ShowItems activeList={activeList} user={user} />;
+  return (
+    <>
+      {user && (
+        <ItemsContextProvider list={activeList} user={cleanUser}>
+          <ItemDndContext list={activeList} />
+          <AddButton activeList={activeList} />
+        </ItemsContextProvider>
+      )}
+    </>
+  );
 };
 
 export default page;

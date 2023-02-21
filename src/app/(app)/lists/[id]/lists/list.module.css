@@ -1,31 +1,30 @@
 .list {
   display: flex;
-  padding: 8px;
-}
-
-.list div {
-  height: 18px;
+  align-items: center;
+  gap: 20px;
+  padding: 0 8px;
+  max-width: 250px;
+  word-break: break-word;
 }
 
 @media (max-width: 500px) {
   .list {
-    width: 100%;
-    box-sizing: border-box;
+    max-width: 100%;
   }
 }
 
 .listTitle {
   flex: 1;
-  margin-right: 36px;
-  overflow: hidden;
-  word-break: break-word;
+  width: max-content;
+  padding: 8px 0;
+  margin-right: 56px;
 }
 
-.list.hover .listTitle {
+.hover .listTitle {
   margin-right: 0;
 }
 
-.list.hover {
+.hover {
   background: rgb(255 255 255 / 4%);
   cursor: pointer;
 }
