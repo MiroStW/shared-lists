@@ -22,7 +22,16 @@ const page = async ({ params }: { params: { id: string } }) => {
   const activeList = prefetchedLists.find((list) => list.ref.id === params.id);
   if (!activeList) redirect("/lists");
 
-  return <ShowItems activeList={activeList} user={user} />;
+  return (
+    <>
+      {user && (
+        <ItemsContextProvider list={activeList} user={cleanUser}>
+          <ItemDndContext list={activeList} />
+          <AddButton activeList={activeList} />
+        </ItemsContextProvider>
+      )}
+    </>
+  );
 };
 
 export default page;
