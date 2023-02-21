@@ -4,7 +4,6 @@ import { Loading } from "app/shared/Loading";
 import { AdminList } from "types/types";
 import List from "./List";
 import styles from "./lists.module.css";
-import { ShowError } from "app/shared/ShowError";
 
 const Lists = ({
   preFetchedLists,
