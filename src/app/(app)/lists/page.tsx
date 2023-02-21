@@ -4,7 +4,8 @@ import { getFirstListId } from "db/getFirstListId";
 const Lists = async () => {
   const firstListId = await getFirstListId();
   if (firstListId) redirect(`/lists/${firstListId}`);
-  redirect("/login");
+
+  return null;
 };
 
 export default Lists;
