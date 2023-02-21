@@ -35,7 +35,10 @@ const ShowApp = ({
             showMobileLists={showMobileLists}
             setShowMobileLists={setShowMobileLists}
           />
-          <div id={styles.main}>
+          <div
+            id={styles.main}
+            className={`${showMobileLists && styles.showMobileLists}`}
+          >
             <ListsContextProvider>
               <Lists
                 preFetchedLists={prefetchedLists}

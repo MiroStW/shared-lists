@@ -21,3 +21,13 @@
   border-left: 1px solid #5f6368;
   overflow-y: auto;
 }
+
+@media (max-width: 500px) {
+  .itemsArea {
+    display: block;
+  }
+
+  #main.showMobileLists .itemsArea {
+    display: none;
+  }
+}
