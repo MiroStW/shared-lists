@@ -15,7 +15,7 @@ const Lists = ({
   showMobileLists: boolean;
   setShowMobileLists: Dispatch<SetStateAction<boolean>>;
 }) => {
-  const { lists, error } = useLists();
+  const { lists } = useLists();
 
   return (
     <div
@@ -26,7 +26,6 @@ const Lists = ({
       <div className="listsHeader">
         <h2>Lists</h2>
       </div>
-      {error && <ShowError msg={error.message} />}
       {
         // render prefetched lists on initial load
         preFetchedLists && lists?.length === 0
