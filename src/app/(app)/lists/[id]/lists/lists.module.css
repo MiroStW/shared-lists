@@ -1,9 +1,3 @@
-@media (max-width: 500px) {
-  .listsArea {
-    display: none;
-  }
-}
-
 .listsArea div:checked + label {
   background: #fff;
   color: #5a5243;
@@ -25,15 +19,14 @@
 
 @media (max-width: 500px) {
   .listsArea {
+    display: none;
     width: 100%;
     box-sizing: border-box;
   }
 
   .showMobileLists {
-    display: block !important;
-    position: absolute;
-    z-index: 2;
+    display: block;
     width: 100%;
-    max-width: unset !important;
+    max-width: unset;
   }
 }
