@@ -25,14 +25,14 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
   useEffect(() => {
     if (inlineEdit || focus) {
       textareaRef.current?.focus();
-      setTimeout(() => {
-        textareaRef.current?.setSelectionRange(-1, -1);
-        textareaRef.current?.scrollIntoView({
-          block: "end",
-          inline: "nearest",
-          behavior: "smooth",
-        });
-      }, 0);
+      // setTimeout(() => {
+      //   textareaRef.current?.setSelectionRange(-1, -1);
+      //   textareaRef.current?.scrollIntoView({
+      //     block: "end",
+      //     inline: "nearest",
+      //     behavior: "smooth",
+      //   });
+      // }, 0);
     }
     // else {
     //   setTimeout(() => {
