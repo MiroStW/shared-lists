@@ -150,6 +150,30 @@ button.primary:hover {
   color: #b0fb00;
 }
 
+/* MUI TextField styling */
+.MuiInputBase-root.MuiOutlinedInput-root,
+.MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink {
+  color: #e8eaed;
+}
+
+.MuiFormLabel-root.MuiInputLabel-root {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.MuiInputBase-root .MuiOutlinedInput-notchedOutline {
+  border-color: #e8eaed;
+}
+
+.MuiInputBase-root.MuiOutlinedInput-root:hover
+  .MuiOutlinedInput-notchedOutline {
+  border-color: #fff;
+}
+
+.MuiInputBase-root.MuiOutlinedInput-root.Mui-focused
+  .MuiOutlinedInput-notchedOutline {
+  border-color: rgb(245, 222, 178);
+}
+
 /* @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
