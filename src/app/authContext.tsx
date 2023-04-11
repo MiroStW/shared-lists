@@ -11,7 +11,6 @@ import {
 import { firebase } from "../firebase/firebase";
 import { UserRecord } from "firebase-admin/auth";
 import { Cookie, withCookie } from "next-cookie";
-import { useRouter } from "next/navigation";
 
 const auth = getAuth(firebase);
 
