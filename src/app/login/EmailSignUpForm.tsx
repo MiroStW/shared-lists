@@ -4,22 +4,22 @@ import { TextField } from "@mui/material";
 import { useAuth } from "app/authContext";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 
 interface Inputs {
   email: string;
+  name: string;
   password: string;
   passwordConfirm: string;
 }
 
-// TODO hide password
 // TODO in first step only ask for email, then check if user exists
 // TODO if user exists, then log in instead of creating a new user
 // TODO if user does not exist, then create first list right away on the server,
 // then redirect to that list
 
-const EmailSignUpForm = () => {
+const EmailSignUpForm = ({ email = "" }: { email?: string }) => {
   const { auth } = useAuth();
   const router = useRouter();
   const [error, setError] = useState<string>("");
@@ -59,7 +59,7 @@ const EmailSignUpForm = () => {
         <Controller
           name="email"
           control={control}
-          defaultValue={""}
+          defaultValue={email}
           render={({ field }) => (
             <TextField
               {...field}
@@ -79,12 +79,31 @@ const EmailSignUpForm = () => {
           }}
         />
         <Controller
+          name="name"
+          control={control}
+          defaultValue={""}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              id="name"
+              label="Name"
+              variant="outlined"
+              error={!!errors.name}
+              helperText={errors.name?.message}
+            />
+          )}
+          rules={{
+            required: "Please specify your name",
+          }}
+        />
+        <Controller
           name="password"
           control={control}
           defaultValue={""}
           render={({ field }) => (
             <TextField
               {...field}
+              type="password"
               id="password"
               label="Password"
               variant="outlined"
@@ -107,6 +126,7 @@ const EmailSignUpForm = () => {
           render={({ field }) => (
             <TextField
               {...field}
+              type="password"
               id="passwordConfirm"
               label="Confirm password"
               variant="outlined"
