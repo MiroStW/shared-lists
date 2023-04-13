@@ -41,7 +41,7 @@ const UserMenu = () => {
                 className={styles.userMenuItem}
                 onClick={async () => {
                   await signOut(auth);
-                  router.push("/login");
+                  router.push("/signin");
                 }}
               >
                 sign out

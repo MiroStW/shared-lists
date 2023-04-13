@@ -28,7 +28,7 @@ const Page = async () => {
         {!user && (
           <>
             <button>
-              <Link href={"/login"}>Login</Link>
+              <Link href={"/signin"}>Login</Link>
             </button>
           </>
         )}

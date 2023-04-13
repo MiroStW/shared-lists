@@ -22,7 +22,7 @@ const ShowApp = ({
   const router = useRouter();
 
   useEffect(() => {
-    if (!user) router.push("/login");
+    if (!user) router.push("/signin");
   }, [router, user]);
   // TODO potentially use state library for showMobileLists to make this a RSC
   return (
