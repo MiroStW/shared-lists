@@ -19,7 +19,7 @@ interface Inputs {
 // TODO if user does not exist, then create first list right away on the server,
 // then redirect to that list
 
-const EmailSignUpForm = ({ email = "" }: { email?: string }) => {
+const SignUpWithEmail = ({ email = "" }: { email?: string }) => {
   const { auth } = useAuth();
   const router = useRouter();
   const [error, setError] = useState<string>("");
@@ -147,4 +147,4 @@ const EmailSignUpForm = ({ email = "" }: { email?: string }) => {
   );
 };
 
-export default EmailSignUpForm;
+export default SignUpWithEmail;

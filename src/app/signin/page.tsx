@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import ShowLogin from "./ShowLogin";
 import { getFirstListId } from "db/getFirstListId";
-import EmailSignUpForm from "./EmailSignUpForm";
+import EmailSignUpForm from "./SignUpWithEmail";
 import SignInWithEmail from "./SignInWithEmail";
 import SignInOptions from "./SignInOptions";
 

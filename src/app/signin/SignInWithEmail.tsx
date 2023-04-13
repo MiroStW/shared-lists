@@ -3,7 +3,7 @@
 import { TextField } from "@mui/material";
 import { useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import EmailSignUpForm from "./EmailSignUpForm";
+import EmailSignUpForm from "./SignUpWithEmail";
 
 interface Inputs {
   email: string;
