@@ -3,7 +3,7 @@
 import { TextField } from "@mui/material";
 import { useAuth } from "app/authContext";
 import { fetchSignInMethodsForEmail } from "firebase/auth";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import SignInWithEmail from "./SignInWithEmail";
 import SignUpWithEmail from "./SignUpWithEmail";
@@ -12,7 +12,11 @@ interface Inputs {
   email: string;
 }
 
-const SignInEnterEmail = () => {
+const SignInEnterEmail = ({
+  setSignInOption,
+}: {
+  setSignInOption: Dispatch<SetStateAction<"email" | "google" | undefined>>;
+}) => {
   const { auth } = useAuth();
   const [userExists, setUserExists] = useState<boolean>();
   const [email, setEmail] = useState<string>();
@@ -26,6 +30,7 @@ const SignInEnterEmail = () => {
 
   const onSubmit = async (data: Inputs) => {
     // check if user exists, if not show sign up form, otherweise log in form
+    setSignInOption("email");
     setEmail(data.email);
     const existingSignIns = await fetchSignInMethodsForEmail(auth, data.email);
     if (existingSignIns.includes("password")) {

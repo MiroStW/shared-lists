@@ -8,29 +8,18 @@ const SignInOptions = () => {
 
   return (
     <>
-      {signInOption === "email" && <SignInEnterEmail />}
-      {signInOption === "google" && <div>Sign in with Google</div>}
-      {signInOption === undefined && (
-        <>
-          <div className="sign-in-options">
-            <button
-              className="sign-in-option"
-              onClick={() => setSignInOption("email")}
-            >
-              Sign in with email
-            </button>
-          </div>
+      <div className="sign-in-options">
+        {signInOption !== "email" && (
+          <button
+            className="sign-in-option"
+            onClick={() => setSignInOption("google")}
+          >
+            Sign in with Google
+          </button>
+        )}
 
-          <div className="sign-in-options">
-            <button
-              className="sign-in-option"
-              onClick={() => setSignInOption("google")}
-            >
-              Sign in with Google
-            </button>
-          </div>
-        </>
-      )}
+        <SignInEnterEmail setSignInOption={setSignInOption} />
+      </div>
     </>
   );
 };
