@@ -1,8 +1,5 @@
 import { redirect } from "next/navigation";
-import ShowLogin from "./ShowLogin";
 import { getFirstListId } from "db/getFirstListId";
-import EmailSignUpForm from "./SignUpWithEmail";
-import SignInWithEmail from "./SignInWithEmail";
 import SignInOptions from "./SignInOptions";
 
 const Page = async () => {
@@ -11,7 +8,7 @@ const Page = async () => {
 
   return (
     <>
-      <ShowLogin />
+      <h1>Hello from new Login</h1>
       <SignInOptions />
     </>
   );

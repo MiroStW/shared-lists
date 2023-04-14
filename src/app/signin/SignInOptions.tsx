@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import SignInWithEmail from "./SignInWithEmail";
+import SignInEnterEmail from "./SignInEnterEmail";
 
 const SignInOptions = () => {
   const [signInOption, setSignInOption] = useState<"email" | "google">();
 
   return (
     <>
-      {signInOption === "email" && <SignInWithEmail />}
+      {signInOption === "email" && <SignInEnterEmail />}
       {signInOption === "google" && <div>Sign in with Google</div>}
       {signInOption === undefined && (
         <>

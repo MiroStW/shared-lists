@@ -2,9 +2,10 @@
 
 import { TextField } from "@mui/material";
 import { useAuth } from "app/authContext";
+import { FirebaseError } from "firebase/app";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 
 interface Inputs {
@@ -19,41 +20,44 @@ interface Inputs {
 // TODO if user does not exist, then create first list right away on the server,
 // then redirect to that list
 
-const SignUpWithEmail = ({ email = "" }: { email?: string }) => {
-  const { auth } = useAuth();
+const SignUpWithEmail = ({
+  email = "",
+  setUserExists,
+}: {
+  email?: string;
+  setUserExists: Dispatch<SetStateAction<boolean | undefined>>;
+}) => {
+  const { auth, user } = useAuth();
   const router = useRouter();
   const [error, setError] = useState<string>("");
   const {
-    register,
     handleSubmit,
     formState: { errors },
     control,
   } = useForm<Inputs>();
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
     console.log("email: ", data.email);
     console.log("password: ", data.password);
     console.log("passwordConfirm: ", data.passwordConfirm);
 
-    createUserWithEmailAndPassword(auth, data.email, data.password)
-      .then((userCredential) => {
-        // Signed in
-        router.push("/lists");
-      })
-      .catch((err) => {
-        const errorCode = err.code;
-        const errorMessage = err.message;
-
-        setError(errorCode);
-        // ..
-        console.log("error code: ", errorCode);
-        console.log("error message: ", errorMessage);
-      });
+    try {
+      await createUserWithEmailAndPassword(auth, data.email, data.password);
+      router.push("/lists");
+    } catch (err) {
+      if (typeof err === "string") {
+        console.log("error", err);
+        setError(err);
+      } else if (err instanceof FirebaseError) {
+        console.log("error", err.code);
+        console.log("error message: ", err.message);
+        setError(err.code);
+      }
+    }
   };
 
   return (
     <>
-      <div>Hello from new Login</div>
       <div>Sign-up</div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Controller
@@ -140,6 +144,7 @@ const SignUpWithEmail = ({ email = "" }: { email?: string }) => {
               value === formValues.password || "Passwords do not match",
           }}
         />
+        <button onClick={() => setUserExists(undefined)}>back</button>
         <button type="submit">Sign-up</button>
       </form>
       {error && <div>Error: {error}</div>}
