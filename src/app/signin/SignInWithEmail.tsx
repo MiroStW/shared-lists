@@ -49,6 +49,7 @@ const SignInWithEmail = ({
   };
   return (
     <>
+      <h2>Welcome back!</h2>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Controller
           name="email"
