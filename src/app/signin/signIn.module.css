@@ -1,0 +1,77 @@
+.signInOptionsContainer {
+  margin: 0 auto;
+  width: 300px;
+  min-height: 250px;
+  box-shadow: 3px 3px 6px 0px #00000091;
+  border-radius: 5px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.signInOptionButton {
+  box-sizing: border-box;
+  width: inherit;
+  padding: 8px 16px;
+  margin: 0;
+  line-height: normal;
+  border: none;
+  border-radius: 2px;
+  text-align: center;
+}
+
+.signInOptionGmail {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  background-color: white;
+  color: #757575;
+}
+
+.signInOptionGmail:hover {
+  background-color: #e0e0e0;
+}
+
+.signInOptionsSeparator {
+  position: relative;
+  text-align: center;
+  width: 100%;
+  margin: 20px 0 5px 0;
+}
+
+.signInOptionsSeparator::before {
+  left: 0;
+}
+
+.signInOptionsSeparator::after {
+  right: 0;
+}
+
+.signInOptionsSeparator::before,
+.signInOptionsSeparator::after {
+  content: " ";
+  position: absolute;
+  top: 50%;
+  width: 43%;
+  height: 1px;
+  background-color: #e0e0e0;
+}
+
+.signInForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  height: 100%;
+  width: 100%;
+  margin: 15px 0;
+}
+
+.signInInput {
+  width: 100%;
+  max-width: 300px;
+}
