@@ -8,7 +8,7 @@ const Page = async () => {
 
   return (
     <>
-      <h1>Hello from new Login</h1>
+      <h1>Please sign in</h1>
       <SignInOptions />
     </>
   );
