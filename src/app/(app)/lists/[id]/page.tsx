@@ -1,4 +1,4 @@
-import { verifyAuthToken } from "auth/verifyAuthToken";
+import { verifySession } from "auth/verifySession";
 import { getLists } from "db/getLists";
 import { redirect } from "next/navigation";
 import { AdminList } from "types/types";
@@ -12,16 +12,18 @@ import { ItemsContextProvider } from "./itemsContext";
 // whether it can be avoided
 
 const page = async ({ params }: { params: { id: string } }) => {
-  const { user } = await verifyAuthToken();
+  const { user } = await verifySession();
   const cleanUser = user ? JSON.parse(JSON.stringify(user)) : undefined;
+  console.log("user on item level: ", user?.email);
 
-  const serializedLists = user ? await getLists(user) : undefined;
-  const prefetchedLists = serializedLists
-    ? (JSON.parse(serializedLists) as AdminList[])
+  const prefetchedLists = user ? await getLists(user) : undefined;
+  const cleanLists = prefetchedLists
+    ? (JSON.parse(prefetchedLists) as AdminList[])
     : undefined;
 
-  const activeList = prefetchedLists?.find((list) => list.ref.id === params.id);
+  const activeList = cleanLists?.find((list) => list.ref.id === params.id);
   if (!activeList) redirect("/lists");
+  console.log("activeList on item level: ", activeList.data.name);
 
   return (
     <>

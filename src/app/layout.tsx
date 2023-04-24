@@ -1,9 +1,11 @@
 import "./global.css";
 import ServerAuthContextProvider from "./authContext";
-import { verifyAuthToken } from "auth/verifyAuthToken";
+import { verifySession } from "auth/verifySession";
 
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
-  const { user } = await verifyAuthToken();
+  const { user } = await verifySession();
+
+  console.log("user on root level: ", user?.email);
   const cleanUser = user ? JSON.parse(JSON.stringify(user)) : undefined;
 
   return (
