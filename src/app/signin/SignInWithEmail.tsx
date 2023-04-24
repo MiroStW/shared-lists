@@ -38,8 +38,33 @@ const SignInWithEmail = ({
     // check if user exists, if not show sign up form, otherweise log in form
     try {
       setIsLoading(true);
-      await signInWithEmailAndPassword(auth, data.email, data.password);
-      router.push("/lists");
+      const { user } = await signInWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      );
+
+      if (!user) throw new Error("User not found");
+
+      const idToken = await user.getIdToken();
+      console.log("idToken: ", idToken);
+      // const clientCsrfToken = cookie.get("csrfToken");
+
+      const res = await fetch("/signin/sessionlogin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          idToken,
+        }),
+      });
+      console.log(res);
+      if (res.ok) {
+        router.push("/lists");
+      } else {
+        throw new Error("Session creation failed");
+      }
     } catch (err) {
       setIsLoading(false);
       if (typeof err === "string") {
@@ -48,6 +73,8 @@ const SignInWithEmail = ({
         setError(err.code);
       }
     }
+
+    return null;
   };
   return (
     <>
