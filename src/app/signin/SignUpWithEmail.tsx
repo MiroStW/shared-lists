@@ -44,8 +44,28 @@ const SignUpWithEmail = ({
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
       setIsLoading(true);
-      await createUserWithEmailAndPassword(auth, data.email, data.password);
-      router.push("/lists");
+      const { user } = await createUserWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      );
+
+      const idToken = await user.getIdToken();
+
+      const res = await fetch("/signin/sessionlogin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          idToken,
+        }),
+      });
+      if (res.ok) {
+        router.push("/lists");
+      } else {
+        throw new Error("Something went wrong");
+      }
     } catch (err) {
       setIsLoading(false);
       if (typeof err === "string") {
