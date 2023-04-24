@@ -1,6 +1,13 @@
 "use client";
 
-import { doc, FirestoreError, orderBy, query, where } from "firebase/firestore";
+import {
+  doc,
+  FirestoreError,
+  onSnapshot,
+  orderBy,
+  query,
+  where,
+} from "firebase/firestore";
 import {
   createContext,
   Dispatch,
@@ -10,7 +17,6 @@ import {
   useEffect,
   useState,
 } from "react";
-import { useCollection } from "react-firebase-hooks/firestore";
 import { AdminList, Item as ItemType, Section } from "types/types";
 import { db, items as itemsCol, sectionsOfList } from "db/useDb";
 import { createItemData } from "db/factory";
@@ -45,8 +51,24 @@ export const ItemsContextProvider = ({
   user: UserRecord;
   list: AdminList;
 }) => {
-  const [items, loadingItems, errorItems] = useCollection<ItemType>(
-    query(
+  const [items, setItems] = useState<ItemType[]>([]);
+  const [loadingItems, setLoadingItems] = useState(true);
+  const [errorItems, setErrorItems] = useState<FirestoreError | undefined>(
+    undefined
+  );
+
+  const [sections, setSections] = useState<Section[]>([]);
+  const [loadingSections, setLoadingSections] = useState(true);
+  const [errorSections, setErrorSections] = useState<
+    FirestoreError | undefined
+  >(undefined);
+
+  const [localItems, setLocalItems] = useState<{
+    [key: string]: ItemType[];
+  }>({});
+
+  const getItems = () => {
+    const itemsQuery = query(
       itemsCol,
       where("list", "==", list.ref.id),
       // orderBy(documentId()),
@@ -54,17 +76,85 @@ export const ItemsContextProvider = ({
       // endAt(`${list.ref.path}\uf8ff`) // hack to get all subcollections of list
       where("authorizedUsers", "array-contains", user?.uid),
       orderBy("order", "asc")
-    ).withConverter(itemConverter)
-  );
-  const [sections, loadingSections, errorSections] = useCollection<Section>(
-    query(
+    ).withConverter(itemConverter);
+
+    const unsubscribe = onSnapshot(
+      itemsQuery,
+      { includeMetadataChanges: true },
+      async (snapshot) => {
+        const itemsnapshot: ItemType[] = [];
+        setLoadingItems(true);
+        snapshot.forEach((item) => {
+          itemsnapshot.push(item.data());
+        });
+        setItems(itemsnapshot);
+        setLoadingItems(false);
+      },
+      (err) => {
+        setErrorItems(err);
+        setLoadingItems(false);
+      }
+    );
+    return unsubscribe;
+  };
+
+  const getSections = () => {
+    const sectionsQuery = query(
       sectionsOfList(list),
       where("authorizedUsers", "array-contains", user?.uid)
-    ).withConverter(sectionConverter)
-  );
-  const [localItems, setLocalItems] = useState<{
-    [key: string]: ItemType[];
-  }>({});
+    ).withConverter(sectionConverter);
+
+    const unsubscribe = onSnapshot(
+      sectionsQuery,
+      { includeMetadataChanges: true },
+      async (snapshot) => {
+        const sectionSnapshot: Section[] = [];
+        setLoadingSections(true);
+        snapshot.forEach((section) => {
+          sectionSnapshot.push(section.data());
+        });
+        setSections(sectionSnapshot);
+        setLoadingSections(false);
+      },
+      (err) => {
+        setErrorSections(err);
+        setLoadingSections(false);
+      }
+    );
+    return unsubscribe;
+  };
+
+  // const [items, loadingItems, errorItems] = useCollection<ItemType>(
+  //   query(
+  //     itemsCol,
+  //     where("list", "==", list.ref.id),
+  //     // orderBy(documentId()),
+  //     // startAt(list.ref.path),
+  //     // endAt(`${list.ref.path}\uf8ff`) // hack to get all subcollections of list
+  //     where("authorizedUsers", "array-contains", user?.uid),
+  //     orderBy("order", "asc")
+  //   ).withConverter(itemConverter)
+  // );
+  // const [sections, loadingSections, errorSections] = useCollection<Section>(
+  //   query(
+  //     sectionsOfList(list),
+  //     where("authorizedUsers", "array-contains", user?.uid)
+  //   ).withConverter(sectionConverter)
+  // );
+
+  useEffect(() => {
+    console.log("items changed: ", items, loadingItems, errorItems);
+    // console.log("list in itemContext: ", list);
+  }, [items, loadingItems, errorItems]);
+
+  useEffect(() => {
+    const unsubscribeItems = getItems();
+    const unsubscribeSections = getSections();
+    return () => {
+      unsubscribeItems();
+      unsubscribeSections();
+    };
+  }, []);
 
   // update localItems when items or sections change
   useEffect(() => {
@@ -81,24 +171,20 @@ export const ItemsContextProvider = ({
       );
 
       const updatedLocalItems = {
-        [list.ref.id]: items?.docs
-          .map((item) => item.data())
-          .concat(newItems)
+        [list.ref.id]: items
+          ?.concat(newItems)
           .filter((item) => item.ref.parent.parent?.id === list.ref.id)
           .sort((a, b) => a.data.order - b.data.order),
       };
 
-      sections?.docs
-        .map((section) => section.data())
-        .forEach((section) => {
-          updatedLocalItems[section.ref.id] = items
-            ? items.docs
-                .map((item) => item.data())
-                .concat(newItems)
-                .filter((item) => item.ref.parent.parent?.id === section.ref.id)
-                .sort((a, b) => a.data.order - b.data.order)
-            : [];
-        });
+      sections.forEach((section) => {
+        updatedLocalItems[section.ref.id] = items
+          ? items
+              .concat(newItems)
+              .filter((item) => item.ref.parent.parent?.id === section.ref.id)
+              .sort((a, b) => a.data.order - b.data.order)
+          : [];
+      });
 
       setLocalItems(updatedLocalItems);
     }
@@ -176,8 +262,8 @@ export const ItemsContextProvider = ({
   return (
     <itemsContext.Provider
       value={{
-        items: items?.docs.map((item) => item.data()) || [],
-        sections: sections?.docs.map((section) => section.data()) || [],
+        items,
+        sections,
         localItems,
         setLocalItems,
         deleteLocalItem,
