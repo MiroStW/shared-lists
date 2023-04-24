@@ -9,11 +9,12 @@ const verifySession = async () => {
     const { uid } = await getAuth(firebaseAdmin).verifySessionCookie(
       sessionCookie
     );
+    const customToken = await getAuth(firebaseAdmin).createCustomToken(uid);
     const user = await getAuth().getUser(uid);
     // console.log("user in verifySessionCookie: ", user.email);
     // console.log("user in verifySession: ", uid);
     // console.log("session in verifySession: ", sessionCookie);
-    return { user };
+    return { user, customToken };
   } catch (error) {
     console.log(error);
     return { error };
