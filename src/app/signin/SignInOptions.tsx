@@ -21,8 +21,8 @@ const SignInOptions = () => {
   const signInWithGoogle = async () => {
     setIsLoading(true);
     try {
-      const result = await signInWithPopup(auth, provider);
-      if (result.user) {
+      const { user } = await signInWithPopup(auth, provider);
+      if (user) {
         router.push("/lists");
       } else {
         setIsLoading(false);
