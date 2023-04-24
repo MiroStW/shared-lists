@@ -13,6 +13,7 @@ const verifyAuthToken = async () => {
       const { uid } = token;
       console.log("uid found: ", uid);
       const user = await auth.getUser(uid);
+      console.log("user found: ", user.uid);
       return {
         auth,
         user,
@@ -20,13 +21,13 @@ const verifyAuthToken = async () => {
     }
   } catch (error: unknown) {
     if (typeof error === "string") {
-      console.log("error", error);
+      console.log("error: ", error);
       return {
         auth,
         error,
       };
     } else if (error instanceof Error) {
-      console.log("error", error.message);
+      console.log("error: ", error.message);
 
       return {
         auth,
