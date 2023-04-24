@@ -1,6 +1,11 @@
 "use client";
 
-import { connectAuthEmulator, getAuth } from "firebase/auth";
+import {
+  connectAuthEmulator,
+  getAuth,
+  inMemoryPersistence,
+  setPersistence,
+} from "firebase/auth";
 import {
   createContext,
   ReactNode,
@@ -9,10 +14,12 @@ import {
   useState,
 } from "react";
 import { firebase } from "../firebase/firebase";
-import { UserRecord } from "firebase-admin/auth";
+import type { UserRecord } from "firebase-admin/auth";
 import { Cookie, withCookie } from "next-cookie";
+import { RequestCookie } from "next/dist/server/web/spec-extension/cookies";
 
 const auth = getAuth(firebase);
+setPersistence(auth, inMemoryPersistence);
 
 // comment out this line to switch to production db
 if (process.env.NEXT_PUBLIC_DEVELOPMENT === "TRUE")
@@ -22,38 +29,42 @@ const serverAuthContext = createContext({
   user: null as UserRecord | null | undefined,
   auth,
   loading: true,
+  // csrfToken: undefined as RequestCookie | undefined,
 });
 
 const ServerAuthContextProvider = ({
   children,
   user,
-  cookie,
-}: {
+}: // cookie,
+{
   children: ReactNode;
   user?: UserRecord;
-  cookie: Cookie;
+  // cookie: Cookie;
 }) => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  // const [csrfToken, setCsrfToken] = useState<RequestCookie | undefined>();
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      (window as any).cookie = cookie;
-    }
-    const unsubscribe = auth.onIdTokenChanged(async (snap) => {
-      setLoading(true);
-      if (!snap) {
-        cookie.remove("__session");
-        cookie.set("__session", "", { path: "/" });
-        return;
-      }
-      const token = await snap.getIdToken();
-      // console.log("auth token verified/refreshed at: ", new Date());
-      cookie.remove("__session");
-      cookie.set("__session", token, { path: "/" });
-      setLoading(false);
-    });
-    return unsubscribe;
-  }, [cookie]);
+  // useEffect(() => {
+  //   if (typeof window !== "undefined") {
+  //     (window as any).cookie = cookie;
+  //   }
+
+  //   console.log("user in authContext: ", user);
+  //   const unsubscribe = auth.onIdTokenChanged(async (snap) => {
+  //     setLoading(true);
+  //     if (!snap) {
+  //       cookie.remove("__session");
+  //       cookie.set("__session", "", { path: "/" });
+  //       return;
+  //     }
+  //     const token = await snap.getIdToken();
+  //     // console.log("auth token verified/refreshed at: ", new Date());
+  //     cookie.remove("__session");
+  //     cookie.set("__session", token, { path: "/" });
+  //     setLoading(false);
+  //   });
+  //   return unsubscribe;
+  // }, [cookie]);
 
   return (
     <serverAuthContext.Provider
@@ -61,6 +72,7 @@ const ServerAuthContextProvider = ({
         user,
         auth,
         loading,
+        // csrfToken,
       }}
     >
       {children}
@@ -71,31 +83,31 @@ const ServerAuthContextProvider = ({
 // this is a workaround as next-cookie expects a ctx object, that doesnt exist
 // in next 13 anymore - to be refactored by moving to a different library or
 // when next13 incorporates a new way to set cookies
-const CookieWrapper = withCookie(ServerAuthContextProvider);
+// const CookieWrapper = withCookie(ServerAuthContextProvider);
 
-const CookieProvider = ({
-  children,
-  user,
-}: {
-  children: ReactNode;
-  user?: UserRecord;
-}) => {
-  const [cookie, setCookie] = useState<Cookie>();
-  useEffect(() => {
-    if (!cookie) setCookie(new Cookie());
-  }, []);
-  return (
-    <>
-      {cookie && (
-        <CookieWrapper cookie={cookie} user={user}>
-          {children}
-        </CookieWrapper>
-      )}
-    </>
-  );
-};
+// const CookieProvider = ({
+//   children,
+//   user,
+// }: {
+//   children: ReactNode;
+//   user?: UserRecord;
+// }) => {
+//   const [cookie, setCookie] = useState<Cookie>();
+//   useEffect(() => {
+//     if (!cookie) setCookie(new Cookie());
+//   }, []);
+//   return (
+//     <>
+//       {cookie && (
+//         <CookieWrapper cookie={cookie} user={user}>
+//           {children}
+//         </CookieWrapper>
+//       )}
+//     </>
+//   );
+// };
 
-export default CookieProvider;
+export default ServerAuthContextProvider;
 
 export const useAuth = () => {
   return useContext(serverAuthContext);
