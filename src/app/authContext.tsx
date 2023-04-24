@@ -1,10 +1,12 @@
 "use client";
 
 import {
+  browserSessionPersistence,
   connectAuthEmulator,
   getAuth,
   inMemoryPersistence,
   setPersistence,
+  signInWithCustomToken,
 } from "firebase/auth";
 import {
   createContext,
@@ -19,7 +21,7 @@ import { Cookie, withCookie } from "next-cookie";
 import { RequestCookie } from "next/dist/server/web/spec-extension/cookies";
 
 const auth = getAuth(firebase);
-setPersistence(auth, inMemoryPersistence);
+auth.setPersistence(browserSessionPersistence);
 
 // comment out this line to switch to production db
 if (process.env.NEXT_PUBLIC_DEVELOPMENT === "TRUE")
@@ -35,13 +37,25 @@ const serverAuthContext = createContext({
 const ServerAuthContextProvider = ({
   children,
   user,
+  customToken,
 }: // cookie,
 {
   children: ReactNode;
   user?: UserRecord;
+  customToken?: string;
   // cookie: Cookie;
 }) => {
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    auth.onAuthStateChanged((clientUser) => {
+      if (!clientUser && customToken) {
+        console.log("setting new user with custom token: ", customToken);
+        signInWithCustomToken(auth, customToken);
+      }
+    });
+  }, [customToken]);
+
   // const [csrfToken, setCsrfToken] = useState<RequestCookie | undefined>();
 
   // useEffect(() => {
