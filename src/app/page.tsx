@@ -1,15 +1,10 @@
 import Link from "next/link";
-import { verifyAuthToken } from "../auth/verifyAuthToken";
 import SignOutBtn from "./SignOutBtn";
 import styles from "./main.module.css";
-
-const getUser = async () => {
-  const { user, auth } = await verifyAuthToken();
-  return { user, auth };
-};
+import { verifySession } from "auth/verifySession";
 
 const Page = async () => {
-  const { user } = await getUser();
+  const { user } = await verifySession();
 
   return (
     <>
