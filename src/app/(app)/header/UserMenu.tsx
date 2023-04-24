@@ -12,14 +12,20 @@ const UserMenu = () => {
   const [hideMenu, setHideMenu] = useState(true);
   const router = useRouter();
 
-  const clickHandler = () => {
+  const openMenuHandler = () => {
     setHideMenu(!hideMenu);
+  };
+
+  const signOutHandler = async () => {
+    await fetch("/signin/revokesession");
+    await signOut(auth);
+    router.push("/signin");
   };
 
   return (
     <>
       {user && (
-        <div className={styles.userWidget} onClick={clickHandler}>
+        <div className={styles.userWidget} onClick={openMenuHandler}>
           <div className={styles.userImage}>
             {user.photoURL ? (
               <Image
@@ -37,13 +43,7 @@ const UserMenu = () => {
           </div>
           <div className={styles.userMenu} hidden={hideMenu}>
             <div className={styles.userMenuList}>
-              <div
-                className={styles.userMenuItem}
-                onClick={async () => {
-                  await signOut(auth);
-                  router.push("/signin");
-                }}
-              >
+              <div className={styles.userMenuItem} onClick={signOutHandler}>
                 sign out
               </div>
             </div>
