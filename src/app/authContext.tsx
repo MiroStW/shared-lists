@@ -30,8 +30,6 @@ if (process.env.NEXT_PUBLIC_DEVELOPMENT === "TRUE")
 const serverAuthContext = createContext({
   user: null as UserRecord | null | undefined,
   auth,
-  loading: true,
-  // csrfToken: undefined as RequestCookie | undefined,
 });
 
 const ServerAuthContextProvider = ({
@@ -85,8 +83,6 @@ const ServerAuthContextProvider = ({
       value={{
         user,
         auth,
-        loading,
-        // csrfToken,
       }}
     >
       {children}
