@@ -27,10 +27,8 @@ const DeleteModal = ({
       if (collection.ref.parent?.id === "lists") router.push("/lists");
     } catch (err: unknown) {
       if (typeof err === "string") {
-        console.log("error", err);
         setError(err);
       } else if (err instanceof Error) {
-        console.log("error", err.message);
         setError(err.message);
       }
       setIsDeleting(false);
