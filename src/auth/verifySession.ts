@@ -3,22 +3,29 @@ import { getAuth } from "firebase-admin/auth";
 import { cookies } from "next/headers";
 
 const verifySession = async () => {
-  const sessionCookie = cookies().get("__session")?.value || "";
-  // const sessionCookie = request.cookies.get("__session") || "";
-  try {
-    const { uid } = await getAuth(firebaseAdmin).verifySessionCookie(
-      sessionCookie
-    );
-    const customToken = await getAuth(firebaseAdmin).createCustomToken(uid);
-    const user = await getAuth().getUser(uid);
-    // console.log("user in verifySessionCookie: ", user.email);
-    // console.log("user in verifySession: ", uid);
-    // console.log("session in verifySession: ", sessionCookie);
-    return { user, customToken };
-  } catch (error) {
-    console.log(error);
-    return { error };
+  const cookie = cookies().get("__session")?.value;
+
+  if (cookie) {
+    const {
+      sessionCookie,
+      expirationDate,
+    }: { sessionCookie: string; expirationDate: string } = JSON.parse(cookie);
+    // const sessionCookie = request.cookies.get("__session") || "";
+    try {
+      const auth = getAuth(firebaseAdmin);
+      const { uid } = await auth.verifySessionCookie(sessionCookie);
+      if (uid) {
+        const customToken = await auth.createCustomToken(uid);
+        const user = await getAuth().getUser(uid);
+
+        return { user, customToken, expirationDate };
+      }
+    } catch (error) {
+      console.log(error);
+      return { error };
+    }
   }
+  return { error: "No user found" };
 };
 
 export { verifySession };
