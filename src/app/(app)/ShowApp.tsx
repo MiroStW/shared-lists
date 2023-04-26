@@ -18,7 +18,7 @@ const ShowApp = ({
   children: React.ReactNode;
 }) => {
   const [showMobileLists, setShowMobileLists] = useState(false);
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -26,33 +26,25 @@ const ShowApp = ({
   }, [router, user]);
   // TODO potentially use state library for showMobileLists to make this a RSC
   return (
-    <>
-      {loading ? (
-        <Loading />
-      ) : (
-        <div id={styles.container}>
-          <Header
+    <div id={styles.container}>
+      <Header
+        showMobileLists={showMobileLists}
+        setShowMobileLists={setShowMobileLists}
+      />
+      <div
+        id={styles.main}
+        className={`${showMobileLists && styles.showMobileLists}`}
+      >
+        <ListsContextProvider>
+          <Lists
+            preFetchedLists={prefetchedLists}
             showMobileLists={showMobileLists}
             setShowMobileLists={setShowMobileLists}
           />
-          <div
-            id={styles.main}
-            className={`${showMobileLists && styles.showMobileLists}`}
-          >
-            <ListsContextProvider>
-              <Lists
-                preFetchedLists={prefetchedLists}
-                showMobileLists={showMobileLists}
-                setShowMobileLists={setShowMobileLists}
-              />
-            </ListsContextProvider>
-            <div className={`${styles.itemsArea} hoverScrollbar`}>
-              {children}
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+        </ListsContextProvider>
+        <div className={`${styles.itemsArea} hoverScrollbar`}>{children}</div>
+      </div>
+    </div>
   );
 };
 
