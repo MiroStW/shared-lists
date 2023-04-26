@@ -21,7 +21,6 @@ const verifySession = async () => {
         return { user, customToken, expirationDate };
       }
     } catch (error) {
-      console.log(error);
       return { error };
     }
   }

@@ -9,6 +9,7 @@ import { useAuth } from "app/authContext";
 import { useRouter } from "next/navigation";
 import { Loading } from "app/shared/Loading";
 import { FirebaseError } from "firebase/app";
+import { setSessionCookie } from "auth/setSessionCookie";
 
 const SignInOptions = () => {
   const { auth } = useAuth();
@@ -23,7 +24,13 @@ const SignInOptions = () => {
     try {
       const { user } = await signInWithPopup(auth, provider);
       if (user) {
-        router.push("/lists");
+        const idToken = await user.getIdToken();
+        const res = await setSessionCookie(idToken);
+        if (res.ok) {
+          router.push("/lists");
+        } else {
+          throw new Error("Session creation failed");
+        }
       } else {
         setIsLoading(false);
       }

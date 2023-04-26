@@ -30,7 +30,6 @@ const POST = async (request: NextRequest) => {
       },
     });
   } catch (error) {
-    console.log(error);
     if (error instanceof Error)
       return new Response("error", {
         status: 401,

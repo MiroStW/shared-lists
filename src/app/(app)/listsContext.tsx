@@ -89,11 +89,6 @@ export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
     return unsubscribe;
   };
 
-  // useEffect(() => {
-  //   console.log("owned: ", ownedLists);
-  //   console.log("joined: ", joinedLists);
-  // }, [ownedLists, joinedLists]);
-
   useEffect(() => {
     if (user) {
       const unsubscribeOwnedLists = getOwnedLists();

@@ -14,7 +14,6 @@ import { ItemsContextProvider } from "./itemsContext";
 const page = async ({ params }: { params: { id: string } }) => {
   const { user } = await verifySession();
   const cleanUser = user ? JSON.parse(JSON.stringify(user)) : undefined;
-  console.log("user on item level: ", user?.email);
 
   const prefetchedLists = user ? await getLists(user) : undefined;
   const cleanLists = prefetchedLists
@@ -23,7 +22,6 @@ const page = async ({ params }: { params: { id: string } }) => {
 
   const activeList = cleanLists?.find((list) => list.ref.id === params.id);
   if (!activeList) redirect("/lists");
-  console.log("activeList on item level: ", activeList.data.name);
 
   return (
     <>

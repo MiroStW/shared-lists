@@ -26,10 +26,8 @@ const ShowInvite = ({ invite }: { invite: AdminInvite }) => {
         router.push(`/lists/${invite?.data.listID}`);
       } catch (err: unknown) {
         if (typeof err === "string") {
-          console.log("error", err);
           setError(err);
         } else if (err instanceof Error) {
-          console.log("error", err.message);
           setError(err.message);
           setLoading(false);
         }

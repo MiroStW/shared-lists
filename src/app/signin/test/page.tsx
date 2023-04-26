@@ -15,10 +15,8 @@ const Test = () => {
       "miro@miro-wilms.de",
       "123456"
     );
-    console.log(cred);
 
     const idToken = await cred.user.getIdToken();
-    console.log(idToken);
 
     const res = await fetch("http://localhost:3000/signin/sessionlogin", {
       method: "POST",
@@ -32,7 +30,6 @@ const Test = () => {
     });
     const { status } = res;
     setResult(status);
-    console.log(status);
   };
 
   return (

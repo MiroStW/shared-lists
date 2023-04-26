@@ -4,7 +4,6 @@ import { createAdminListData } from "./adminFactory";
 
 export const getFirstListId = async () => {
   const { user } = await verifySession();
-  console.log("user in getFirstListId: ", user?.email);
   if (user) {
     const snapshot = await adminDb()
       .collection("lists")
@@ -13,7 +12,6 @@ export const getFirstListId = async () => {
       .orderBy("createdDate", "asc")
       .limit(1)
       .get();
-    // console.log("snapshot in getFirstListId: ", snapshot.docs[0].id);
     if (snapshot.empty) {
       adminDb()
         .collection("lists")

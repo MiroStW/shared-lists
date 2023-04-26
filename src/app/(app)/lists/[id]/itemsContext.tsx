@@ -124,29 +124,6 @@ export const ItemsContextProvider = ({
     return unsubscribe;
   };
 
-  // const [items, loadingItems, errorItems] = useCollection<ItemType>(
-  //   query(
-  //     itemsCol,
-  //     where("list", "==", list.ref.id),
-  //     // orderBy(documentId()),
-  //     // startAt(list.ref.path),
-  //     // endAt(`${list.ref.path}\uf8ff`) // hack to get all subcollections of list
-  //     where("authorizedUsers", "array-contains", user?.uid),
-  //     orderBy("order", "asc")
-  //   ).withConverter(itemConverter)
-  // );
-  // const [sections, loadingSections, errorSections] = useCollection<Section>(
-  //   query(
-  //     sectionsOfList(list),
-  //     where("authorizedUsers", "array-contains", user?.uid)
-  //   ).withConverter(sectionConverter)
-  // );
-
-  useEffect(() => {
-    console.log("items changed: ", items, loadingItems, errorItems);
-    // console.log("list in itemContext: ", list);
-  }, [items, loadingItems, errorItems]);
-
   useEffect(() => {
     const unsubscribeItems = getItems();
     const unsubscribeSections = getSections();
