@@ -17,7 +17,7 @@ const UserMenu = () => {
   };
 
   const signOutHandler = async () => {
-    await fetch("/signin/revokesession");
+    await fetch("/api/revokesession");
     await signOut(auth);
     router.push("/signin");
   };
