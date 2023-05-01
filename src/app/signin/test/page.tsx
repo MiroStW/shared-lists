@@ -10,26 +10,18 @@ const Test = () => {
   const { auth } = useAuth();
 
   const sendRequest = async () => {
-    const cred = await signInWithEmailAndPassword(
-      auth,
-      "miro@miro-wilms.de",
-      "123456"
-    );
+    // const cred = await signInWithEmailAndPassword(
+    //   auth,
+    //   "miro@miro-wilms.de",
+    //   "123456"
+    // );
 
-    const idToken = await cred.user.getIdToken();
+    // const idToken = await cred.user.getIdToken();
 
-    const res = await fetch("http://localhost:3000/signin/sessionlogin", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        csrfToken: "test",
-        idToken,
-      }),
-    });
-    const { status } = res;
-    setResult(status);
+    const res = await fetch("/api/sessionlogin");
+    const resText = await res.text();
+    console.log(res);
+    setResult(resText);
   };
 
   return (
