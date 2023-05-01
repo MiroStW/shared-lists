@@ -3,6 +3,7 @@
 import { TextField } from "@mui/material";
 import { useAuth } from "app/authContext";
 import { Loading } from "app/shared/Loading";
+import { setSessionCookie } from "auth/setSessionCookie";
 import { FirebaseError } from "firebase/app";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
@@ -52,15 +53,7 @@ const SignUpWithEmail = ({
 
       const idToken = await user.getIdToken();
 
-      const res = await fetch("/signin/sessionlogin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          idToken,
-        }),
-      });
+      const res = await setSessionCookie(idToken);
       if (res.ok) {
         router.push("/lists");
       } else {
