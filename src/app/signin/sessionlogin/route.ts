@@ -45,4 +45,10 @@ const POST = async (request: NextRequest) => {
   }
 };
 
-export { POST };
+const GET = async () => {
+  console.log("GET /signin/sessionlogin called");
+
+  return new Response("GET /signin/sessionlogin called");
+};
+
+export { POST, GET };
