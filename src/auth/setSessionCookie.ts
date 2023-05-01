@@ -1,5 +1,5 @@
 const setSessionCookie = async (idToken: string) => {
-  const res = await fetch("/signin/sessionlogin", {
+  const res = await fetch("/api/sessionlogin", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
