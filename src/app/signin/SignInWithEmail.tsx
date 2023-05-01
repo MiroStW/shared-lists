@@ -48,6 +48,7 @@ const SignInWithEmail = ({
       if (!user) throw new Error("User not found");
 
       const idToken = await user.getIdToken();
+
       const res = await setSessionCookie(idToken);
       if (res.ok) {
         router.push("/lists");

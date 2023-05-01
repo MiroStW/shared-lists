@@ -6,10 +6,9 @@ const verifySession = async () => {
   const cookie = cookies().get("__session")?.value;
 
   if (cookie) {
-    const {
-      sessionCookie,
-      expirationDate,
-    }: { sessionCookie: string; expirationDate: string } = JSON.parse(cookie);
+    const sessionCookie = JSON.parse(cookie).sessionCookie as string;
+    const expirationDate = JSON.parse(cookie).expirationDate as string;
+
     // const sessionCookie = request.cookies.get("__session") || "";
     try {
       const auth = getAuth(firebaseAdmin);
