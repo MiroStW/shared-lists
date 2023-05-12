@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "NODE_OPTIONS='--inspect' next dev",
     "emulate": "firebase emulators:start",
-    "serve": "npm run build && firebase emulators:start",
     "build": "next build && tsc",
     "start": "next start",
     "lint": "next lint",
@@ -24,7 +23,7 @@
     "encoding": "^0.1.13",
     "firebase": "^9.9.3",
     "firebase-admin": "^11.0.1",
-    "firebase-functions": "^4.1.1",
+    "firebase-functions": "^4.4.0",
     "firebase-tools": "^11.19.0",
     "material-icons": "^1.11.8",
     "next": "^13.3.0",
