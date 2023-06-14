@@ -1,10 +1,10 @@
-import { verifySession } from "auth/verifySession";
 import { getLists } from "db/getLists";
 import { redirect } from "next/navigation";
 import { AdminList } from "types/types";
 import { AddButton } from "./addButton/AddButton";
 import { ItemDndContext } from "./items/ItemDndContext";
 import { ItemsContextProvider } from "./itemsContext";
+import verifyIdToken from "auth/verifyIdToken";
 
 // TODO: also prerender items/sections of list with id param
 
@@ -12,7 +12,7 @@ import { ItemsContextProvider } from "./itemsContext";
 // whether it can be avoided
 
 const page = async ({ params }: { params: { id: string } }) => {
-  const { user } = await verifySession();
+  const { user } = await verifyIdToken();
   const cleanUser = user ? JSON.parse(JSON.stringify(user)) : undefined;
 
   const prefetchedLists = user ? await getLists(user) : undefined;

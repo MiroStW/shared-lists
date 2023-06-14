@@ -1,20 +1,19 @@
 import "./global.css";
 import ServerAuthContextProvider from "./authContext";
-import { verifySession } from "auth/verifySession";
+import verifyIdToken from "auth/verifyIdToken";
+import { UserRecord } from "firebase-admin/auth";
 
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
-  const { user, customToken, expirationDate } = await verifySession();
+  const { user } = await verifyIdToken();
 
-  const cleanUser = user ? JSON.parse(JSON.stringify(user)) : undefined;
+  const cleanUser = user
+    ? (JSON.parse(JSON.stringify(user)) as UserRecord)
+    : undefined;
 
   return (
     <html lang="en">
       <body>
-        <ServerAuthContextProvider
-          user={cleanUser}
-          customToken={customToken}
-          expirationDateStr={expirationDate}
-        >
+        <ServerAuthContextProvider user={cleanUser}>
           {children}
         </ServerAuthContextProvider>
       </body>
