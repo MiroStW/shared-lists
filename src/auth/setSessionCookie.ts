@@ -4,6 +4,7 @@ const setSessionCookie = async (idToken: string) => {
     headers: {
       "Content-Type": "application/json",
     },
+    credentials: "include",
     body: JSON.stringify({
       idToken,
     }),

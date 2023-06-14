@@ -53,8 +53,8 @@ const SignUpWithEmail = ({
 
       const idToken = await user.getIdToken();
 
-      const res = await setSessionCookie(idToken);
-      if (res.ok) {
+      // const res = await setSessionCookie(idToken);
+      if (idToken) {
         router.push("/lists");
       } else {
         throw new Error("Something went wrong");
