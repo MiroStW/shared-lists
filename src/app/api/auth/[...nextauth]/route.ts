@@ -7,7 +7,22 @@ import GoogleProvider from "next-auth/providers/google";
 
 export const authOptions: NextAuthOptions = {
   adapter: FirestoreAdapter(firebaseAdmin),
-  // Configure one or more authentication providers
+  callbacks: {
+    session: async ({ session, user }) => {
+      if (session && session.user && user.id) {
+        // eslint-disable-next-line no-param-reassign
+        session.user.id = user.id;
+      }
+      return session;
+    },
+    jwt: async ({ user, token }) => {
+      if (user) {
+        // eslint-disable-next-line no-param-reassign
+        token.uid = user.id;
+      }
+      return token;
+    },
+  },
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID ?? "",

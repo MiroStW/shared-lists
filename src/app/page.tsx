@@ -11,7 +11,11 @@ const Page = async () => {
   return (
     <>
       <h1>Shared Lists</h1>
-      {user && <p>Hi {user.name},</p>}
+      {user && (
+        <p>
+          Hi {user.name}, your ID is {user.id}
+        </p>
+      )}
       <p>This is an empty home page, to be filled!</p>
       <div className={styles.loginStatus}>
         {user ? (
