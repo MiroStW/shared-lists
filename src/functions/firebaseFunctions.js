@@ -2,7 +2,7 @@
 /* eslint-disable global-require */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { onRequest } = require("firebase-functions/v2/https");
-const { default: next } = require("next");
+const next = require("next");
 const sendEmail = require("./sendEmail");
 const addauthorizeduser = require("./addAuthorizedUser");
 const dataMigrations = require("./dataMigrations");

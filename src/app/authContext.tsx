@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  browserLocalPersistence,
   browserSessionPersistence,
   connectAuthEmulator,
   getAuth,
@@ -21,7 +22,7 @@ import { setSessionCookie } from "auth/setSessionCookie";
 import { Cookie, withCookie } from "next-cookie";
 
 const auth = getAuth(firebase);
-auth.setPersistence(browserSessionPersistence);
+auth.setPersistence(browserLocalPersistence);
 
 // comment out this line to switch to production db
 if (process.env.NEXT_PUBLIC_DEVELOPMENT === "TRUE")

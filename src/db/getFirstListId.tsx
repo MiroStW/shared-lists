@@ -1,8 +1,11 @@
 import { adminDb } from "@firebase/firebaseAdmin";
 import { createAdminListData } from "./adminFactory";
+import { getServerSession } from "next-auth";
 import verifyIdToken from "auth/verifyIdToken";
+import { getSession } from "next-auth/react";
 
 export const getFirstListId = async () => {
+  const user = (await getSession({required:true,}))?.user;
   const { user } = await verifyIdToken();
   if (user) {
     const snapshot = await adminDb()

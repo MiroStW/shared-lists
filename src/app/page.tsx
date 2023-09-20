@@ -1,30 +1,29 @@
 import Link from "next/link";
-import SignOutBtn from "./SignOutBtn";
 import styles from "./main.module.css";
-import verifyIdToken from "auth/verifyIdToken";
+import { getServerSession } from "next-auth";
+import SignOutBtn from "./SignOutBtn";
+import SignInBtn from "./SignInBtn";
+import { authOptions } from "./api/auth/[...nextauth]/route";
 
 const Page = async () => {
-  const { user } = await verifyIdToken();
+  const user = (await getServerSession(authOptions))?.user;
 
   return (
     <>
       <h1>Shared Lists</h1>
-      {user && <p>Hi {user.displayName},</p>}
+      {user && <p>Hi {user.name},</p>}
       <p>This is an empty home page, to be filled!</p>
       <div className={styles.loginStatus}>
-        {user && (
+        {user ? (
           <>
             <Link href="/lists">
               <button>open app</button>
             </Link>
             <SignOutBtn />
           </>
-        )}
-        {!user && (
+        ) : (
           <>
-            <button>
-              <Link href={"/signin"}>Login</Link>
-            </button>
+            <SignInBtn />
           </>
         )}
       </div>
