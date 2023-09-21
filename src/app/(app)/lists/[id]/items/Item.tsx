@@ -10,10 +10,10 @@ import {
 import { useItems } from "app/(app)/lists/[id]/itemsContext";
 import { Item as ItemType } from "types/types";
 import { Icon } from "app/shared/Icon";
-import TextareaAutosize from "@mui/base/TextareaAutosize";
 import styles from "./item.module.css";
 import { Sortable } from "./dnd/Sortable";
 import Checkbox from "@mui/material/Checkbox";
+import { TextareaAutosize } from "@mui/base/TextareaAutosize";
 
 const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
   const [inlineEdit, setInlineEdit] = useState(false);
