@@ -1,11 +1,10 @@
-import { UserRecord } from "firebase-admin/auth";
 import { AdminList } from "types/types";
 import { adminDb } from "../firebase/firebaseAdmin";
 
-export const getLists = async (user: UserRecord) => {
+export const getLists = async (userId: string) => {
   const ownedLists = adminDb()
     .collection("lists")
-    .where("ownerID", "==", user.uid)
+    .where("ownerID", "==", userId)
     .where("isArchived", "==", false)
     .orderBy("createdDate", "asc")
     // .withConverter(listConverter)
@@ -35,7 +34,7 @@ export const getLists = async (user: UserRecord) => {
 
   const joinedLists = adminDb()
     .collection("lists")
-    .where("contributors", "array-contains", user.uid)
+    .where("contributors", "array-contains", userId)
     .where("isArchived", "==", false)
     .orderBy("createdDate", "asc")
     // .withConverter(listConverter)

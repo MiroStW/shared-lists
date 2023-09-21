@@ -1,4 +1,3 @@
-import { UserRecord } from "firebase-admin/auth";
 import { Timestamp } from "firebase-admin/firestore";
 import {
   ListData,
@@ -8,12 +7,13 @@ import {
   InviteData,
   AdminList,
 } from "../types/types";
+import { User } from "next-auth";
 
-const createAdminListData = (name: string, user: UserRecord): ListData => {
+const createAdminListData = (name: string, userId: string): ListData => {
   return {
     name,
     createdDate: Timestamp.now(),
-    ownerID: user.uid,
+    ownerID: userId,
     isArchived: false,
   };
 };
@@ -55,13 +55,13 @@ const createAdminSectionData = ({
 };
 
 const createAdminInviteData = (
-  user: UserRecord,
+  user: User,
   inviteeEmail: string,
   list: AdminList
 ): InviteData => {
   return {
-    inviterID: user.uid,
-    inviterName: user.displayName || user.email!,
+    inviterID: user.id,
+    inviterName: user.name || user.email || "unnamed user",
     inviteeEmail,
     listID: list.ref.id,
     listName: list.data.name,
