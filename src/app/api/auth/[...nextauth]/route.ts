@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import { firebaseAdmin } from "@firebase/firebaseAdmin";
 import { FirestoreAdapter } from "@next-auth/firebase-adapter";
 import NextAuth, { NextAuthOptions } from "next-auth";
@@ -10,14 +11,13 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     session: async ({ session, user }) => {
       if (session && session.user && user.id) {
-        // eslint-disable-next-line no-param-reassign
         session.user.id = user.id;
+        session.user.photoURL = user.image;
       }
       return session;
     },
     jwt: async ({ user, token }) => {
       if (user) {
-        // eslint-disable-next-line no-param-reassign
         token.uid = user.id;
       }
       return token;
