@@ -21,7 +21,6 @@ import { AdminList, Item as ItemType, Section } from "types/types";
 import { db, items as itemsCol, sectionsOfList } from "db/useDb";
 import { createItemData } from "db/factory";
 import { itemConverter, sectionConverter } from "db/firestoreConverter";
-import { UserRecord } from "firebase-admin/auth";
 
 interface ItemsContextType {
   items: ItemType[];
@@ -44,11 +43,11 @@ const itemsContext = createContext({} as ItemsContextType);
 
 export const ItemsContextProvider = ({
   children,
-  user,
+  userId,
   list,
 }: {
   children: ReactNode;
-  user: UserRecord;
+  userId: string;
   list: AdminList;
 }) => {
   const [items, setItems] = useState<ItemType[]>([]);
@@ -74,7 +73,7 @@ export const ItemsContextProvider = ({
       // orderBy(documentId()),
       // startAt(list.ref.path),
       // endAt(`${list.ref.path}\uf8ff`) // hack to get all subcollections of list
-      where("authorizedUsers", "array-contains", user?.uid),
+      where("authorizedUsers", "array-contains", userId),
       orderBy("order", "asc")
     ).withConverter(itemConverter);
 
@@ -101,7 +100,7 @@ export const ItemsContextProvider = ({
   const getSections = () => {
     const sectionsQuery = query(
       sectionsOfList(list),
-      where("authorizedUsers", "array-contains", user?.uid)
+      where("authorizedUsers", "array-contains", userId)
     ).withConverter(sectionConverter);
 
     const unsubscribe = onSnapshot(

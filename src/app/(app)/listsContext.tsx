@@ -17,7 +17,7 @@ import {
 } from "react";
 import { List } from "types/types";
 import { lists as listsRef } from "db/useDb";
-import { useAuth } from "../authContext";
+import { useSession } from "next-auth/react";
 
 const listsContext = createContext({
   lists: [] as List[] | undefined,
@@ -26,7 +26,7 @@ const listsContext = createContext({
 });
 
 export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
-  const { user } = useAuth();
+  const user = useSession().data?.user;
   const [ownedLists, setOwnedLists] = useState<List[]>([]);
   const [joinedLists, setJoinedLists] = useState<List[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,7 +35,7 @@ export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
   const getOwnedLists = () => {
     const ownedListsQuery = query(
       listsRef,
-      where("ownerID", "==", user?.uid),
+      where("ownerID", "==", user?.id),
       where("isArchived", "==", false),
       orderBy("createdDate", "asc")
     ).withConverter(listConverter);
@@ -63,7 +63,7 @@ export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
   const getJoinedLists = () => {
     const joinedListsQuery = query(
       listsRef,
-      where("contributors", "array-contains", user?.uid),
+      where("contributors", "array-contains", user?.id),
       where("isArchived", "==", false),
       orderBy("createdDate", "asc")
     ).withConverter(listConverter);

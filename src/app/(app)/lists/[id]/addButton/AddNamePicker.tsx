@@ -1,12 +1,13 @@
+"use client";
+
 import { Modal } from "app/shared/Modal";
-import { useAuth } from "app/authContext";
 import { createListData, createSectionData } from "db/factory";
 import { lists, sectionsOfList } from "db/useDb";
 import { addDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useState } from "react";
 import { AdminList } from "types/types";
-import { User } from "firebase/auth";
+import { useSession } from "next-auth/react";
 
 const AddNamePicker = ({
   activeList,
@@ -17,7 +18,7 @@ const AddNamePicker = ({
   type: "item" | "section" | "list";
   setShowAddMenu: Dispatch<SetStateAction<boolean>>;
 }) => {
-  const { user } = useAuth() as unknown as { user: User };
+  const user = useSession().data?.user;
   const [name, setName] = useState("");
   const router = useRouter();
 
@@ -30,7 +31,7 @@ const AddNamePicker = ({
         case "list": {
           const newList = await addDoc(
             lists,
-            createListData(name === "" ? `new ${type}` : name, user)
+            createListData(name === "" ? `new ${type}` : name, user.id)
           );
           router.push(`/lists/${newList.id}`);
           break;

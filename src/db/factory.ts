@@ -1,4 +1,3 @@
-import { User } from "firebase/auth";
 import { Timestamp } from "firebase/firestore";
 import {
   ListData,
@@ -8,12 +7,13 @@ import {
   InviteData,
   AdminList,
 } from "../types/types";
+import { User } from "next-auth";
 
-const createListData = (name: string, user: User): ListData => {
+const createListData = (name: string, userId: string): ListData => {
   return {
     name,
     createdDate: Timestamp.now(),
-    ownerID: user.uid,
+    ownerID: userId,
     isArchived: false,
   };
 };
@@ -60,8 +60,8 @@ const createInviteData = (
   list: AdminList
 ): InviteData => {
   return {
-    inviterID: user.uid,
-    inviterName: user.displayName || user.email!,
+    inviterID: user.id,
+    inviterName: user.name || user.email || "unnamed user",
     inviteeEmail,
     listID: list.ref.id,
     listName: list.data.name,

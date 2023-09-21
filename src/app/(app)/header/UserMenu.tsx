@@ -1,25 +1,16 @@
 "use client";
 
-import { useAuth } from "app/authContext";
-import { signOut } from "firebase/auth";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import styles from "./userMenu.module.css";
+import { signOut, useSession } from "next-auth/react";
 
 const UserMenu = () => {
-  const { user, auth } = useAuth();
+  const user = useSession().data?.user;
   const [hideMenu, setHideMenu] = useState(true);
-  const router = useRouter();
 
   const openMenuHandler = () => {
     setHideMenu(!hideMenu);
-  };
-
-  const signOutHandler = async () => {
-    await fetch("/api/revokesession");
-    await signOut(auth);
-    router.push("/signin");
   };
 
   return (
@@ -35,7 +26,7 @@ const UserMenu = () => {
                 height={28}
               />
             ) : (
-              user.displayName
+              user.name
                 ?.split(" ")
                 .map((n) => n[0])
                 .join("")
@@ -43,7 +34,7 @@ const UserMenu = () => {
           </div>
           <div className={styles.userMenu} hidden={hideMenu}>
             <div className={styles.userMenuList}>
-              <div className={styles.userMenuItem} onClick={signOutHandler}>
+              <div className={styles.userMenuItem} onClick={() => signOut()}>
                 sign out
               </div>
             </div>

@@ -1,3 +1,5 @@
+"use client";
+
 import { Dispatch, SetStateAction, useState } from "react";
 import { AdminList } from "types/types";
 import { useItems } from "app/(app)/lists/[id]/itemsContext";

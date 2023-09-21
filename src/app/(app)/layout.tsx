@@ -1,11 +1,12 @@
 import { AdminList } from "types/types";
 import { getLists } from "db/getLists";
 import ShowApp from "./ShowApp";
-import verifyIdToken from "auth/verifyIdToken";
+import { getServerSession } from "next-auth";
+import { authOptions } from "app/api/auth/[...nextauth]/route";
 
 const AppLayout = async ({ children }: { children: React.ReactNode }) => {
-  const { user } = await verifyIdToken();
-  const serializedLists = user ? await getLists(user) : undefined;
+  const user = (await getServerSession(authOptions))?.user;
+  const serializedLists = user && (await getLists(user.id));
   const prefetchedLists = serializedLists
     ? (JSON.parse(serializedLists) as AdminList[])
     : undefined;

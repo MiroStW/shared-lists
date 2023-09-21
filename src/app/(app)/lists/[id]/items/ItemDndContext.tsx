@@ -15,7 +15,6 @@ import {
 } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { arrayMove } from "@dnd-kit/sortable";
-import { useAuth } from "app/authContext";
 import { addDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { useState } from "react";
 import { useItems } from "app/(app)/lists/[id]/itemsContext";
@@ -25,9 +24,10 @@ import { itemsOfList, itemsOfSection } from "db/useDb";
 import { Item } from "./Item";
 import { ItemArea } from "./ItemArea";
 import LoadingItems from "app/shared/LoadingItems";
+import { useSession } from "next-auth/react";
 
 const ItemDndContext = ({ list }: { list: AdminList }) => {
-  const { user } = useAuth();
+  const user = useSession().data?.user;
   const { items, sections, localItems, setLocalItems, loading } = useItems();
   const [activeItem, setActiveItem] = useState<ItemType | null>();
 
