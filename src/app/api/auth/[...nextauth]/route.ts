@@ -1,7 +1,10 @@
 /* eslint-disable no-param-reassign */
 import { firebaseAdmin } from "@firebase/firebaseAdmin";
 import { FirestoreAdapter } from "@next-auth/firebase-adapter";
-import NextAuth, { NextAuthOptions } from "next-auth";
+import { getAuth } from "firebase-admin/auth";
+import { NextApiRequest, NextApiResponse } from "next";
+import NextAuth, { NextAuthOptions, User } from "next-auth";
+import { AdapterUser } from "next-auth/adapters";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
@@ -9,6 +12,31 @@ import GoogleProvider from "next-auth/providers/google";
 export const authOptions: NextAuthOptions = {
   adapter: FirestoreAdapter(firebaseAdmin),
   callbacks: {
+    async signIn({ account,  user }) {
+      if (account?.provider === "google") {
+        // const credential = GoogleAuthProvider.credential(account.id_token);
+
+        const getFirebaseUser = async (nextAuthUser: User | AdapterUser) => {
+          try {
+            const fbUser = await getAuth(firebaseAdmin).getUser(
+              nextAuthUser.id
+            );
+            return fbUser;
+          } catch {
+            const fbUser = await getAuth(firebaseAdmin).createUser({
+              uid: nextAuthUser.id,
+              email: nextAuthUser.email || undefined,
+              displayName: nextAuthUser.name,
+              photoURL: nextAuthUser.image,
+            });
+            return fbUser;
+          }
+        };
+
+       await getFirebaseUser(user);
+      }
+      return true;
+    },
     session: async ({ session, user }) => {
       if (session && session.user && user.id) {
         session.user.id = user.id;
@@ -82,6 +110,7 @@ export const authOptions: NextAuthOptions = {
   ],
 };
 
-const handler = NextAuth(authOptions);
+const handler = (request: NextApiRequest, response: NextApiResponse) =>
+  NextAuth(request, response, authOptions);
 
 export { handler as GET, handler as POST };
