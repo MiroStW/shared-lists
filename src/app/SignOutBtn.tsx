@@ -1,7 +1,13 @@
 "use client";
 
-import { signOut } from "next-auth/react";
+import { signOut } from "firebase/auth";
+import { useClientSession } from "./sessionContext";
 
-const SignOutBtn = () => <button onClick={() => signOut()}>sign out</button>;
+
+const SignOutBtn = () => {
+  const { auth } = useClientSession();
+
+  return <button onClick={() => signOut(auth)}>sign out</button>
+};
 
 export default SignOutBtn;

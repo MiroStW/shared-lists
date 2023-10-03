@@ -5,14 +5,14 @@ import SignInEnterEmail from "./SignInEnterEmail";
 import Image from "next/image";
 import styles from "./signIn.module.css";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { useAuth } from "app/authContext";
+import { useClientSession } from "app/sessionContext";
 import { useRouter } from "next/navigation";
 import { Loading } from "app/shared/Loading";
 import { FirebaseError } from "firebase/app";
 import { setSessionCookie } from "auth/setSessionCookie";
 
 const SignInOptions = () => {
-  const { auth } = useAuth();
+  const { auth } = useClientSession();
   const router = useRouter();
   const [email, setEmail] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -25,8 +25,8 @@ const SignInOptions = () => {
       const { user } = await signInWithPopup(auth, provider);
       if (user) {
         const idToken = await user.getIdToken();
-        // const res = await setSessionCookie(idToken);
-        if (idToken) {
+        const res = await setSessionCookie(idToken);
+        if (idToken && res.ok) {
           router.push("/lists");
         } else {
           throw new Error("Session creation failed");

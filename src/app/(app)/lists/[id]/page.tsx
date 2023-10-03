@@ -4,8 +4,7 @@ import { AdminList } from "types/types";
 import { AddButton } from "./addButton/AddButton";
 import { ItemDndContext } from "./items/ItemDndContext";
 import { ItemsContextProvider } from "./itemsContext";
-import { getServerSession } from "next-auth";
-import { authOptions } from "app/api/auth/[...nextauth]/route";
+import getServerSession from "auth/getServerSession";
 
 // TODO: also prerender items/sections of list with id param
 
@@ -13,9 +12,9 @@ import { authOptions } from "app/api/auth/[...nextauth]/route";
 // whether it can be avoided
 
 const page = async ({ params }: { params: { id: string } }) => {
-  const user = (await getServerSession(authOptions))?.user;
+const {user} = await getServerSession();
 
-  const prefetchedLists = user ? await getLists(user.id) : undefined;
+  const prefetchedLists = user ? await getLists(user.uid) : undefined;
   const cleanLists = prefetchedLists
     ? (JSON.parse(prefetchedLists) as AdminList[])
     : undefined;
@@ -26,7 +25,7 @@ const page = async ({ params }: { params: { id: string } }) => {
   return (
     <>
       {user && (
-        <ItemsContextProvider list={activeList} userId={user.id}>
+        <ItemsContextProvider list={activeList} userId={user.uid}>
           <ItemDndContext list={activeList} />
           <AddButton activeList={activeList} />
         </ItemsContextProvider>

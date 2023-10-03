@@ -1,15 +1,13 @@
 import { adminDb } from "@firebase/firebaseAdmin";
 import { createAdminListData } from "./adminFactory";
-import { getServerSession } from "next-auth";
-
-import { authOptions } from "app/api/auth/[...nextauth]/route";
+import getServerSession from "auth/getServerSession";
 
 export const getFirstListId = async () => {
-  const user = (await getServerSession(authOptions))?.user;
+  const { user } = await getServerSession();
   if (user) {
     const snapshot = await adminDb()
       .collection("lists")
-      .where("ownerID", "==", user.id)
+      .where("ownerID", "==", user.uid)
       .where("isArchived", "==", false)
       .orderBy("createdDate", "asc")
       .limit(1)
@@ -17,7 +15,7 @@ export const getFirstListId = async () => {
     if (snapshot.empty) {
       adminDb()
         .collection("lists")
-        .add(createAdminListData("my first list", user.id));
+        .add(createAdminListData("my first list", user.uid));
       return null;
     }
 

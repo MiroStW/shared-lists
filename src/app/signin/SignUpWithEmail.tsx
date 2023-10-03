@@ -1,7 +1,7 @@
 "use client";
 
 import { TextField } from "@mui/material";
-import { useAuth } from "app/authContext";
+import { useClientSession } from "app/sessionContext";
 import { Loading } from "app/shared/Loading";
 import { setSessionCookie } from "auth/setSessionCookie";
 import { FirebaseError } from "firebase/app";
@@ -32,7 +32,7 @@ const SignUpWithEmail = ({
   setEmail: Dispatch<SetStateAction<string | undefined>>;
   setUserExists: Dispatch<SetStateAction<boolean | undefined>>;
 }) => {
-  const { auth } = useAuth();
+  const { auth } = useClientSession();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
@@ -53,8 +53,8 @@ const SignUpWithEmail = ({
 
       const idToken = await user.getIdToken();
 
-      // const res = await setSessionCookie(idToken);
-      if (idToken) {
+      const res = await setSessionCookie(idToken);
+      if (idToken && res.ok) {
         router.push("/lists");
       } else {
         throw new Error("Something went wrong");

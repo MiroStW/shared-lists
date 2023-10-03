@@ -1,43 +1,31 @@
-import { adminDb, firebaseAdmin } from "@firebase/firebaseAdmin";
+import { firebaseAdmin } from "@firebase/firebaseAdmin";
 import { getAuth } from "firebase-admin/auth";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-const handler = async (request: Request) => {
-  // get user id from request body
-  const { userId } = await request.json();
+// TODO instead of creating a custom token, just use the session token
+// (which I'll replace with a fb-auth token)
 
-  if (!userId) {
-    return NextResponse.json({ message: "no user id" }, { status: 401 });
-  }
-
+const handler = async () => {
   // get next-auth token from cookies
-  const httpToken = cookies().get("next-auth.session-token")?.value;
+  const sessionCookie = cookies().get("__session")?.value;
 
-  if (!httpToken) {
+  if (!sessionCookie) {
     return NextResponse.json({ message: "no token provided" }, { status: 401 });
   }
 
-  // compare token to the one stored in firestore
+  // validate cookie
   try {
-    const snapshot = await adminDb()
-      .collection("sessions")
-      .where("sessionToken", "==", httpToken)
-      .where("expires", ">", new Date())
-      .get();
-
-    const match = snapshot.docs.some(
-      (doc) =>
-        doc.data().userId === userId && doc.data().sessionToken === httpToken
+    const decodedToken = await getAuth(firebaseAdmin).verifySessionCookie(
+      sessionCookie
     );
 
-    if (match) {
-      // if they match, create custom token for client side auth
-      const fbToken = await getAuth(firebaseAdmin).createCustomToken(userId);
-      return NextResponse.json({ token: fbToken }, { status: 200 });
+    if (decodedToken) {
+      // if token is valid, send it to the client
+      return NextResponse.json({ token: decodedToken }, { status: 200 });
     }
 
-    // if they don't match, return an error
+    // if token is invalid, return an error
     return NextResponse.json(
       {
         message: "invalid session token",
@@ -51,4 +39,4 @@ const handler = async (request: Request) => {
   return null;
 };
 
-export { handler as POST };
+export { handler as GET };

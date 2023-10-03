@@ -3,10 +3,11 @@
 import Image from "next/image";
 import { useState } from "react";
 import styles from "./userMenu.module.css";
-import { signOut, useSession } from "next-auth/react";
+import { useClientSession } from "app/sessionContext";
+import { signOut } from "firebase/auth";
 
 const UserMenu = () => {
-  const user = useSession().data?.user;
+  const { user, auth } = useClientSession();
   const [hideMenu, setHideMenu] = useState(true);
 
   const openMenuHandler = () => {
@@ -26,7 +27,7 @@ const UserMenu = () => {
                 height={28}
               />
             ) : (
-              user.name
+              user.displayName
                 ?.split(" ")
                 .map((n) => n[0])
                 .join("")
@@ -34,7 +35,7 @@ const UserMenu = () => {
           </div>
           <div className={styles.userMenu} hidden={hideMenu}>
             <div className={styles.userMenuList}>
-              <div className={styles.userMenuItem} onClick={() => signOut()}>
+              <div className={styles.userMenuItem} onClick={() => signOut(auth)}>
                 sign out
               </div>
             </div>

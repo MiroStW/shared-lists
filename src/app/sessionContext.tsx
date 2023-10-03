@@ -9,14 +9,12 @@ import {
 import {
   createContext,
   PropsWithChildren,
-
   useContext,
   useEffect,
   useState,
 } from "react";
 import { firebase } from "../firebase/firebase";
 
-import { useSession } from "next-auth/react";
 
 export const auth = getAuth(firebase);
 // auth.setPersistence(browserLocalPersistence);
@@ -25,12 +23,12 @@ export const auth = getAuth(firebase);
 if (process.env.NEXT_PUBLIC_DEVELOPMENT === "TRUE")
   connectAuthEmulator(auth, "http://localhost:9099");
 
-const authContext = createContext({
-  fbUser: undefined as User | undefined,
+const sessionContext = createContext({
+  user: undefined as User | undefined,
   auth,
 });
 
-export const AuthContextProvider = ({
+export const SessionContextProvider = ({
   children,
   // cookie,
 }:PropsWithChildren
@@ -40,8 +38,8 @@ export const AuthContextProvider = ({
   // cookie: Cookie;
   // }
 ) => {
-  const [fbUser, setFbUser] = useState<User>();
-  const session = useSession();
+  const [user, setUser] = useState<User>();
+  // const session = useSession();
 
   // const refreshSession = useCallback(
   //   async (clientUser: User | null) => {
@@ -76,25 +74,19 @@ export const AuthContextProvider = ({
     // if (typeof window !== "undefined") {
     //   (window as any).cookie = cookie;
     // }
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+    const unsubscribe = auth.onAuthStateChanged(async (userSnapshot) => {
       // setLoading(true);
-      if (user) {
-        user?.getIdToken();
-        setFbUser(user);
-      } else if (session.data?.user) {
+      if (userSnapshot) {
+        userSnapshot?.getIdToken();
+        setUser(userSnapshot);
+      } else {
         // check if user is logged in on next-auth
 
         try {
-          const data = await fetch("/api/fbauth", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({userId: session.data.user.id}) ,
-          });
+          const data = await fetch("/api/fbauth");
           const res = await data.json();
           const signedInUser = await signInWithCustomToken(auth, res.token);
-          setFbUser(signedInUser.user);
+          setUser(signedInUser.user);
         } catch (err) {
           // eslint-disable-next-line no-console
           console.error("fetch error: ", err);
@@ -104,17 +96,17 @@ export const AuthContextProvider = ({
     });
 
     return unsubscribe;
-  }, [session.data?.user]);
+  }, []);
 
   return (
-    <authContext.Provider
+    <sessionContext.Provider
       value={{
-        fbUser,
+        user,
         auth,
       }}
     >
       {children}
-    </authContext.Provider>
+    </sessionContext.Provider>
   );
 };
 
@@ -135,6 +127,6 @@ export const AuthContextProvider = ({
 
 // export default CookieProvider;
 
-export const useAuth = () => {
-  return useContext(authContext);
+export const useClientSession = () => {
+  return useContext(sessionContext);
 };

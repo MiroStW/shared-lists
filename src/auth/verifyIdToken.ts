@@ -8,8 +8,8 @@ const verifyIdToken = async () => {
   try {
     const session = cookies().get("__session")?.value;
     if (session) {
-      const { uid } = await auth.verifyIdToken(session);
-      const user = await getAuth().getUser(uid);
+      const { uid } = await auth.verifySessionCookie(session);
+      const user = await auth.getUser(uid);
       return { user };
     }
   } catch (error) {

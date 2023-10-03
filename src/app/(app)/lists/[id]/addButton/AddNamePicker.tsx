@@ -7,7 +7,7 @@ import { addDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useState } from "react";
 import { AdminList } from "types/types";
-import { useSession } from "next-auth/react";
+import { useClientSession } from "app/sessionContext";
 
 const AddNamePicker = ({
   activeList,
@@ -18,7 +18,7 @@ const AddNamePicker = ({
   type: "item" | "section" | "list";
   setShowAddMenu: Dispatch<SetStateAction<boolean>>;
 }) => {
-  const user = useSession().data?.user;
+  const { user } = useClientSession();
   const [name, setName] = useState("");
   const router = useRouter();
 
@@ -31,7 +31,7 @@ const AddNamePicker = ({
         case "list": {
           const newList = await addDoc(
             lists,
-            createListData(name === "" ? `new ${type}` : name, user.id)
+            createListData(name === "" ? `new ${type}` : name, user.uid)
           );
           router.push(`/lists/${newList.id}`);
           break;

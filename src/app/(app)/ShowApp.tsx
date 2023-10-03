@@ -8,6 +8,7 @@ import { AdminList } from "types/types";
 import { ListsContextProvider } from "./listsContext";
 import styles from "./showApp.module.css";
 import { useSession } from "next-auth/react";
+import { useClientSession } from "app/sessionContext";
 
 const ShowApp = ({
   prefetchedLists,
@@ -17,7 +18,7 @@ const ShowApp = ({
   children: React.ReactNode;
 }) => {
   const [showMobileLists, setShowMobileLists] = useState(false);
-  const user = useSession().data?.user;
+  const { user } = useClientSession();
   const router = useRouter();
 
   // TODO: do this already in layout.tsx

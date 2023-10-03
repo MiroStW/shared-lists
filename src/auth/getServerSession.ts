@@ -7,31 +7,31 @@ type CustomCookie = {
   expirationDate: string;
 };
 
-const verifySession = async () => {
+const getServerSession = async () => {
   const cookie = cookies().get("__session")?.value;
   if (cookie) {
     const sessionCookie = JSON.parse(cookie).sessionCookie as string;
     const expirationDate = JSON.parse(cookie).expirationDate as string;
-    console.log("sessionCookie: ", sessionCookie);
+    console.log("verifySession: sessionCookie: ", sessionCookie);
     // const sessionCookie = request.cookies.get("__session") || "";
     try {
       const auth = getAuth(firebaseAdmin);
       // console.log("auth: ", auth);
-      const { uid } = await auth.verifyIdToken(sessionCookie);
-      console.log("uid: ", uid);
-      // const { uid } = await auth.verifySessionCookie(sessionCookie);
+      // const { uid } = await auth.verifyIdToken(sessionCookie);
+      const { uid } = await auth.verifySessionCookie(sessionCookie);
+      console.log("verifySession: uid: ", uid);
       if (uid) {
-        const customToken = await auth.createCustomToken(uid);
+        // const customToken = await auth.createCustomToken(uid);
         const user = await getAuth().getUser(uid);
 
-        return { user, customToken, expirationDate };
+        return { user,  expirationDate };
       }
     } catch (error) {
-      console.log("error: ", error);
+      console.log("verifySession error: ", error);
       return { error };
     }
   }
   return { error: "No user found" };
 };
 
-export { verifySession };
+export default getServerSession;
