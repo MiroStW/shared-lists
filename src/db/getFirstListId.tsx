@@ -13,15 +13,14 @@ export const getFirstListId = async () => {
       .limit(1)
       .get();
     if (snapshot.empty) {
-      adminDb()
+      const newList = await adminDb()
         .collection("lists")
         .add(createAdminListData("my first list", user.uid));
-      return null;
+
+      return newList.id;
     }
 
-    const firstListId = snapshot.docs[0].id;
-
-    return firstListId;
+    return snapshot.docs[0].id;
   }
   return null;
 };
