@@ -4,6 +4,7 @@ import {
   connectAuthEmulator,
   getAuth,
   signInWithCustomToken,
+  signOut,
   User,
 } from "firebase/auth";
 import {
@@ -14,7 +15,6 @@ import {
   useState,
 } from "react";
 import { firebase } from "../firebase/firebase";
-
 
 export const auth = getAuth(firebase);
 // auth.setPersistence(browserLocalPersistence);
@@ -28,10 +28,10 @@ const sessionContext = createContext({
   auth,
 });
 
-export const SessionContextProvider = ({
-  children,
-  // cookie,
-}:PropsWithChildren
+export const SessionContextProvider = (
+  {
+    children, // cookie,
+  }: PropsWithChildren
   // {
   // customToken?: string;
   // expirationDateStr?: string;
@@ -70,28 +70,37 @@ export const SessionContextProvider = ({
   // }, [customToken, expirationDateStr, refreshSession]);
 
   useEffect(() => {
-
     // if (typeof window !== "undefined") {
     //   (window as any).cookie = cookie;
     // }
     const unsubscribe = auth.onAuthStateChanged(async (userSnapshot) => {
-      // setLoading(true);
-      if (userSnapshot) {
-        userSnapshot?.getIdToken();
-        setUser(userSnapshot);
-      } else {
-        // check if user is logged in on next-auth
+      try {
+        const data = await fetch("/api/clientauth");
+        const { token } = await data.json();
+        console.log("token: ", token);
 
-        try {
-          const data = await fetch("/api/fbauth");
-          const res = await data.json();
-          const signedInUser = await signInWithCustomToken(auth, res.token);
-          setUser(signedInUser.user);
-        } catch (err) {
-          // eslint-disable-next-line no-console
-          console.error("fetch error: ", err);
+        if (!token) {
+          // sign out user if no valid server session exists
+          signOut(auth);
+          setUser(undefined);
+        } else if (userSnapshot) {
+          // sign in from cache
+          userSnapshot?.getIdToken();
+          setUser(userSnapshot);
+          console.log("revalidated user from cache: ", userSnapshot);
+        } else {
+          // sign in from custom token
+          console.log("use custom token to sign in user");
+          try {
+            const signedInUser = await signInWithCustomToken(auth, token);
+            console.log("signed in user: ", signedInUser);
+            setUser(signedInUser.user);
+          } catch (err) {
+            console.error("sign in error: ", err);
+          }
         }
-
+      } catch (err) {
+        console.error("fetch error: ", err);
       }
     });
 
