@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { AdminList } from "types/types";
 import { ListsContextProvider } from "./listsContext";
 import styles from "./showApp.module.css";
-import { useSession } from "next-auth/react";
 import { useClientSession } from "app/sessionContext";
 
 const ShowApp = ({

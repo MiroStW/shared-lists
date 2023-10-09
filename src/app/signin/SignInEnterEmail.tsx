@@ -53,6 +53,7 @@ const SignInEnterEmail = ({
                 {...field}
                 id="email"
                 label="E-Mail"
+                type="email"
                 variant="outlined"
                 fullWidth
                 size="small"
