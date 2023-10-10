@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import styles from "./userMenu.module.css";
 import { useClientSession } from "app/sessionContext";
-import { signOut } from "firebase/auth";
+import { signOutHandler } from "app/shared/signOutHandler";
 
 const UserMenu = () => {
   const { user, auth } = useClientSession();
@@ -35,7 +35,10 @@ const UserMenu = () => {
           </div>
           <div className={styles.userMenu} hidden={hideMenu}>
             <div className={styles.userMenuList}>
-              <div className={styles.userMenuItem} onClick={() => signOut(auth)}>
+              <div
+                className={styles.userMenuItem}
+                onClick={() => signOutHandler(auth)}
+              >
                 sign out
               </div>
             </div>

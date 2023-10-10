@@ -25,10 +25,11 @@
 
 .userMenu {
   position: absolute;
-  right: -1px;
-  top: 42px;
+  right: 5px;
+  top: 38px;
   padding: 7px;
-  width: 78px;
+  width: 85px;
   background: #202124;
+  z-index: 2;
   border: 1px solid #5f6368;
 }
