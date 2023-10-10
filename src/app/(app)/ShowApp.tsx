@@ -17,13 +17,13 @@ const ShowApp = ({
   children: React.ReactNode;
 }) => {
   const [showMobileLists, setShowMobileLists] = useState(false);
-  const { user } = useClientSession();
+  const { user, isLoading } = useClientSession();
   const router = useRouter();
 
   // TODO: do this already in layout.tsx
   useEffect(() => {
-    if (!user) router.push("/signin");
-  }, [router, user]);
+    if (!user && !isLoading) router.push("/signin");
+  }, [isLoading, router, user]);
   // TODO potentially use state library for showMobileLists to make this a RSC
   return (
     <div id={styles.container}>

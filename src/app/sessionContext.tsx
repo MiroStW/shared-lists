@@ -26,6 +26,7 @@ if (process.env.NEXT_PUBLIC_DEVELOPMENT === "TRUE")
 const sessionContext = createContext({
   user: undefined as User | undefined,
   auth,
+  isLoading: false,
 });
 
 export const SessionContextProvider = (
@@ -39,6 +40,7 @@ export const SessionContextProvider = (
   // }
 ) => {
   const [user, setUser] = useState<User>();
+  const [isLoading, setIsLoading] = useState(true);
   // const session = useSession();
 
   // const refreshSession = useCallback(
@@ -74,6 +76,7 @@ export const SessionContextProvider = (
     //   (window as any).cookie = cookie;
     // }
     const unsubscribe = auth.onAuthStateChanged(async (userSnapshot) => {
+      setIsLoading(true);
       try {
         const data = await fetch("/api/clientauth");
         const { token } = await data.json();
@@ -91,17 +94,15 @@ export const SessionContextProvider = (
         } else {
           // sign in from custom token
           console.log("use custom token to sign in user");
-          try {
-            const signedInUser = await signInWithCustomToken(auth, token);
-            console.log("signed in user: ", signedInUser);
-            setUser(signedInUser.user);
-          } catch (err) {
-            console.error("sign in error: ", err);
-          }
+
+          const signedInUser = await signInWithCustomToken(auth, token);
+          console.log("signed in user: ", signedInUser);
+          setUser(signedInUser.user);
         }
       } catch (err) {
         console.error("fetch error: ", err);
       }
+      setIsLoading(false);
     });
 
     return unsubscribe;
@@ -112,6 +113,7 @@ export const SessionContextProvider = (
       value={{
         user,
         auth,
+        isLoading,
       }}
     >
       {children}
