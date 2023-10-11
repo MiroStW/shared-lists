@@ -3,29 +3,29 @@ import { getAuth } from "firebase-admin/auth";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-// TODO instead of creating a custom token, just use the session token
-// (which I'll replace with a fb-auth token)
+// TODO: fix /signin /lists pingpong
 // TODO: check if token expiration date gets extended on each request
-// TODO: check if signout works across both client & server
+// TODO: check if client token must be persisted
+// TODO: get csrfToken check to work
 // TODO: clean up code
+// TODO: add email and github login
 
 const handler = async () => {
-  // get next-auth token from cookies
-  const cookie = cookies().get("__session")?.value;
+  const sessionCookie = cookies().get("__session")?.value;
+
   console.log("clientauth: called");
-  if (!cookie) {
+  if (!sessionCookie) {
     return NextResponse.json({ message: "no token provided" }, { status: 200 });
   }
 
   // validate cookie
   try {
-    const { sessionCookie } = JSON.parse(cookie);
     const decodedToken =
       await getAuth(firebaseAdmin).verifySessionCookie(sessionCookie);
     const { uid } = decodedToken;
     if (decodedToken) {
       // update cookie expiration date
-      cookies().set("__session", cookie, {
+      cookies().set("__session", sessionCookie, {
         path: "/",
         maxAge: 60 * 60 * 24 * 5,
         httpOnly: true,
@@ -46,14 +46,13 @@ const handler = async () => {
     return NextResponse.json(
       {
         message: "invalid session token",
+        cookie: sessionCookie,
       },
       { status: 200 }
     );
   } catch (error) {
-    NextResponse.json({ message: error }, { status: 500 });
+    return NextResponse.json({ message: error }, { status: 500 });
   }
-
-  return null;
 };
 
 export { handler as GET };

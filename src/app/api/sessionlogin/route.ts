@@ -15,11 +15,7 @@ const POST = async (request: NextRequest) => {
   }
 
   // Set session expiration to 5 days.
-  const expiresIn = 60 * 60 * 24 * 5; // 60 * 60 * 24 * 5;
-  const date = new Date();
-  const expirationDate = date.setDate(
-    date.getDate() + expiresIn / (60 * 60 * 24)
-  );
+  const expiresIn = 60 * 60 * 24 * 5;
 
   try {
     const sessionCookie = await getAuth(firebaseAdmin).createSessionCookie(
@@ -28,16 +24,13 @@ const POST = async (request: NextRequest) => {
         expiresIn: expiresIn * 1000,
       }
     );
-    return NextResponse.json("session created", {
-      status: 200,
-      headers: {
-        "Set-Cookie": `__session=${JSON.stringify({
-          sessionCookie,
-          // TODO: do I need this expirationDate in the cookie?
-          expirationDate,
-        })}; Path=/; Max-Age=${expiresIn}; httpOnly; secure`,
-      },
+    cookies().set("__session", sessionCookie, {
+      path: "/",
+      maxAge: expiresIn,
+      httpOnly: true,
+      secure: true,
     });
+    return NextResponse.json("session created", { status: 200 });
   } catch (error) {
     if (error instanceof Error)
       return NextResponse.json("error", {

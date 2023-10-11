@@ -18,11 +18,6 @@ interface Inputs {
   passwordConfirm: string;
 }
 
-// TODO in first step only ask for email, then check if user exists
-// TODO if user exists, then log in instead of creating a new user
-// TODO if user does not exist, then create first list right away on the server,
-// then redirect to that list
-
 const SignUpWithEmail = ({
   email = "",
   setEmail,

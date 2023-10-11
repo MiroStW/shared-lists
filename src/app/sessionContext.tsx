@@ -78,6 +78,9 @@ export const SessionContextProvider = (
     const unsubscribe = auth.onAuthStateChanged(async (userSnapshot) => {
       setIsLoading(true);
       try {
+        // right now this endpoint is called on every page load. this is not
+        // ideal, there could be a 2nd endpoint to only check if the session is
+        // valid
         const data = await fetch("/api/clientauth");
         const { token } = await data.json();
         console.log("token: ", token);

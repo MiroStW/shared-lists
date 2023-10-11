@@ -1,19 +1,20 @@
+import { firebaseAdmin } from "@firebase/firebaseAdmin";
 import { getAuth } from "firebase-admin/auth";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 const GET = async () => {
-  const cookie = cookies().get("__session")?.value;
+  const sessionCookie = cookies().get("__session")?.value;
 
-  if (!cookie) {
+  if (!sessionCookie) {
     return NextResponse.json({ message: "no token provided" }, { status: 200 });
   }
 
   try {
-    const { sessionCookie } = JSON.parse(cookie);
-    const decodedClaims = await getAuth().verifySessionCookie(sessionCookie);
+    const decodedToken =
+      await getAuth(firebaseAdmin).verifySessionCookie(sessionCookie);
 
-    getAuth().revokeRefreshTokens(decodedClaims.uid);
+    await getAuth().revokeRefreshTokens(decodedToken.uid);
   } catch (error) {
     return NextResponse.json(`Unknown error: ${error}`, {
       status: 401,
