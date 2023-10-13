@@ -3,7 +3,6 @@ import { getAuth } from "firebase-admin/auth";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-// TODO: check if client token must be persisted
 // TODO: get csrfToken check to work
 // TODO: clean up code
 // TODO: add email and github login

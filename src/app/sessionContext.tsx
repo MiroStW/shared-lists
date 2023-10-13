@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  browserSessionPersistence,
   connectAuthEmulator,
   getAuth,
   signInWithCustomToken,
@@ -17,7 +18,9 @@ import {
 import { firebase } from "../firebase/firebase";
 
 export const auth = getAuth(firebase);
-// auth.setPersistence(browserLocalPersistence);
+// only persist client-side auth state in bwoser session, it is already
+// persisted in the long-lived server session
+auth.setPersistence(browserSessionPersistence);
 
 // comment out this line to switch to production db
 if (process.env.NEXT_PUBLIC_DEVELOPMENT === "TRUE")
