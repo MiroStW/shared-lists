@@ -12,9 +12,9 @@
       "firebase-debug.*.log"
     ],
     "predeploy": [
-      "npm --prefix \"$PROJECT_DIR\" install",
+      "bun --prefix \"$PROJECT_DIR\" install",
       "rm -r build",
-      "npm --prefix \"$PROJECT_DIR\" run build"
+      "bun --prefix \"$PROJECT_DIR\" build"
     ],
     "runtime": "nodejs16"
   },
