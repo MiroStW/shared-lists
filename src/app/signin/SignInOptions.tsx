@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SignInEnterEmail from "./SignInEnterEmail";
 import Image from "next/image";
 import styles from "./signIn.module.css";
@@ -12,7 +12,7 @@ import { FirebaseError } from "firebase/app";
 import { setSessionCookie } from "auth/setSessionCookie";
 
 const SignInOptions = () => {
-  const { auth } = useClientSession();
+  const { auth, user } = useClientSession();
   const router = useRouter();
   const [email, setEmail] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -22,18 +22,14 @@ const SignInOptions = () => {
   const signInWithGoogle = async () => {
     setIsLoading(true);
     try {
-      const { user } = await signInWithPopup(auth, provider);
-      if (user) {
-        const idToken = await user.getIdToken();
+      const { user: newUser } = await signInWithPopup(auth, provider);
+      if (newUser) {
+        const idToken = await newUser.getIdToken();
         const res = await setSessionCookie(idToken);
-        if (idToken && res.ok) {
-          router.push("/lists");
-        } else {
-          throw new Error("Session creation failed");
-        }
-      } else {
-        setIsLoading(false);
+        if (!res.ok) throw new Error("Session creation failed");
+        await auth.updateCurrentUser(newUser);
       }
+      setIsLoading(false);
     } catch (err) {
       setIsLoading(false);
       if (typeof err === "string") {
@@ -43,6 +39,13 @@ const SignInOptions = () => {
       }
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      console.log("user signed in, redirecting to /lists");
+      router.push("/lists");
+    }
+  }, [router, user]);
 
   return (
     <>

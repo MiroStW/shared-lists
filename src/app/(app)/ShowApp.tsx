@@ -20,7 +20,6 @@ const ShowApp = ({
   const { user, isLoading } = useClientSession();
   const router = useRouter();
 
-  // TODO: do this already in layout.tsx
   useEffect(() => {
     if (!user && !isLoading) router.push("/signin");
   }, [isLoading, router, user]);

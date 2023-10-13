@@ -4,9 +4,9 @@ export const signOutHandler = async (auth: Auth) => {
   signOut(auth);
   try {
     const data = await fetch("/api/revokesession");
-    const res = data.json();
-    console.log("revoked session", res);
+    const res = await data.json();
+    console.log("signOutHandler: ", res);
   } catch (err) {
-    console.error("fetch error: ", err);
+    console.error("signOutHandler: ", err);
   }
 };

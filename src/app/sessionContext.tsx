@@ -83,9 +83,9 @@ export const SessionContextProvider = (
         // valid
         const data = await fetch("/api/clientauth");
         const { token } = await data.json();
-        console.log("token: ", token);
 
         if (!token) {
+          console.log("sessionContext: no token found");
           // sign out user if no valid server session exists
           signOut(auth);
           setUser(undefined);

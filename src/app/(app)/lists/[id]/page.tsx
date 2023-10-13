@@ -12,7 +12,7 @@ import getServerSession from "auth/getServerSession";
 // whether it can be avoided
 
 const page = async ({ params }: { params: { id: string } }) => {
-const {user} = await getServerSession();
+  const { user } = await getServerSession();
 
   const prefetchedLists = user ? await getLists(user.uid) : undefined;
   const cleanLists = prefetchedLists
@@ -20,7 +20,10 @@ const {user} = await getServerSession();
     : undefined;
 
   const activeList = cleanLists?.find((list) => list.ref.id === params.id);
-  if (!activeList) redirect("/lists");
+  if (!activeList) {
+    console.log("no active list - redirecting to /lists");
+    redirect("/lists");
+  }
 
   return (
     <>

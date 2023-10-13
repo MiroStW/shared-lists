@@ -3,8 +3,6 @@ import { getAuth } from "firebase-admin/auth";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-// TODO: fix /signin /lists pingpong
-// TODO: check if token expiration date gets extended on each request
 // TODO: check if client token must be persisted
 // TODO: get csrfToken check to work
 // TODO: clean up code
@@ -13,7 +11,6 @@ import { NextResponse } from "next/server";
 const handler = async () => {
   const sessionCookie = cookies().get("__session")?.value;
 
-  console.log("clientauth: called");
   if (!sessionCookie) {
     return NextResponse.json({ message: "no token provided" }, { status: 200 });
   }
@@ -34,7 +31,7 @@ const handler = async () => {
       // send custom token to the client
       console.log("clientauth: creating custom token with uid: ", uid);
       const customToken = await getAuth(firebaseAdmin).createCustomToken(uid);
-      console.log("clientauth: sending custom token to client: ", customToken);
+      console.log("clientauth: sending custom token to client");
       return NextResponse.json({ token: customToken }, { status: 200 });
     }
 
