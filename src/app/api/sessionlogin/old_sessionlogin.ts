@@ -4,13 +4,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (request: NextApiRequest, response: NextApiResponse) => {
   const { idToken } = request.body;
-  const { csrfToken } = request.cookies;
-
-  console.log("csrfToken", csrfToken);
-
-  // if (csrfToken !== request.cookies.get("csrfToken")) {
-  //   return new Response("Invalid CSRF token", { status: 401 });
-  // }
 
   // Set session expiration to 5 days.
   const expiresIn = 60 * 60 * 24 * 5;

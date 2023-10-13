@@ -7,7 +7,7 @@ import {
   InviteData,
   AdminList,
 } from "../types/types";
-import { User } from "next-auth";
+import { User } from "firebase/auth";
 
 const createAdminListData = (name: string, userId: string): ListData => {
   return {
@@ -60,8 +60,8 @@ const createAdminInviteData = (
   list: AdminList
 ): InviteData => {
   return {
-    inviterID: user.id,
-    inviterName: user.name || user.email || "unnamed user",
+    inviterID: user.uid,
+    inviterName: user.displayName || user.email || "unnamed user",
     inviteeEmail,
     listID: list.ref.id,
     listName: list.data.name,
