@@ -9,7 +9,6 @@ import { useClientSession } from "app/sessionContext";
 import { useRouter } from "next/navigation";
 import { Loading } from "app/shared/Loading";
 import { FirebaseError } from "firebase/app";
-import { setSessionCookie } from "auth/setSessionCookie";
 
 const SignInOptions = () => {
   const { auth, user } = useClientSession();
@@ -21,12 +20,16 @@ const SignInOptions = () => {
 
   const signInWithGoogle = async () => {
     setIsLoading(true);
+    if (crossOriginIsolated) console.log("COI is enabled");
     try {
       const { user: newUser } = await signInWithPopup(auth, provider);
       if (newUser) {
         const idToken = await newUser.getIdToken();
-        const res = await setSessionCookie(idToken);
-        if (!res.ok) throw new Error("Session creation failed");
+        const response = await fetch(`/api/sessionlogin?idToken=${idToken}`);
+        const result = await response.json();
+        console.log(result);
+        if (!response.ok)
+          throw new Error(`Session creation failed: ${response.statusText}`);
         await auth.updateCurrentUser(newUser);
       }
       setIsLoading(false);

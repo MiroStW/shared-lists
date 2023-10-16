@@ -3,16 +3,13 @@ import { getAuth } from "firebase-admin/auth";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-const POST = async (request: NextRequest) => {
-  const { idToken } = await request.json();
-  console.log("idToken: ", idToken);
-  const csrfToken = cookies().get("csrfToken")?.value;
-  console.log("csrfToken: ", csrfToken);
+const GET = async (request: NextRequest) => {
+  const url = new URL(request.url);
 
-  // TODO: does this IF make sense?
-  if (csrfToken !== request.cookies.get("csrfToken")) {
-    return NextResponse.json("Invalid CSRF token", { status: 401 });
-  }
+  const idToken = url.searchParams.get("idToken");
+  console.log("idToken: ", idToken);
+
+  if (!idToken) return NextResponse.json("no token provided", { status: 200 });
 
   // Set session expiration to 5 days.
   const expiresIn = 60 * 60 * 24 * 5;
@@ -47,10 +44,4 @@ const POST = async (request: NextRequest) => {
   }
 };
 
-const GET = async () => {
-  console.log("GET /signin/sessionlogin called");
-
-  return NextResponse.json("GET /signin/sessionlogin called");
-};
-
-export { POST, GET };
+export { GET };

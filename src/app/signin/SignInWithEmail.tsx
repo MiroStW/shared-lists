@@ -3,7 +3,6 @@
 import { TextField } from "@mui/material";
 import { useClientSession } from "app/sessionContext";
 import { Loading } from "app/shared/Loading";
-import { setSessionCookie } from "auth/setSessionCookie";
 import { FirebaseError } from "firebase/app";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
@@ -49,7 +48,7 @@ const SignInWithEmail = ({
 
       const idToken = await user.getIdToken();
 
-      const res = await setSessionCookie(idToken);
+      const res = await fetch(`/api/sessionlogin?idToken=${idToken}`);
       if (idToken && res.ok) {
         router.push("/lists");
       } else {
