@@ -26,6 +26,7 @@ const GET = async (request: NextRequest) => {
       maxAge: expiresIn,
       httpOnly: true,
       secure: true,
+      sameSite: "strict",
     });
     return NextResponse.json("session created", { status: 200 });
   } catch (error) {

@@ -3,13 +3,15 @@ import { getAuth } from "firebase-admin/auth";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-// TODO: get csrfToken check to work
-// TODO: clean up code
+// TODO: try with cross-origin-resource-policy: same-origin-allow-popups
+// TODO: try with same-site: strict in both sessionlogin & clientauth
 // TODO: add email and github login
+// TODO: clean up code
+// TODO: update node
+// TODO: check if I can move some firebase functions to next api routes
 
 const handler = async () => {
   const sessionCookie = cookies().get("__session")?.value;
-
   if (!sessionCookie) {
     return NextResponse.json({ message: "no token provided" }, { status: 200 });
   }
@@ -26,6 +28,7 @@ const handler = async () => {
         maxAge: 60 * 60 * 24 * 5,
         httpOnly: true,
         secure: true,
+        sameSite: "strict",
       });
       // send custom token to the client
       console.log("clientauth: creating custom token with uid: ", uid);
