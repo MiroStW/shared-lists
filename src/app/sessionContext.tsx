@@ -85,12 +85,13 @@ export const SessionContextProvider = (
         // ideal, there could be a 2nd endpoint to only check if the session is
         // valid
         const data = await fetch("/api/clientauth");
+        console.log("response from clientauth: ", data.statusText);
         const { token } = await data.json();
 
         if (!token) {
           console.log("sessionContext: no token found");
           // sign out user if no valid server session exists
-          signOut(auth);
+          await signOut(auth);
           setUser(undefined);
         } else if (userSnapshot) {
           // sign in from cache
@@ -108,11 +109,14 @@ export const SessionContextProvider = (
       } catch (err) {
         console.error("fetch error: ", err);
       }
-      setIsLoading(false);
     });
 
     return unsubscribe;
   }, []);
+
+  useEffect(() => {
+    setIsLoading(false);
+  }, [user]);
 
   return (
     <sessionContext.Provider

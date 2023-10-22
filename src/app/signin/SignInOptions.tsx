@@ -33,6 +33,7 @@ const SignInOptions = () => {
         await auth.updateCurrentUser(newUser);
       }
       setIsLoading(false);
+      router.push("/lists");
     } catch (err) {
       setIsLoading(false);
       if (typeof err === "string") {
@@ -42,13 +43,6 @@ const SignInOptions = () => {
       }
     }
   };
-
-  useEffect(() => {
-    if (user) {
-      console.log("user signed in, redirecting to /lists");
-      router.push("/lists");
-    }
-  }, [router, user]);
 
   return (
     <>

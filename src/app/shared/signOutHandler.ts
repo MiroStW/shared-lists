@@ -1,11 +1,12 @@
 import { Auth, signOut } from "firebase/auth";
 
 export const signOutHandler = async (auth: Auth) => {
-  signOut(auth);
   try {
-    const data = await fetch("/api/revokesession");
-    const res = await data.json();
-    console.log("signOutHandler: ", res);
+    await fetch("/api/revokesession");
+    await signOut(auth);
+    sessionStorage.removeItem(
+      `firebase:authUser:${auth.app.options.apiKey}:[DEFAULT]`
+    );
   } catch (err) {
     console.error("signOutHandler: ", err);
   }

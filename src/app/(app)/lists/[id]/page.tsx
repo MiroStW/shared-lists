@@ -5,6 +5,7 @@ import { AddButton } from "./addButton/AddButton";
 import { ItemDndContext } from "./items/ItemDndContext";
 import { ItemsContextProvider } from "./itemsContext";
 import getServerSession from "auth/getServerSession";
+import { getFirstListId } from "db/getFirstListId";
 
 // TODO: also prerender items/sections of list with id param
 
@@ -21,8 +22,13 @@ const page = async ({ params }: { params: { id: string } }) => {
 
   const activeList = cleanLists?.find((list) => list.ref.id === params.id);
   if (!activeList) {
-    console.log("no active list - redirecting to /lists");
-    redirect("/lists");
+    const firstListId = await getFirstListId();
+    console.log("no active list - redirecting to first list: ", firstListId);
+    if (firstListId) {
+      redirect(`/lists/${firstListId}`);
+    } else {
+      redirect("/signin");
+    }
   }
 
   return (

@@ -20,9 +20,6 @@ const ShowApp = ({
   const { user, isLoading } = useClientSession();
   const router = useRouter();
 
-  useEffect(() => {
-    if (!user && !isLoading) router.push("/signin");
-  }, [isLoading, router, user]);
   // TODO potentially use state library for showMobileLists to make this a RSC
   return (
     <div id={styles.container}>

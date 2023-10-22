@@ -3,8 +3,8 @@ import { getAuth } from "firebase-admin/auth";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-// TODO: try with cross-origin-resource-policy: same-origin-allow-popups
-// TODO: try with same-site: strict in both sessionlogin & clientauth
+// TODO: test redirect after signout again
+// TOOD: sometimes no redirect after signin
 // TODO: add email and github login
 // TODO: clean up code
 // TODO: update node
