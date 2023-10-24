@@ -4,7 +4,7 @@ import { TextField } from "@mui/material";
 import { useClientSession } from "app/sessionContext";
 import { Loading } from "app/shared/Loading";
 import { FirebaseError } from "firebase/app";
-import { User, createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
@@ -45,8 +45,10 @@ const SignUpWithEmail = ({
         data.email,
         data.password
       );
-
-      if (user) await updateUser(user, auth);
+      if (user) {
+        await updateProfile(user, { displayName: data.name });
+        await updateUser(user, auth);
+      }
 
       setIsLoading(false);
       router.push("/lists");
