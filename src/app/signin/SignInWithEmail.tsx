@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import styles from "./signIn.module.css";
+import { updateUser } from "./updateUser";
 
 interface Inputs {
   email: string;
@@ -44,16 +45,9 @@ const SignInWithEmail = ({
         data.password
       );
 
-      if (!user) throw new Error("User not found");
-
-      const idToken = await user.getIdToken();
-
-      const res = await fetch(`/api/sessionlogin?idToken=${idToken}`);
-      if (idToken && res.ok) {
-        router.push("/lists");
-      } else {
-        throw new Error("Session creation failed");
-      }
+      if (user) await updateUser(user, auth);
+      setIsLoading(false);
+      router.push("/lists");
     } catch (err) {
       setIsLoading(false);
       if (typeof err === "string") {

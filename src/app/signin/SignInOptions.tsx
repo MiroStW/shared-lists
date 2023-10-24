@@ -9,9 +9,10 @@ import { useClientSession } from "app/sessionContext";
 import { useRouter } from "next/navigation";
 import { Loading } from "app/shared/Loading";
 import { FirebaseError } from "firebase/app";
+import { updateUser } from "./updateUser";
 
 const SignInOptions = () => {
-  const { auth, user } = useClientSession();
+  const { auth } = useClientSession();
   const router = useRouter();
   const [email, setEmail] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -22,16 +23,10 @@ const SignInOptions = () => {
     setIsLoading(true);
     if (crossOriginIsolated) console.log("COI is enabled");
     try {
-      const { user: newUser } = await signInWithPopup(auth, provider);
-      if (newUser) {
-        const idToken = await newUser.getIdToken();
-        const response = await fetch(`/api/sessionlogin?idToken=${idToken}`);
-        const result = await response.json();
-        console.log(result);
-        if (!response.ok)
-          throw new Error(`Session creation failed: ${response.statusText}`);
-        await auth.updateCurrentUser(newUser);
-      }
+      const { user } = await signInWithPopup(auth, provider);
+
+      if (user) await updateUser(user, auth);
+
       setIsLoading(false);
       router.push("/lists");
     } catch (err) {

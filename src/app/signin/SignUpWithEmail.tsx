@@ -4,11 +4,12 @@ import { TextField } from "@mui/material";
 import { useClientSession } from "app/sessionContext";
 import { Loading } from "app/shared/Loading";
 import { FirebaseError } from "firebase/app";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { User, createUserWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import styles from "./signIn.module.css";
+import { updateUser } from "./updateUser";
 
 interface Inputs {
   email: string;
@@ -45,14 +46,10 @@ const SignUpWithEmail = ({
         data.password
       );
 
-      const idToken = await user.getIdToken();
+      if (user) await updateUser(user, auth);
 
-      const res = await fetch(`/api/sessionlogin?idToken=${idToken}`);
-      if (idToken && res.ok) {
-        router.push("/lists");
-      } else {
-        throw new Error("Something went wrong");
-      }
+      setIsLoading(false);
+      router.push("/lists");
     } catch (err) {
       setIsLoading(false);
       if (typeof err === "string") {
