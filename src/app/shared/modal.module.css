@@ -8,9 +8,10 @@
 }
 
 .modalCenter {
-  margin: 10%;
-  top: 0;
+  margin: 0 auto;
   width: fit-content;
+  position: absolute;
+  top: 15%;
   left: 0;
   right: 0;
 }

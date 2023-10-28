@@ -1,6 +1,7 @@
 import { Dispatch, ReactElement, SetStateAction } from "react";
 import styles from "./modal.module.css";
 import { Icon } from "./Icon";
+import ClientOnlyPortal from "./ClientOnlyPortal";
 
 const Modal = ({
   children,
@@ -14,7 +15,7 @@ const Modal = ({
   center?: boolean;
 }) => {
   return (
-    <>
+    <ClientOnlyPortal selector={"#modal"}>
       <div
         className={styles.backdrop}
         onClick={() => setOpenModal(false)}
@@ -33,7 +34,7 @@ const Modal = ({
           {children}
         </div>
       </div>
-    </>
+    </ClientOnlyPortal>
   );
 };
 
