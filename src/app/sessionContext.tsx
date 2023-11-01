@@ -85,11 +85,9 @@ export const SessionContextProvider = (
         // ideal, there could be a 2nd endpoint to only check if the session is
         // valid
         const data = await fetch("/api/clientauth");
-        console.log("response from clientauth: ", data.statusText);
         const { token } = await data.json();
 
         if (!token) {
-          console.log("sessionContext: no token found");
           // sign out user if no valid server session exists
           await signOut(auth);
           setUser(undefined);
@@ -97,13 +95,10 @@ export const SessionContextProvider = (
           // sign in from cache
           userSnapshot?.getIdToken();
           setUser(userSnapshot);
-          console.log("revalidated user from cache: ", userSnapshot);
         } else {
           // sign in from custom token
-          console.log("use custom token to sign in user");
 
           const signedInUser = await signInWithCustomToken(auth, token);
-          console.log("signed in user: ", signedInUser);
           setUser(signedInUser.user);
         }
       } catch (err) {

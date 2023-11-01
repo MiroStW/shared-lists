@@ -4,7 +4,6 @@ import getServerSession from "auth/getServerSession";
 
 export const getFirstListId = async () => {
   const { user } = await getServerSession();
-  console.log("user in getFirstListId(): ", user?.uid);
   if (user) {
     const snapshot = await adminDb()
       .collection("lists")

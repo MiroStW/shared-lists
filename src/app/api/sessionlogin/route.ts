@@ -1,5 +1,4 @@
-import { firebaseAdmin } from "@firebase/firebaseAdmin";
-import { getAuth } from "firebase-admin/auth";
+import { adminAuth } from "auth/getServerSession";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -7,7 +6,7 @@ const GET = async (request: NextRequest) => {
   const url = new URL(request.url);
 
   const idToken = url.searchParams.get("idToken");
-  console.log("idToken: ", idToken);
+  console.log("idToken: ", idToken?.padStart(10, "*"));
 
   if (!idToken) return NextResponse.json("no token provided", { status: 200 });
 
@@ -15,12 +14,9 @@ const GET = async (request: NextRequest) => {
   const expiresIn = 60 * 60 * 24 * 5;
 
   try {
-    const sessionCookie = await getAuth(firebaseAdmin).createSessionCookie(
-      idToken,
-      {
-        expiresIn: expiresIn * 1000,
-      }
-    );
+    const sessionCookie = await adminAuth.createSessionCookie(idToken, {
+      expiresIn: expiresIn * 1000,
+    });
     cookies().set("__session", sessionCookie, {
       path: "/",
       maxAge: expiresIn,

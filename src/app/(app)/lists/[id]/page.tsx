@@ -23,7 +23,6 @@ const page = async ({ params }: { params: { id: string } }) => {
   const activeList = cleanLists?.find((list) => list.ref.id === params.id);
   if (!activeList) {
     const firstListId = await getFirstListId();
-    console.log("no active list - redirecting to first list: ", firstListId);
     if (firstListId) {
       redirect(`/lists/${firstListId}`);
     } else {

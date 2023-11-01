@@ -1,5 +1,4 @@
-import { firebaseAdmin } from "@firebase/firebaseAdmin";
-import { getAuth } from "firebase-admin/auth";
+import { adminAuth } from "auth/getServerSession";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -13,10 +12,9 @@ const GET = async (request: NextRequest) => {
   cookies().delete("__session");
 
   try {
-    const decodedToken =
-      await getAuth(firebaseAdmin).verifySessionCookie(sessionCookie);
+    const decodedToken = await adminAuth.verifySessionCookie(sessionCookie);
 
-    await getAuth().revokeRefreshTokens(decodedToken.uid);
+    await adminAuth.revokeRefreshTokens(decodedToken.uid);
   } catch (error) {
     return NextResponse.json(`Unknown error: ${error}`, {
       status: 401,
