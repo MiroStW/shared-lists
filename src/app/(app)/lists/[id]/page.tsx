@@ -4,8 +4,8 @@ import { AdminList } from "types/types";
 import { AddButton } from "./addButton/AddButton";
 import { ItemDndContext } from "./items/ItemDndContext";
 import { ItemsContextProvider } from "./itemsContext";
-import { getServerSession } from "next-auth";
-import { authOptions } from "app/api/auth/[...nextauth]/route";
+import getServerSession from "auth/getServerSession";
+import { getFirstListId } from "db/getFirstListId";
 
 // TODO: also prerender items/sections of list with id param
 
@@ -13,20 +13,27 @@ import { authOptions } from "app/api/auth/[...nextauth]/route";
 // whether it can be avoided
 
 const page = async ({ params }: { params: { id: string } }) => {
-  const user = (await getServerSession(authOptions))?.user;
+  const { user } = await getServerSession();
 
-  const prefetchedLists = user ? await getLists(user.id) : undefined;
+  const prefetchedLists = user ? await getLists(user.uid) : undefined;
   const cleanLists = prefetchedLists
     ? (JSON.parse(prefetchedLists) as AdminList[])
     : undefined;
 
   const activeList = cleanLists?.find((list) => list.ref.id === params.id);
-  if (!activeList) redirect("/lists");
+  if (!activeList) {
+    const firstListId = await getFirstListId();
+    if (firstListId) {
+      redirect(`/lists/${firstListId}`);
+    } else {
+      redirect("/signin");
+    }
+  }
 
   return (
     <>
       {user && (
-        <ItemsContextProvider list={activeList} userId={user.id}>
+        <ItemsContextProvider list={activeList} userId={user.uid}>
           <ItemDndContext list={activeList} />
           <AddButton activeList={activeList} />
         </ItemsContextProvider>

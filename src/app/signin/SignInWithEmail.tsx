@@ -1,15 +1,15 @@
 "use client";
 
 import { TextField } from "@mui/material";
-import { useAuth } from "app/authContext";
+import { useClientSession } from "app/sessionContext";
 import { Loading } from "app/shared/Loading";
-import { setSessionCookie } from "auth/setSessionCookie";
 import { FirebaseError } from "firebase/app";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import styles from "./signIn.module.css";
+import { updateUser } from "./updateUser";
 
 interface Inputs {
   email: string;
@@ -27,7 +27,7 @@ const SignInWithEmail = ({
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-  const { auth } = useAuth();
+  const { auth } = useClientSession();
   const router = useRouter();
   const {
     handleSubmit,
@@ -45,16 +45,9 @@ const SignInWithEmail = ({
         data.password
       );
 
-      if (!user) throw new Error("User not found");
-
-      const idToken = await user.getIdToken();
-
-      // const res = await setSessionCookie(idToken);
-      if (idToken) {
-        router.push("/lists");
-      } else {
-        throw new Error("Session creation failed");
-      }
+      if (user) await updateUser(user, auth);
+      setIsLoading(false);
+      router.push("/lists");
     } catch (err) {
       setIsLoading(false);
       if (typeof err === "string") {

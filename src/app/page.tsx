@@ -1,19 +1,18 @@
 import Link from "next/link";
 import styles from "./main.module.css";
-import { getServerSession } from "next-auth";
 import SignOutBtn from "./SignOutBtn";
 import SignInBtn from "./SignInBtn";
-import { authOptions } from "./api/auth/[...nextauth]/route";
+import getServerSession from "auth/getServerSession";
 
 const Page = async () => {
-  const user = (await getServerSession(authOptions))?.user;
+  const {user} = await getServerSession();
 
   return (
     <>
       <h1>Shared Lists</h1>
       {user && (
         <p>
-          Hi {user.name}, your ID is {user.id}
+          Hi {user.displayName}, your ID is {user.uid}
         </p>
       )}
       <p>This is an empty home page, to be filled!</p>

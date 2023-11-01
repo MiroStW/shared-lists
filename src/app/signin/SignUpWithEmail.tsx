@@ -1,15 +1,15 @@
 "use client";
 
 import { TextField } from "@mui/material";
-import { useAuth } from "app/authContext";
+import { useClientSession } from "app/sessionContext";
 import { Loading } from "app/shared/Loading";
-import { setSessionCookie } from "auth/setSessionCookie";
 import { FirebaseError } from "firebase/app";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import styles from "./signIn.module.css";
+import { updateUser } from "./updateUser";
 
 interface Inputs {
   email: string;
@@ -17,11 +17,6 @@ interface Inputs {
   password: string;
   passwordConfirm: string;
 }
-
-// TODO in first step only ask for email, then check if user exists
-// TODO if user exists, then log in instead of creating a new user
-// TODO if user does not exist, then create first list right away on the server,
-// then redirect to that list
 
 const SignUpWithEmail = ({
   email = "",
@@ -32,7 +27,7 @@ const SignUpWithEmail = ({
   setEmail: Dispatch<SetStateAction<string | undefined>>;
   setUserExists: Dispatch<SetStateAction<boolean | undefined>>;
 }) => {
-  const { auth } = useAuth();
+  const { auth } = useClientSession();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
@@ -50,15 +45,13 @@ const SignUpWithEmail = ({
         data.email,
         data.password
       );
-
-      const idToken = await user.getIdToken();
-
-      // const res = await setSessionCookie(idToken);
-      if (idToken) {
-        router.push("/lists");
-      } else {
-        throw new Error("Something went wrong");
+      if (user) {
+        await updateProfile(user, { displayName: data.name });
+        await updateUser(user, auth);
       }
+
+      setIsLoading(false);
+      router.push("/lists");
     } catch (err) {
       setIsLoading(false);
       if (typeof err === "string") {

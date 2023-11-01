@@ -1,47 +1,50 @@
 "use client";
 
 import {
+  browserSessionPersistence,
   connectAuthEmulator,
   getAuth,
   signInWithCustomToken,
+  signOut,
   User,
 } from "firebase/auth";
 import {
   createContext,
   PropsWithChildren,
-
   useContext,
   useEffect,
   useState,
 } from "react";
 import { firebase } from "../firebase/firebase";
 
-import { useSession } from "next-auth/react";
-
 export const auth = getAuth(firebase);
-// auth.setPersistence(browserLocalPersistence);
+// only persist client-side auth state in bwoser session, it is already
+// persisted in the long-lived server session
+auth.setPersistence(browserSessionPersistence);
 
 // comment out this line to switch to production db
 if (process.env.NEXT_PUBLIC_DEVELOPMENT === "TRUE")
   connectAuthEmulator(auth, "http://localhost:9099");
 
-const authContext = createContext({
-  fbUser: undefined as User | undefined,
+const sessionContext = createContext({
+  user: undefined as User | undefined,
   auth,
+  isLoading: false,
 });
 
-export const AuthContextProvider = ({
-  children,
-  // cookie,
-}:PropsWithChildren
+export const SessionContextProvider = (
+  {
+    children, // cookie,
+  }: PropsWithChildren
   // {
   // customToken?: string;
   // expirationDateStr?: string;
   // cookie: Cookie;
   // }
 ) => {
-  const [fbUser, setFbUser] = useState<User>();
-  const session = useSession();
+  const [user, setUser] = useState<User>();
+  const [isLoading, setIsLoading] = useState(true);
+  // const session = useSession();
 
   // const refreshSession = useCallback(
   //   async (clientUser: User | null) => {
@@ -72,49 +75,54 @@ export const AuthContextProvider = ({
   // }, [customToken, expirationDateStr, refreshSession]);
 
   useEffect(() => {
-
     // if (typeof window !== "undefined") {
     //   (window as any).cookie = cookie;
     // }
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      // setLoading(true);
-      if (user) {
-        user?.getIdToken();
-        setFbUser(user);
-      } else if (session.data?.user) {
-        // check if user is logged in on next-auth
+    const unsubscribe = auth.onAuthStateChanged(async (userSnapshot) => {
+      setIsLoading(true);
+      try {
+        // right now this endpoint is called on every page load. this is not
+        // ideal, there could be a 2nd endpoint to only check if the session is
+        // valid
+        const data = await fetch("/api/clientauth");
+        const { token } = await data.json();
 
-        try {
-          const data = await fetch("/api/fbauth", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({userId: session.data.user.id}) ,
-          });
-          const res = await data.json();
-          const signedInUser = await signInWithCustomToken(auth, res.token);
-          setFbUser(signedInUser.user);
-        } catch (err) {
-          // eslint-disable-next-line no-console
-          console.error("fetch error: ", err);
+        if (!token) {
+          // sign out user if no valid server session exists
+          await signOut(auth);
+          setUser(undefined);
+        } else if (userSnapshot) {
+          // sign in from cache
+          userSnapshot?.getIdToken();
+          setUser(userSnapshot);
+        } else {
+          // sign in from custom token
+
+          const signedInUser = await signInWithCustomToken(auth, token);
+          setUser(signedInUser.user);
         }
-
+      } catch (err) {
+        console.error("fetch error: ", err);
       }
     });
 
     return unsubscribe;
-  }, [session.data?.user]);
+  }, []);
+
+  useEffect(() => {
+    setIsLoading(false);
+  }, [user]);
 
   return (
-    <authContext.Provider
+    <sessionContext.Provider
       value={{
-        fbUser,
+        user,
         auth,
+        isLoading,
       }}
     >
       {children}
-    </authContext.Provider>
+    </sessionContext.Provider>
   );
 };
 
@@ -135,6 +143,6 @@ export const AuthContextProvider = ({
 
 // export default CookieProvider;
 
-export const useAuth = () => {
-  return useContext(authContext);
+export const useClientSession = () => {
+  return useContext(sessionContext);
 };

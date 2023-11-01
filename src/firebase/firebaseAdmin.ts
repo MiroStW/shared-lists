@@ -9,7 +9,9 @@ const firebaseAdmin = !getApps().length
       credential: cert({
         projectId: firebaseAdminConfig.project_id,
         clientEmail: firebaseAdminConfig.client_email,
-        privateKey: firebaseAdminConfig.private_key,
+        privateKey: firebaseAdminConfig.private_key
+          ? JSON.parse(firebaseAdminConfig.private_key)
+          : undefined,
       }),
     })
   : getApp();

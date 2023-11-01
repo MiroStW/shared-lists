@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { AdminList } from "types/types";
 import { ListsContextProvider } from "./listsContext";
 import styles from "./showApp.module.css";
-import { useSession } from "next-auth/react";
+import { useClientSession } from "app/sessionContext";
 
 const ShowApp = ({
   prefetchedLists,
@@ -17,13 +17,12 @@ const ShowApp = ({
   children: React.ReactNode;
 }) => {
   const [showMobileLists, setShowMobileLists] = useState(false);
-  const user = useSession().data?.user;
+  const { user, isLoading } = useClientSession();
   const router = useRouter();
 
-  // TODO: do this already in layout.tsx
   useEffect(() => {
-    if (!user) router.push("/signin");
-  }, [router, user]);
+    if (!user && !isLoading) router.push("/signin");
+  }, [isLoading, router, user]);
   // TODO potentially use state library for showMobileLists to make this a RSC
   return (
     <div id={styles.container}>

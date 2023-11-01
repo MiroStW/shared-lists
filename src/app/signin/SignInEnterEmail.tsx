@@ -1,7 +1,7 @@
 "use client";
 
 import { TextField } from "@mui/material";
-import { useAuth } from "app/authContext";
+import { useClientSession } from "app/sessionContext";
 import { fetchSignInMethodsForEmail } from "firebase/auth";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
@@ -20,7 +20,7 @@ const SignInEnterEmail = ({
   email: string | undefined;
   setEmail: Dispatch<SetStateAction<string | undefined>>;
 }) => {
-  const { auth } = useAuth();
+  const { auth } = useClientSession();
   const [userExists, setUserExists] = useState<boolean>();
 
   const {
@@ -53,6 +53,7 @@ const SignInEnterEmail = ({
                 {...field}
                 id="email"
                 label="E-Mail"
+                type="email"
                 variant="outlined"
                 fullWidth
                 size="small"

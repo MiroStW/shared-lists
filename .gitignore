@@ -10,7 +10,6 @@
 
 # firebase
 /.firebase/
-firebase-config.js
 ui-debug.log
 firebase-debug.log
 src/firebase/.env
@@ -35,7 +34,6 @@ yarn-error.log*
 
 # local env files
 .env*.local
-.env
 
 # vercel
 .vercel

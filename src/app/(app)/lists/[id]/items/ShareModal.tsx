@@ -1,5 +1,5 @@
 import { Modal } from "app/shared/Modal";
-import { useAuth } from "app/authContext";
+import { useClientSession } from "app/sessionContext";
 import { createInviteData } from "db/factory";
 import { invites } from "db/useDb";
 import { addDoc } from "firebase/firestore";
@@ -14,7 +14,7 @@ const ShareModal = ({
   list: AdminList;
   setShowShareModal: Dispatch<SetStateAction<boolean>>;
 }) => {
-  const { user } = useAuth() as unknown as { user: User };
+  const { user } = useClientSession() as unknown as { user: User };
   const [email, setEmail] = useState("");
   const handleShare = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     e.preventDefault();

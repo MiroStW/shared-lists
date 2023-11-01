@@ -24,10 +24,10 @@ import { itemsOfList, itemsOfSection } from "db/useDb";
 import { Item } from "./Item";
 import { ItemArea } from "./ItemArea";
 import LoadingItems from "app/shared/LoadingItems";
-import { useSession } from "next-auth/react";
+import { useClientSession } from "app/sessionContext";
 
 const ItemDndContext = ({ list }: { list: AdminList }) => {
-  const user = useSession().data?.user;
+  const { user } = useClientSession();
   const { items, sections, localItems, setLocalItems, loading } = useItems();
   const [activeItem, setActiveItem] = useState<ItemType | null>();
 
