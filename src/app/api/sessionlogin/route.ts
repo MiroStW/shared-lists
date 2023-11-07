@@ -10,8 +10,8 @@ const GET = async (request: NextRequest) => {
 
   if (!idToken) return NextResponse.json("no token provided", { status: 200 });
 
-  // Set session expiration to 5 days.
-  const expiresIn = 60 * 60 * 24 * 5;
+  // Set session expiration to 14 days.
+  const expiresIn = 60 * 60 * 24 * 14;
 
   try {
     const sessionCookie = await adminAuth.createSessionCookie(idToken, {
