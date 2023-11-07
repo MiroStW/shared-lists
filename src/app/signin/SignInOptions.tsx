@@ -21,7 +21,6 @@ const SignInOptions = () => {
 
   const signInWithGoogle = async () => {
     setIsLoading(true);
-    if (crossOriginIsolated) console.log("COI is enabled");
     try {
       const { user } = await signInWithPopup(auth, provider);
 

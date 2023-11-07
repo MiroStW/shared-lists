@@ -6,7 +6,6 @@ const Lists = async () => {
   if (firstListId) {
     redirect(`/lists/${firstListId}`);
   } else {
-    console.log("no first list id - redirecting to /signin");
     redirect("/signin");
   }
 };

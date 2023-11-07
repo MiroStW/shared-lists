@@ -1,5 +1,4 @@
-import { firebaseAdmin } from "@firebase/firebaseAdmin";
-import { getAuth } from "firebase-admin/auth";
+import { adminAuth } from "auth/getServerSession";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -18,8 +17,7 @@ const handler = async () => {
 
   // validate cookie
   try {
-    const decodedToken =
-      await getAuth(firebaseAdmin).verifySessionCookie(sessionCookie);
+    const decodedToken = await adminAuth.verifySessionCookie(sessionCookie);
     const { uid } = decodedToken;
     if (decodedToken) {
       // update cookie expiration date
@@ -32,14 +30,14 @@ const handler = async () => {
       });
       // send custom token to the client
       console.log("clientauth: creating custom token with uid: ", uid);
-      const customToken = await getAuth(firebaseAdmin).createCustomToken(uid);
+      const customToken = await adminAuth.createCustomToken(uid);
       console.log("clientauth: sending custom token to client");
       return NextResponse.json({ token: customToken }, { status: 200 });
     }
 
     // if token is invalid, revoke active tokens & remove cookie
     console.log("clientauth: revoking tokens & removing cookie");
-    if (uid) getAuth(firebaseAdmin).revokeRefreshTokens(uid);
+    if (uid) adminAuth.revokeRefreshTokens(uid);
     cookies().delete("__session");
 
     return NextResponse.json(
@@ -50,6 +48,7 @@ const handler = async () => {
       { status: 200 }
     );
   } catch (error) {
+    console.log("clientauth: error: ", error);
     return NextResponse.json({ message: error }, { status: 500 });
   }
 };

@@ -2,18 +2,15 @@ import { firebaseAdmin } from "@firebase/firebaseAdmin";
 import { getAuth } from "firebase-admin/auth";
 import { cookies } from "next/headers";
 
+export const adminAuth = getAuth(firebaseAdmin);
+
 const getServerSession = async () => {
   const sessionCookie = cookies().get("__session")?.value;
   if (sessionCookie) {
-    // const sessionCookie = request.cookies.get("__session") || "";
     try {
-      // console.log("auth: ", auth);
-      // const { uid } = await auth.verifyIdToken(sessionCookie);
-      const { uid } =
-        await getAuth(firebaseAdmin).verifySessionCookie(sessionCookie);
+      const { uid } = await adminAuth.verifySessionCookie(sessionCookie);
       if (uid) {
-        // const customToken = await auth.createCustomToken(uid);
-        const user = await getAuth().getUser(uid);
+        const user = await adminAuth.getUser(uid);
 
         return { user };
       }
