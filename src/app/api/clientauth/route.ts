@@ -2,13 +2,6 @@ import { adminAuth } from "auth/getServerSession";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-// TODO: test redirect after signout again
-// TOOD: sometimes no redirect after signin
-// TODO: add email and github login
-// TODO: clean up code
-// TODO: update node
-// TODO: check if I can move some firebase functions to next api routes
-
 const handler = async () => {
   const sessionCookie = cookies().get("__session")?.value;
   if (!sessionCookie) {
@@ -23,7 +16,7 @@ const handler = async () => {
       // update cookie expiration date
       cookies().set("__session", sessionCookie, {
         path: "/",
-        maxAge: 60 * 60 * 24 * 5,
+        maxAge: 60 * 60 * 24 * 14,
         httpOnly: true,
         secure: true,
         sameSite: "strict",
