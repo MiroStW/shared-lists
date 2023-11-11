@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import SignInEnterEmail from "./SignInEnterEmail";
 import Image from "next/image";
 import styles from "./signIn.module.css";
