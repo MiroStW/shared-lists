@@ -1,9 +1,7 @@
 import { Loading } from "app/shared/Loading";
 import { Modal } from "app/shared/Modal";
-import { httpsCallable } from "firebase/functions";
 import { AdminList, List, Section } from "types/types";
 import { Dispatch, SetStateAction, useState } from "react";
-import { functions } from "@firebase/firebase";
 import { useRouter } from "next/navigation";
 
 const DeleteModal = ({
@@ -19,10 +17,11 @@ const DeleteModal = ({
 
   const deleteHandler = async () => {
     setIsDeleting(true);
-    // need to add recursive delete
-    const deleteFn = httpsCallable(functions, "recursiveDelete");
     try {
-      await deleteFn({ path: collection.ref.path });
+      await fetch("/api/recursivedelete", {
+        method: "POST",
+        body: JSON.stringify({ path: collection.ref.path }),
+      });
       setShowModal(false);
       if (collection.ref.parent?.id === "lists") router.push("/lists");
     } catch (err: unknown) {
