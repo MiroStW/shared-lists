@@ -26,7 +26,7 @@ auth.setPersistence(browserSessionPersistence);
 if (process.env.NEXT_PUBLIC_DEVELOPMENT === "TRUE")
   connectAuthEmulator(auth, "http://localhost:9099");
 
-const sessionContext = createContext({
+export const sessionContext = createContext({
   user: undefined as User | undefined,
   auth,
   isLoading: false,
