@@ -5,7 +5,8 @@
     "allowJs": true,
     "baseUrl": "src",
     "paths": {
-      "@firebase/*": ["firebase/*"]
+      "test-utils": ["./utils/test-utils"],
+      "@firebase/*": ["firebase/*"],
     },
     "skipLibCheck": true,
     "strict": true,
@@ -20,10 +21,10 @@
     "incremental": true,
     "plugins": [
       {
-        "name": "next"
-      }
-    ]
+        "name": "next",
+      },
+    ],
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "build/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
 }
