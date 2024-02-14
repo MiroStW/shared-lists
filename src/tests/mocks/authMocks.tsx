@@ -36,15 +36,16 @@ export const authMock = (userInfoMock: UserInfo): Auth => ({
   currentUser: userMock(userInfoMock),
 });
 
-export const mockSignedInUser = (
-  userInfoMock: UserInfo = defaultUserInfoMock
-) => {
+const mockUseClientSession = (userInfoMock: UserInfo = defaultUserInfoMock) =>
   spyOn(sessionContextModule, "useClientSession").mockReturnValue({
     user: userMock(userInfoMock),
     auth: authMock(userInfoMock),
     isLoading: false,
   });
 
+const mockSessionContextProvider = (
+  userInfoMock: UserInfo = defaultUserInfoMock
+) =>
   spyOn(sessionContextModule, "SessionContextProvider").mockImplementation(
     ({ children }: PropsWithChildren) => (
       <sessionContextModule.sessionContext.Provider
@@ -58,4 +59,8 @@ export const mockSignedInUser = (
       </sessionContextModule.sessionContext.Provider>
     )
   );
+
+export const mockSignedInUser = (userInfoMock?: UserInfo) => {
+  mockUseClientSession(userInfoMock);
+  mockSessionContextProvider(userInfoMock);
 };
