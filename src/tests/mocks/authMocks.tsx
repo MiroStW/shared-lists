@@ -1,6 +1,8 @@
-import { jest } from "bun:test";
 import { Auth, User, UserInfo } from "firebase/auth";
 import * as auth from "firebase/auth";
+import { PropsWithChildren } from "react";
+import * as sessionContextModule from "../../app/sessionContext";
+import { jest, spyOn } from "bun:test";
 
 export const defaultUserInfoMock: UserInfo = {
   uid: "123",
@@ -33,3 +35,27 @@ export const authMock = (userInfoMock: UserInfo): Auth => ({
   ...auth.getAuth(),
   currentUser: userMock(userInfoMock),
 });
+
+export const mockSignedInUser = (
+  userInfoMock: UserInfo = defaultUserInfoMock
+) => {
+  spyOn(sessionContextModule, "useClientSession").mockReturnValue({
+    user: userMock(userInfoMock),
+    auth: authMock(userInfoMock),
+    isLoading: false,
+  });
+
+  spyOn(sessionContextModule, "SessionContextProvider").mockImplementation(
+    ({ children }: PropsWithChildren) => (
+      <sessionContextModule.sessionContext.Provider
+        value={{
+          user: userMock(userInfoMock),
+          auth: authMock(userInfoMock),
+          isLoading: false,
+        }}
+      >
+        {children}
+      </sessionContextModule.sessionContext.Provider>
+    )
+  );
+};
