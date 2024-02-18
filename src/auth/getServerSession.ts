@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 
 export const adminAuth = getAuth(firebaseAdmin);
 
-const getServerSession = async () => {
+export const getServerSession = async () => {
   const sessionCookie = cookies().get("__session")?.value;
   if (sessionCookie) {
     try {
@@ -21,5 +21,3 @@ const getServerSession = async () => {
   }
   return { error: "No user found" };
 };
-
-export default getServerSession;

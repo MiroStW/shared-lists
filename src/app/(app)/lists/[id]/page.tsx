@@ -4,7 +4,7 @@ import { AdminList } from "types/types";
 import { AddButton } from "./addButton/AddButton";
 import { ItemDndContext } from "./items/ItemDndContext";
 import { ItemsContextProvider } from "./itemsContext";
-import getServerSession from "auth/getServerSession";
+import { getServerSession } from "auth/getServerSession";
 import { getFirstListId } from "db/getFirstListId";
 
 // TODO: also prerender items/sections of list with id param

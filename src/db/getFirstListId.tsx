@@ -1,6 +1,6 @@
 import { adminDb } from "@firebase/firebaseAdmin";
 import { createAdminListData } from "./adminFactory";
-import getServerSession from "auth/getServerSession";
+import { getServerSession } from "auth/getServerSession";
 
 export const getFirstListId = async () => {
   const { user } = await getServerSession();

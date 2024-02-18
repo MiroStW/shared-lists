@@ -1,7 +1,7 @@
 import { AdminList } from "types/types";
 import { getLists } from "db/getLists";
 import ShowApp from "./ShowApp";
-import getServerSession from "auth/getServerSession";
+import { getServerSession } from "auth/getServerSession";
 import { redirect } from "next/navigation";
 
 const AppLayout = async ({ children }: { children: React.ReactNode }) => {
