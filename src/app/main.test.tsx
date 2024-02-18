@@ -1,20 +1,36 @@
 /// <reference lib="dom" />
 
 import { describe, test, expect, beforeEach } from "bun:test";
-import { render } from "@tests/test-utils";
-import SignOutBtn from "./SignOutBtn";
-import { mockSignedInUser } from "tests/mocks/authMocks";
+import { render, screen } from "@tests/test-utils";
+import { mockAuthWithUser, mockAuthWithoutUser } from "tests/mocks/authMocks";
+import Page from "./page";
 
-describe("Header", () => {
-  beforeEach(() => {
-    mockSignedInUser();
+describe("main page without user", () => {
+  beforeEach(async () => {
+    mockAuthWithoutUser();
+    render(await Page());
   });
 
-  test("2 + 2", () => {
-    expect(2 + 2).toBe(4);
+  test("renders title", () => {
+    expect(
+      screen.queryByRole("heading", { name: "Shared Lists" })
+    ).toBeDefined();
   });
-  test("renders sign-out button", () => {
-    const { container } = render(<SignOutBtn />);
-    expect(container).toBeDefined();
+
+  test("renders sign-in button", () => {
+    expect(screen.queryByRole("button", { name: "sign in" })).not.toBeEmpty();
+    expect(screen.queryByRole("button", { name: "sign out" })).toBeEmpty();
+  });
+});
+
+describe("main page with user", () => {
+  beforeEach(async () => {
+    mockAuthWithUser();
+    render(await Page());
+  });
+
+  test("renders sign-out button", async () => {
+    expect(screen.queryByRole("button", { name: "sign in" })).toBeEmpty();
+    expect(screen.queryByRole("button", { name: "sign out" })).not.toBeEmpty();
   });
 });
