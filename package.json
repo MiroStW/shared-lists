@@ -8,7 +8,8 @@
     "build": "next build && tsc",
     "start": "next start",
     "lint": "next lint",
-    "deploy": "firebase deploy --only functions,hosting"
+    "deploy": "firebase deploy --only functions,hosting",
+    "test": "bun test --env-file=.env.local"
   },
   "main": "src/functions/firebaseFunctions.js",
   "engine": {
