@@ -1,19 +1,22 @@
-import { Auth, User, UserInfo } from "firebase/auth";
+import { Auth } from "firebase/auth";
 import * as auth from "firebase/auth";
 import { PropsWithChildren } from "react";
 import * as sessionContextModule from "../../app/sessionContext";
 import { jest, spyOn } from "bun:test";
+import * as getServerSession from "auth/getServerSession";
+import { UserRecord, UserInfo as UserInfoAdmin } from "firebase-admin/auth";
 
-export const defaultUserInfoMock: UserInfo = {
+export const defaultUserInfoMock: UserInfoAdmin = {
   uid: "123",
   displayName: "test",
   email: "test@test.de",
   phoneNumber: "123",
   photoURL: "test",
   providerId: "test",
+  toJSON: jest.fn(),
 };
 
-export const userMock = (userInfoMock: UserInfo): User => ({
+export const userMock = (userInfoMock: UserInfoAdmin) => ({
   ...userInfoMock,
   emailVerified: true,
   isAnonymous: false,
@@ -31,27 +34,47 @@ export const userMock = (userInfoMock: UserInfo): User => ({
   toJSON: jest.fn(),
 });
 
-export const authMock = (userInfoMock: UserInfo): Auth => ({
+export const userServerMock = (userInfoMock: UserInfoAdmin): UserRecord => ({
+  ...userInfoMock,
+  emailVerified: true,
+  metadata: {
+    creationTime: "123",
+    lastSignInTime: "123",
+    toJSON: jest.fn(),
+  },
+  providerData: [userInfoMock],
+  tenantId: "123",
+  disabled: false,
+  toJSON: jest.fn(),
+});
+
+export const authMock = (userInfoMock: UserInfoAdmin): Auth => ({
   ...auth.getAuth(),
   currentUser: userMock(userInfoMock),
 });
 
-const mockUseClientSession = (userInfoMock: UserInfo = defaultUserInfoMock) =>
+const mockUseClientSession = (user?: ReturnType<typeof userMock>) =>
   spyOn(sessionContextModule, "useClientSession").mockReturnValue({
-    user: userMock(userInfoMock),
-    auth: authMock(userInfoMock),
+    user,
+    auth: user ? authMock(user) : auth.getAuth(),
     isLoading: false,
   });
 
-const mockSessionContextProvider = (
-  userInfoMock: UserInfo = defaultUserInfoMock
-) =>
+const mockUseServerSession = (user?: ReturnType<typeof userServerMock>) =>
+  spyOn(getServerSession, "getServerSession").mockReturnValue(
+    Promise.resolve({
+      user,
+      error: undefined,
+    })
+  );
+
+const mockSessionContextProvider = (user?: ReturnType<typeof userMock>) =>
   spyOn(sessionContextModule, "SessionContextProvider").mockImplementation(
     ({ children }: PropsWithChildren) => (
       <sessionContextModule.sessionContext.Provider
         value={{
-          user: userMock(userInfoMock),
-          auth: authMock(userInfoMock),
+          user,
+          auth: user ? authMock(user) : auth.getAuth(),
           isLoading: false,
         }}
       >
@@ -60,7 +83,18 @@ const mockSessionContextProvider = (
     )
   );
 
-export const mockSignedInUser = (userInfoMock?: UserInfo) => {
-  mockUseClientSession(userInfoMock);
-  mockSessionContextProvider(userInfoMock);
+export const mockAuthWithUser = (
+  userInfoMock: UserInfoAdmin = defaultUserInfoMock
+) => {
+  const user = userMock(userInfoMock);
+  const userServer = userServerMock(userInfoMock);
+  mockUseClientSession(user);
+  mockUseServerSession(userServer);
+  mockSessionContextProvider(user);
+};
+
+export const mockAuthWithoutUser = () => {
+  mockUseClientSession();
+  mockUseServerSession();
+  mockSessionContextProvider();
 };

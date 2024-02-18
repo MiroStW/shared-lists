@@ -2,13 +2,13 @@
 
 import { describe, test, expect, spyOn, beforeEach } from "bun:test";
 import { render, screen } from "@tests/test-utils";
-import { mockSignedInUser } from "@tests/mocks/authMocks";
 import SignOutBtn from "./SignOutBtn";
 import * as signOutHandlerModule from "./shared/signOutHandler";
+import { mockAuthWithUser } from "@tests/mocks/authMocks";
 
-describe("Header", () => {
+describe("Sign-out button", () => {
   beforeEach(() => {
-    mockSignedInUser();
+    mockAuthWithUser();
     render(<SignOutBtn />);
   });
 
