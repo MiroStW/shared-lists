@@ -8,10 +8,11 @@ import { UserRecord, UserInfo as UserInfoAdmin } from "firebase-admin/auth";
 
 export const defaultUserInfoMock: UserInfoAdmin = {
   uid: "123",
-  displayName: "test",
+  displayName: "my test",
   email: "test@test.de",
   phoneNumber: "123",
-  photoURL: "test",
+  photoURL:
+    "https://lh3.googleusercontent.com/a-/AFdZucozGD4aUujbqo6VDEVsYGbYKRwFaeue8ycnx2ZRXg=s96-c",
   providerId: "test",
   toJSON: jest.fn(),
 };

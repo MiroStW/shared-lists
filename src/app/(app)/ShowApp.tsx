@@ -3,7 +3,7 @@
 import { Header } from "app/(app)/header/Header";
 import { Lists } from "app/(app)/lists/[id]/lists/Lists";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
 import { AdminList } from "types/types";
 import { ListsContextProvider } from "./listsContext";
 import styles from "./showApp.module.css";
@@ -12,10 +12,9 @@ import { useClientSession } from "app/sessionContext";
 const ShowApp = ({
   prefetchedLists,
   children,
-}: {
+}: PropsWithChildren<{
   prefetchedLists?: AdminList[];
-  children: React.ReactNode;
-}) => {
+}>) => {
   const [showMobileLists, setShowMobileLists] = useState(false);
   const { user, isLoading } = useClientSession();
   const router = useRouter();
