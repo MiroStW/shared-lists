@@ -2,9 +2,14 @@ import React, { ReactElement } from "react";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { render, RenderOptions } from "@testing-library/react";
 import { SessionContextProvider } from "app/sessionContext";
+import { AppRouterContextProviderMock } from "./mocks/AppRouterMock";
 
 const ContextWrapper = ({ children }: { children: React.ReactNode }) => {
-  return <SessionContextProvider>{children}</SessionContextProvider>;
+  return (
+    <AppRouterContextProviderMock>
+      <SessionContextProvider>{children}</SessionContextProvider>
+    </AppRouterContextProviderMock>
+  );
 };
 
 const customRender = (
