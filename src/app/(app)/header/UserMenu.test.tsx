@@ -1,5 +1,3 @@
-/// <reference lib="dom" />
-
 import { describe, test, expect, beforeEach, spyOn } from "bun:test";
 import { render, screen } from "@tests/test-utils";
 import { defaultUserInfoMock, mockAuthWithUser } from "@tests/mocks/authMocks";

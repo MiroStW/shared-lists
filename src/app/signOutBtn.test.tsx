@@ -1,5 +1,3 @@
-/// <reference lib="dom" />
-
 import { describe, test, expect, spyOn, beforeEach } from "bun:test";
 import { render, screen } from "@tests/test-utils";
 import SignOutBtn from "./SignOutBtn";
