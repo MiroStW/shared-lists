@@ -1,0 +1,49 @@
+{
+  "kind": "identitytoolkit#DownloadAccountResponse",
+  "users": [
+    {
+      "localId": "J73gLxKmuSnJ1WKB95eltpUD8c0c",
+      "lastLoginAt": "1709037559628",
+      "emailVerified": false,
+      "email": "test@test.de",
+      "salt": "fakeSaltWmCwm3wBr27rH0fkUYrK",
+      "passwordHash": "fakeHash:salt=fakeSaltWmCwm3wBr27rH0fkUYrK:password=Aa123456",
+      "passwordUpdatedAt": 1709037559628,
+      "validSince": "1709037559",
+      "createdAt": "1709037559628",
+      "providerUserInfo": [
+        {
+          "providerId": "password",
+          "email": "test@test.de",
+          "federatedId": "test@test.de",
+          "rawId": "test@test.de",
+          "displayName": "Email user"
+        }
+      ],
+      "lastRefreshAt": "2024-02-27T12:39:19.630Z",
+      "displayName": "Email user"
+    },
+    {
+      "localId": "Pg1ZNMa5dRNtwFH5nREVlAhZrihl",
+      "displayName": "Google User",
+      "screenName": "mountain_peach",
+      "email": "peach.mountain.780@example.com",
+      "emailVerified": true,
+      "createdAt": "1709037493166",
+      "lastLoginAt": "1709037493338",
+      "providerUserInfo": [
+        {
+          "providerId": "google.com",
+          "rawId": "2463730792963663276286153272220775401039",
+          "federatedId": "2463730792963663276286153272220775401039",
+          "displayName": "Google User",
+          "email": "peach.mountain.780@example.com",
+          "screenName": "mountain_peach"
+        }
+      ],
+      "lastRefreshAt": "2024-02-27T12:38:13.339Z",
+      "customAuth": true,
+      "validSince": "1709037522"
+    }
+  ]
+}
