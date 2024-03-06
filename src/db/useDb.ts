@@ -23,7 +23,7 @@ export const db = getFirestore(firebase);
 
 // comment out this line to switch to production db
 if (process.env.NEXT_PUBLIC_DEVELOPMENT === "TRUE")
-  connectFirestoreEmulator(db, "localhost", 8080);
+  connectFirestoreEmulator(db, "127.0.0.1", 8080);
 
 // enableMultiTabIndexedDbPersistence(db);
 //   .catch((err) => {
