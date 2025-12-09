@@ -1,4 +1,4 @@
-import { adminAuth } from "auth/getServerSession";
+import { getAdminAuth } from "auth/getServerSession";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -14,10 +14,10 @@ const GET = async (request: NextRequest) => {
   const expiresIn = 60 * 60 * 24 * 14;
 
   try {
-    const sessionCookie = await adminAuth.createSessionCookie(idToken, {
+    const sessionCookie = await getAdminAuth().createSessionCookie(idToken, {
       expiresIn: expiresIn * 1000,
     });
-    cookies().set("__session", sessionCookie, {
+    (await cookies()).set("__session", sessionCookie, {
       path: "/",
       maxAge: expiresIn,
       httpOnly: true,
