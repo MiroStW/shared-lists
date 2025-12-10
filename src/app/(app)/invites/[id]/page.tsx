@@ -25,7 +25,8 @@ const getInvite = async (id: string) => {
   } else return null;
 };
 
-const page = async ({ params }: { params: { id: string } }) => {
+const page = async (props: { params: Promise<{ id: string }> }) => {
+  const params = await props.params;
   const serializedInvite = await getInvite(params.id);
   if (!serializedInvite) return <ShowError msg="Invite not found" />;
   const invite = JSON.parse(serializedInvite) as AdminInvite;

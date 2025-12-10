@@ -12,7 +12,8 @@ import { getFirstListId } from "db/getFirstListId";
 // TODO: check if the call to getLists() is automatically deduped, if not
 // whether it can be avoided
 
-const page = async ({ params }: { params: { id: string } }) => {
+const page = async (props: { params: Promise<{ id: string }> }) => {
+  const params = await props.params;
   const { user } = await getServerSession();
 
   const prefetchedLists = user ? await getLists(user.uid) : undefined;

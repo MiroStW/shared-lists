@@ -10,11 +10,11 @@ const ClientOnlyPortal = ({
   children,
   selector,
 }: PropsWithChildren<{ selector: string }>) => {
-  const ref = useRef<Element>();
+  const ref = useRef<Element | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    ref.current = document.querySelector(selector) || undefined;
+    ref.current = document.querySelector(selector) || null;
     setMounted(true);
   }, [selector]);
 
