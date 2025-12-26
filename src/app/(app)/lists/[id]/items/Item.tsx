@@ -13,7 +13,7 @@ import { Icon } from "app/shared/Icon";
 import styles from "./item.module.css";
 import { Sortable } from "./dnd/Sortable";
 import Checkbox from "@mui/material/Checkbox";
-import { TextareaAutosize } from "@mui/base/TextareaAutosize";
+import { TextareaAutosize } from "@mui/material";
 
 const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
   const [inlineEdit, setInlineEdit] = useState(false);
@@ -58,7 +58,7 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
       addLocalItem({
         order: Math.min(
           item.data.order + 1,
-          localItems[item.ref.parent.parent!.id].length
+          localItems[item.ref.parent.parent!.id].length,
         ),
         sectionId: item.ref.parent.parent!.id,
       });
@@ -68,7 +68,7 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
   const submitEditOnBlur = (
     e:
       | KeyboardEvent<HTMLTextAreaElement>
-      | FocusEvent<HTMLTextAreaElement, Element>
+      | FocusEvent<HTMLTextAreaElement, Element>,
   ) => {
     e.preventDefault();
     // only update if name has changed

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { region } = require("firebase-functions");
+const functions = require("firebase-functions/v1");
 const admin = require("firebase-admin");
 const nodemailer = require("nodemailer");
 
@@ -16,7 +16,8 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-exports.sendEmail = region("europe-west1")
+exports.sendEmail = functions
+  .region("europe-west1")
   .firestore.document("/invites/{documentId}")
   .onCreate(async (snap) => {
     const { inviterID, inviteeEmail, listID } = snap.data();
@@ -34,8 +35,8 @@ exports.sendEmail = region("europe-west1")
       html: `<p style="font-size: 16px;">
           Hi there, <br /><br />
           ${invitingUser.displayName} invited you to join the "${
-        listSnapshot.data().name
-      }" list. <br /><br />
+            listSnapshot.data().name
+          }" list. <br /><br />
           Click <a href="https://shared-lists-8fc29.web.app/invites/${inviteID}">here</a> to join the list
           </p>
           <br />

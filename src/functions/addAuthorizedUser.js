@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { https, region } = require("firebase-functions");
+const functions = require("firebase-functions/v1");
 const admin = require("firebase-admin");
 const { FieldValue } = require("firebase-admin/firestore");
 
@@ -10,15 +10,15 @@ const updateRecords = async (userId, listRef) => {
   const listSnapshot = await listRef.get();
 
   if (!listSnapshot.exists) {
-    throw new https.HttpsError("not-found", "List not found");
+    throw new functions.https.HttpsError("not-found", "List not found");
   }
 
   const list = listSnapshot.data();
 
   if (list.contributors?.includes(userId) || list.ownerID === userId) {
-    throw new https.HttpsError(
+    throw new functions.https.HttpsError(
       "already-exists",
-      "You already joined this list"
+      "You already joined this list",
     );
   }
 
@@ -34,7 +34,7 @@ const updateRecords = async (userId, listRef) => {
 
     // update items in top-level list
     const itemsRef = await subcollections.find(
-      (collection) => collection.id === "items"
+      (collection) => collection.id === "items",
     );
     const items = await itemsRef?.get();
 
@@ -49,7 +49,7 @@ const updateRecords = async (userId, listRef) => {
 
     // update sections in top-level list
     const sectionsRef = await subcollections.find(
-      (collection) => collection.id === "sections"
+      (collection) => collection.id === "sections",
     );
     const sections = await sectionsRef?.get();
 
@@ -75,17 +75,17 @@ const updateRecords = async (userId, listRef) => {
     });
   } catch (error) {
     console.error(error);
-    throw new https.HttpsError("unknown", "Something went wrong");
+    throw new functions.https.HttpsError("unknown", "Something went wrong");
   }
 };
 
-exports.addauthorizeduser = region("europe-west1").https.onCall(
-  async (data, context) => {
+exports.addauthorizeduser = functions
+  .region("europe-west1")
+  .https.onCall(async (data, context) => {
     const { listId } = data;
     const listRef = admin.firestore().doc(`/lists/${listId}`);
     // console.log(JSON.stringify(context, null, 4));
     const userId = context.auth.uid;
 
     return updateRecords(userId, listRef);
-  }
-);
+  });

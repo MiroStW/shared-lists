@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { https, logger, region } = require("firebase-functions");
+const functions = require("firebase-functions/v1");
 const admin = require("firebase-admin");
 const firebaseTools = require("firebase-tools");
 // const cors = require("cors")({ origin: true });
@@ -14,7 +14,8 @@ const firebaseTools = require("firebase-tools");
  *
  * @param {string} data.path the document or collection path to delete.
  */
-exports.recursiveDelete = region("europe-west1")
+exports.recursiveDelete = functions
+  .region("europe-west1")
   .runWith({
     timeoutSeconds: 540,
     memory: "2GB",
@@ -22,48 +23,48 @@ exports.recursiveDelete = region("europe-west1")
   .https.onCall(async (data, context) => {
     // Only allow admin users to execute this function.
     if (!context.auth) {
-      throw new https.HttpsError(
+      throw new functions.https.HttpsError(
         "permission-denied",
-        "Must be signed in to initiate delete."
+        "Must be signed in to initiate delete.",
       );
     }
 
     const { path } = data;
-    logger.log("path: ", path);
+    functions.logger.log("path: ", path);
 
     // Check if user owns the record
     const snapshot = await admin.firestore().doc(path).get();
 
     if (!snapshot.exists) {
-      throw new https.HttpsError("not-found", "Object not found");
+      throw new functions.https.HttpsError("not-found", "Object not found");
     }
     const ownerID = snapshot.get("ownerID");
-    logger.log("ownerID: ", ownerID);
+    functions.logger.log("ownerID: ", ownerID);
     if (ownerID && ownerID !== context.auth.uid) {
-      throw new https.HttpsError(
+      throw new functions.https.HttpsError(
         "permission-denied",
-        "Must be list owner to delete."
+        "Must be list owner to delete.",
       );
     }
 
     const authorizedUsers = snapshot.get("authorizedUsers");
-    logger.log("authorizedUsers: ", authorizedUsers);
+    functions.logger.log("authorizedUsers: ", authorizedUsers);
     if (authorizedUsers && !authorizedUsers.includes(context.auth.uid)) {
-      throw new https.HttpsError(
+      throw new functions.https.HttpsError(
         "permission-denied",
-        "Must be authorized to delete."
+        "Must be authorized to delete.",
       );
     }
 
     if (!authorizedUsers && !ownerID) {
-      throw new https.HttpsError(
+      throw new functions.https.HttpsError(
         "permission-denied",
-        "Object to has to be a list or a section."
+        "Object to has to be a list or a section.",
       );
     }
 
     console.log(
-      `User ${context.auth.uid} has requested to delete path ${path}`
+      `User ${context.auth.uid} has requested to delete path ${path}`,
     );
 
     // Run a recursive delete on the given document or collection path.
