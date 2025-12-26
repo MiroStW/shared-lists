@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { region } = require("firebase-functions");
+const functions = require("firebase-functions/v1");
 const admin = require("firebase-admin");
 const { FieldValue } = require("firebase-admin/firestore");
 // const { itemConverter, sectionConverter } = require("./firestoreConverter.ts");
@@ -8,8 +8,9 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 
-exports.dataMigrations = region("europe-west1").https.onRequest(
-  async (req, res) => {
+exports.dataMigrations = functions
+  .region("europe-west1")
+  .https.onRequest(async (req, res) => {
     const getData = async () => {
       const items = admin
         .firestore()
@@ -78,5 +79,4 @@ exports.dataMigrations = region("europe-west1").https.onRequest(
       console.log(error);
       res.status(500).send({ error: error.message });
     }
-  }
-);
+  });

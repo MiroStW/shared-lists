@@ -27,7 +27,7 @@ exports.nextjsfunc = onRequest(
   (req, res) => {
     console.log("nextServer start ", Date.now());
     return nextjsServer.prepare().then(() => nextjsHandle(req, res));
-  }
+  },
 );
 
 exports.sendEmail = sendEmail.sendEmail;
