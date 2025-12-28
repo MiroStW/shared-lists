@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "NODE_OPTIONS='--inspect' next dev",
+    "dev": "NODE_OPTIONS='--inspect' next dev --webpack",
     "emulate": "firebase emulators:start",
-    "build": "next build && tsc",
+    "build": "next build --webpack && tsc",
     "start": "next start",
     "lint": "next lint",
     "deploy": "firebase deploy --only functions,hosting"
@@ -23,6 +23,7 @@
     "@emotion/styled": "^11.14.1",
     "@google-cloud/functions-framework": "^4.0.1",
     "@mui/material": "^7.3.6",
+    "@serwist/next": "^9.4.2",
     "cors": "^2.8.5",
     "encoding": "^0.1.13",
     "firebase": "^12.6.0",
@@ -35,7 +36,8 @@
     "nodemailer": "^7.0.11",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-hook-form": "^7.68.0"
+    "react-hook-form": "^7.68.0",
+    "serwist": "^9.4.2"
   },
   "devDependencies": {
     "@types/node": "^20.19.27",

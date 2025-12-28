@@ -5,6 +5,7 @@ import { SessionContextProvider } from "./sessionContext";
 export const metadata: Metadata = {
   title: "Shared Lists",
   description: "The easiest way to create checklists together.",
+  manifest: "/manifest.json",
   openGraph: {
     title: "Shared Lists",
   },
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   width: "device-width",
+  themeColor: "#ffffff",
 };
 
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
