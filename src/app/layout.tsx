@@ -1,5 +1,18 @@
+import type { Metadata, Viewport } from "next";
 import "./global.css";
 import { SessionContextProvider } from "./sessionContext";
+
+export const metadata: Metadata = {
+  title: "Shared Lists",
+  description: "The easiest way to create checklists together.",
+  openGraph: {
+    title: "Shared Lists",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+};
 
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
