@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "shared-lists-8fc29"
-  }
+    "default": "shared-lists-8fc29",
+    "production": "shared-lists-8fc29"
+  },
+  "targets": {},
+  "etags": {}
 }
