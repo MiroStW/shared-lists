@@ -32,6 +32,7 @@ const nextConfig = {
 const withSerwist = require("@serwist/next").default({
   swSrc: "src/app/sw.ts",
   swDest: "public/sw.js",
+  disable: process.env.NODE_ENV === "production", // Disable SW in production due to Firebase Functions
 });
 
 module.exports = withSerwist(nextConfig);
