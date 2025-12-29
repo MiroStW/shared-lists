@@ -12,9 +12,9 @@
       "firebase-debug.*.log"
     ],
     "predeploy": [
-      "pnpm --prefix \"$PROJECT_DIR\" install",
+      "bun install",
       "rm -r build",
-      "pnpm --prefix \"$PROJECT_DIR\" run build"
+      "bun run build"
     ],
     "runtime": "nodejs20"
   },
@@ -33,6 +33,26 @@
       {
         "source": "**",
         "function": "nextjsfunc"
+      }
+    ],
+    "headers": [
+      {
+        "source": "/sw.js",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/workbox-*.js",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=0, must-revalidate"
+          }
+        ]
       }
     ]
   },
