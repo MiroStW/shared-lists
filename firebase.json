@@ -13,8 +13,10 @@
     ],
     "predeploy": [
       "bun install",
-      "rm -r build",
-      "bun run build"
+      "rm -rf build public/_next",
+      "bun run build",
+      "mkdir -p public/_next/static",
+      "cp -r build/static/* public/_next/static/"
     ],
     "runtime": "nodejs20"
   },
@@ -46,11 +48,11 @@
         ]
       },
       {
-        "source": "/workbox-*.js",
+        "source": "/_next/static/**",
         "headers": [
           {
             "key": "Cache-Control",
-            "value": "public, max-age=0, must-revalidate"
+            "value": "public, max-age=31536000, immutable"
           }
         ]
       }
