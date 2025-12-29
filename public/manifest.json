@@ -2,7 +2,7 @@
   "name": "Shared Lists",
   "short_name": "SharedLists",
   "description": "The easiest way to create checklists together.",
-  "start_url": "/",
+  "start_url": "/lists",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
