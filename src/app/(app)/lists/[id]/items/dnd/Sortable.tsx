@@ -16,9 +16,10 @@ const Sortable = ({
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
-      id: item.ref.id,
+      id: item.id,
       data: { element: item, type: "item" },
     });
+
 
   const style = transform
     ? {

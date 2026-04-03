@@ -48,3 +48,5 @@ public/sw*
 public/workbox*
 # Allow _next for deployment (copied from build)
 !public/_next
+
+/src/generated/prisma

@@ -23,7 +23,7 @@ const List = ({
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      <Link href={`/lists/${list.ref.id}`} className={styles.listTitle}>
+      <Link href={`/lists/${list.id}`} className={styles.listTitle}>
         <div onClick={() => setShowMobileLists(false)}>{list.data.name}</div>
       </Link>
       {isHovering && (

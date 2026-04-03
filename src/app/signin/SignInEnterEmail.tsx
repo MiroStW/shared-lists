@@ -1,13 +1,12 @@
 "use client";
 
 import { TextField } from "@mui/material";
-import { useClientSession } from "app/sessionContext";
-import { fetchSignInMethodsForEmail } from "firebase/auth";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import SignInWithEmail from "./SignInWithEmail";
 import SignUpWithEmail from "./SignUpWithEmail";
 import styles from "./signIn.module.css";
+import { Loading } from "app/shared/Loading";
 
 interface Inputs {
   email: string;
@@ -20,8 +19,8 @@ const SignInEnterEmail = ({
   email: string | undefined;
   setEmail: Dispatch<SetStateAction<string | undefined>>;
 }) => {
-  const { auth } = useClientSession();
   const [userExists, setUserExists] = useState<boolean>();
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     handleSubmit,
@@ -30,13 +29,16 @@ const SignInEnterEmail = ({
   } = useForm<Inputs>();
 
   const onSubmit = async (data: Inputs) => {
-    // check if user exists, if not show sign up form, otherweise log in form
+    setIsLoading(true);
     setEmail(data.email);
-    const existingSignIns = await fetchSignInMethodsForEmail(auth, data.email);
-    if (existingSignIns.includes("password")) {
-      setUserExists(true);
-    } else {
-      setUserExists(false);
+    try {
+      const response = await fetch(`/api/user/exists?email=${encodeURIComponent(data.email)}`);
+      const result = await response.json();
+      setUserExists(result.exists);
+    } catch (err) {
+      console.error("Failed to check user existence:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -72,8 +74,9 @@ const SignInEnterEmail = ({
           <button
             className={`primary ${styles.signInOptionButton}`}
             type="submit"
+            disabled={isLoading}
           >
-            next
+            {isLoading ? <Loading size={20} inline /> : "next"}
           </button>
         </form>
       )}

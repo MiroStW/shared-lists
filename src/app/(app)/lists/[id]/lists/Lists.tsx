@@ -29,7 +29,7 @@ const Lists = ({
         // render prefetched lists on initial load
         preFetchedLists && lists?.length === 0
           ? preFetchedLists.map((list) => (
-              <div key={`pfl${list.ref.id}`}>
+              <div key={`pfl${list.id}`}>
                 <List list={list} setShowMobileLists={setShowMobileLists} />
               </div>
             ))
@@ -39,7 +39,7 @@ const Lists = ({
         // listen to lists changes after intial load
         lists &&
           lists.map((list) => (
-            <div key={`crl${list.ref.id}`}>
+            <div key={`crl${list.id}`}>
               <List list={list} setShowMobileLists={setShowMobileLists} />
             </div>
           ))

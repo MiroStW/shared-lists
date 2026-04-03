@@ -1,4 +1,3 @@
-import { Timestamp } from "firebase/firestore";
 import {
   ListData,
   ItemData,
@@ -7,12 +6,12 @@ import {
   InviteData,
   AdminList,
 } from "../types/types";
-import { User } from "firebase/auth";
 
 const createListData = (name: string, userId: string): ListData => {
   return {
+    id: "", // Will be set by DB
     name,
-    createdDate: Timestamp.now(),
+    createdDate: new Date().toISOString(),
     ownerID: userId,
     isArchived: false,
   };
@@ -20,53 +19,54 @@ const createListData = (name: string, userId: string): ListData => {
 
 const createItemData = ({
   name,
-  authorizedUsers,
   list,
   order = 0,
 }: {
   name: string;
-  authorizedUsers: string[];
   list: List | AdminList;
   order?: number;
 }): ItemData => {
   return {
+    id: "", // Will be set by DB
     name,
     completed: false,
     description: "",
-    createdDate: Timestamp.now(),
-    authorizedUsers,
+    createdDate: new Date().toISOString(),
     order,
-    list: list.ref.id,
+    listID: list.id,
   };
 };
 
 const createSectionData = ({
   name,
-  authorizedUsers,
+  listId,
 }: {
   name: string;
-  authorizedUsers: string[];
+  listId: string;
 }): SectionData => {
   return {
+    id: "", // Will be set by DB
     name,
-    createdDate: Timestamp.now(),
-    authorizedUsers,
+    createdDate: new Date().toISOString(),
+    listId,
   };
 };
 
 const createInviteData = (
-  user: User,
+  userId: string,
+  userName: string,
   inviteeEmail: string,
   list: AdminList
 ): InviteData => {
   return {
-    inviterID: user.uid,
-    inviterName: user.displayName || user.email || "unnamed user",
+    id: "", // Will be set by DB
+    inviterID: userId,
+    inviterName: userName,
     inviteeEmail,
-    listID: list.ref.id,
+    listID: list.id,
     listName: list.data.name,
     status: "pending",
-    createdDate: Timestamp.now(),
+    createdDate: new Date().toISOString(),
   };
 };
 

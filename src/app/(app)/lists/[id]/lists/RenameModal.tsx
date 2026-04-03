@@ -1,8 +1,9 @@
+"use client";
+
 import { Modal } from "app/shared/Modal";
-import { db } from "db/useDb";
-import { doc, updateDoc } from "firebase/firestore";
 import { MouseEvent, Dispatch, SetStateAction, useState } from "react";
 import { AdminList, List, Section } from "types/types";
+import { useRouter } from "next/navigation";
 
 const RenameModal = ({
   collection,
@@ -12,20 +13,29 @@ const RenameModal = ({
   setShowModal: Dispatch<SetStateAction<boolean>>;
 }) => {
   const [collectionTitle, setCollectionTitle] = useState(collection.data.name);
+  const router = useRouter();
 
-  const handleRename = (e: MouseEvent) => {
+  const handleRename = async (e: MouseEvent) => {
     e.preventDefault();
     if (collectionTitle && collectionTitle !== collection.data.name) {
-      updateDoc(doc(db, collection.ref.path), {
-        name: collectionTitle,
+      const isSection = 'listId' in collection.data;
+      const endpoint = isSection
+        ? `/api/sections/${collection.id}`
+        : `/api/lists/${collection.id}`;
+
+      await fetch(endpoint, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: collectionTitle }),
       });
+
+      router.refresh();
       setShowModal(false);
     }
   };
 
   return (
     <Modal setOpenModal={setShowModal}>
-      {/* TODO: add validation */}
       <form>
         <label htmlFor="listTitle">Title:</label>
         <input

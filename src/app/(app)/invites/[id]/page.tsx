@@ -1,35 +1,39 @@
-import { AdminInvite } from "types/types";
-import { adminDb } from "@firebase/firebaseAdmin";
+import { prisma } from "db/prisma";
 import ShowInvite from "./ShowInvite";
 import { ShowError } from "app/shared/ShowError";
-
-// going forward invites could become a modal on the lists page
+import { AdminInvite } from "types/types";
 
 const getInvite = async (id: string) => {
-  const inviteSnap = await adminDb().collection("invites").doc(id).get();
+  try {
+    const invite = await prisma.invite.findUnique({
+      where: { id },
+    });
 
-  if (inviteSnap.exists) {
-    const inviteDoc = {
-      data: inviteSnap.data(),
-      ref: {
-        ...inviteSnap.ref,
-        id: inviteSnap.id,
-        parent: {
-          ...inviteSnap.ref.parent,
-          id: inviteSnap.ref.parent.id,
-        },
-        path: inviteSnap.ref.path,
-      },
-    } as AdminInvite;
-    return JSON.stringify(inviteDoc);
-  } else return null;
+    if (invite) {
+      return {
+        id: invite.id,
+        data: {
+          inviterID: invite.inviterID,
+          inviterName: invite.inviterName,
+          inviteeEmail: invite.inviteeEmail,
+          listID: invite.listID,
+          listName: invite.listName,
+          status: invite.status,
+          createdDate: invite.createdDate.toISOString(),
+        }
+      } as AdminInvite;
+    }
+    return null;
+  } catch (error) {
+    console.error("Error fetching invite:", error);
+    return null;
+  }
 };
 
 const page = async (props: { params: Promise<{ id: string }> }) => {
   const params = await props.params;
-  const serializedInvite = await getInvite(params.id);
-  if (!serializedInvite) return <ShowError msg="Invite not found" />;
-  const invite = JSON.parse(serializedInvite) as AdminInvite;
+  const invite = await getInvite(params.id);
+  if (!invite) return <ShowError msg="Invite not found" />;
 
   return <ShowInvite invite={invite} />;
 };

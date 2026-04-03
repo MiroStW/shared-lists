@@ -1,13 +1,11 @@
 "use client";
 
 import { Modal } from "app/shared/Modal";
-import { createListData, createSectionData } from "db/factory";
-import { lists, sectionsOfList } from "db/useDb";
-import { addDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useState } from "react";
 import { AdminList } from "types/types";
 import { useClientSession } from "app/sessionContext";
+import { useLists } from "app/(app)/listsContext";
 
 const AddNamePicker = ({
   activeList,
@@ -19,6 +17,7 @@ const AddNamePicker = ({
   setShowAddMenu: Dispatch<SetStateAction<boolean>>;
 }) => {
   const { user } = useClientSession();
+  const { refreshLists } = useLists();
   const [name, setName] = useState("");
   const router = useRouter();
 
@@ -26,39 +25,50 @@ const AddNamePicker = ({
     e: React.MouseEvent<HTMLInputElement, MouseEvent>
   ) => {
     e.preventDefault();
-    if (user)
+    if (!user) return;
+
+    const finalName = name === "" ? `new ${type}` : name;
+
+    try {
       switch (type) {
         case "list": {
-          const newList = await addDoc(
-            lists,
-            createListData(name === "" ? `new ${type}` : name, user.uid)
-          );
-          router.push(`/lists/${newList.id}`);
+          const response = await fetch("/api/lists", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: finalName }),
+          });
+          if (response.ok) {
+            const newList = await response.json();
+            refreshLists();
+            router.push(`/lists/${newList.id}`);
+          }
           break;
         }
         case "section": {
-          addDoc(
-            sectionsOfList(activeList),
-            createSectionData({
-              name: name === "" ? `new ${type}` : name,
-              authorizedUsers: activeList.data.contributors
-                ? [activeList.data.ownerID, ...activeList.data.contributors]
-                : [activeList.data.ownerID],
-            })
-          );
+          const response = await fetch("/api/sections", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: finalName, listId: activeList.id }),
+          });
+          if (response.ok) {
+            // refresh active list details - ideally via a context update
+            window.location.reload(); // Simple temp refresh
+          }
           break;
         }
         default:
           break;
       }
+    } catch (err) {
+      console.error("AddNamePicker Error:", err);
+    }
+
     setShowAddMenu(false);
   };
 
-  // TODO: add validation
-  // TODO: add status message
   return (
     <Modal setOpenModal={setShowAddMenu} title={`New ${type}`} center={true}>
-      <form>
+      <form onSubmit={(e) => e.preventDefault()}>
         <label htmlFor="name">Name:</label>
         <input
           autoFocus

@@ -12,7 +12,7 @@ const Droppable = ({
   type: "section" | "list" | "section-header" | "list-header";
 }) => {
   const { isOver, setNodeRef } = useDroppable({
-    id: `droppable-${type}-${area.ref.id}`,
+    id: `droppable-${type}-${area.id}`,
     data: {
       area,
       type,

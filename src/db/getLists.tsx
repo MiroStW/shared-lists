@@ -1,66 +1,50 @@
+import { prisma } from "./prisma";
 import { AdminList } from "types/types";
-import { adminDb } from "../firebase/firebaseAdmin";
 
 export const getLists = async (userId: string) => {
-  const ownedLists = adminDb()
-    .collection("lists")
-    .where("ownerID", "==", userId)
-    .where("isArchived", "==", false)
-    .orderBy("createdDate", "asc")
-    // .withConverter(listConverter)
-    .get()
-    .then((snapshot) => {
-      if (snapshot.empty) {
-        return [];
-      }
-      return snapshot.docs.map(
-        (doc) =>
-          ({
-            data: doc.data(),
-            ref: {
-              ...doc.ref,
-              id: doc.id,
-              parent: {
-                ...doc.ref.parent,
-                id: doc.ref.parent.id,
-              },
-              path: doc.ref.path,
-            },
-          } as AdminList)
-      );
-      // QUESTION: is there a better way to add getter functions like doc.id
-      // to the ref? Without this, the getter functions are stripped away by JSON.stringify
+  try {
+    const lists = await prisma.list.findMany({
+      where: {
+        OR: [{ ownerID: userId }, { contributors: { some: { id: userId } } }],
+        isArchived: false,
+      },
+      orderBy: {
+        createdDate: "asc",
+      },
+      include: {
+        owner: true,
+        contributors: true,
+      },
     });
 
-  const joinedLists = adminDb()
-    .collection("lists")
-    .where("contributors", "array-contains", userId)
-    .where("isArchived", "==", false)
-    .orderBy("createdDate", "asc")
-    // .withConverter(listConverter)
-    .get()
-    .then((snapshot) => {
-      if (snapshot.empty) {
-        return [];
-      }
-      return snapshot.docs.map(
-        (doc) =>
-          ({
-            data: doc.data(),
-            ref: {
-              ...doc.ref,
-              id: doc.id,
-              parent: {
-                ...doc.ref.parent,
-                id: doc.ref.parent.id,
-              },
-              path: doc.ref.path,
-            },
-          } as AdminList)
-      );
-    });
+    const formattedLists: AdminList[] = lists.map((list) => ({
+      id: list.id,
+      data: {
+        id: list.id,
+        name: list.name,
+        isArchived: list.isArchived,
+        createdDate: list.createdDate.toISOString(),
+        ownerID: list.ownerID,
+        owner: list.owner
+          ? {
+              id: list.owner.id,
+              name: list.owner.name,
+              email: list.owner.email,
+              image: list.owner.image,
+            }
+          : undefined,
+        contributors: list.contributors.map((c) => ({
+          id: c.id,
+          name: c.name,
+          email: c.email,
+          image: c.image,
+        })),
+      },
+    }));
 
-  const lists = (await Promise.all([ownedLists, joinedLists])).flat();
-
-  return JSON.stringify(lists);
+    return JSON.stringify(formattedLists);
+  } catch (error) {
+    console.error("Error fetching lists in server component:", error);
+    return JSON.stringify([]);
+  }
 };

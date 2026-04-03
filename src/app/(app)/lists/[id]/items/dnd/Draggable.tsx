@@ -10,7 +10,7 @@ const Draggable = ({
   item: Item;
 }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: `draggable-${item.ref.id}`,
+    id: `draggable-${item.id}`,
     data: { item },
   });
 

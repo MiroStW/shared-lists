@@ -8,7 +8,7 @@ const AppLayout = async ({ children }: { children: React.ReactNode }) => {
   const { user } = await getServerSession();
   if (!user) redirect("/signin");
 
-  const serializedLists = user && (await getLists(user.uid));
+  const serializedLists = user && (await getLists(user.id));
   const prefetchedLists = serializedLists
     ? (JSON.parse(serializedLists) as AdminList[])
     : undefined;

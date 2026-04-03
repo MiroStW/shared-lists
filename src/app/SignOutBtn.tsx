@@ -1,12 +1,9 @@
 "use client";
 
-import { useClientSession } from "./sessionContext";
-import { signOutHandler } from "./shared/signOutHandler";
+import { signOut } from "next-auth/react";
 
 const SignOutBtn = () => {
-  const { auth } = useClientSession();
-
-  return <button onClick={() => signOutHandler(auth)}>sign out</button>;
+  return <button onClick={() => signOut()}>sign out</button>;
 };
 
 export default SignOutBtn;

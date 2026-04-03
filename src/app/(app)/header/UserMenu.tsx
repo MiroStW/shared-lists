@@ -4,10 +4,10 @@ import Image from "next/image";
 import { useState } from "react";
 import styles from "./userMenu.module.css";
 import { useClientSession } from "app/sessionContext";
-import { signOutHandler } from "app/shared/signOutHandler";
+import { signOut } from "next-auth/react";
 
 const UserMenu = () => {
-  const { user, auth } = useClientSession();
+  const { user } = useClientSession();
   const [hideMenu, setHideMenu] = useState(true);
 
   const openMenuHandler = () => {
@@ -19,17 +19,17 @@ const UserMenu = () => {
       {user && (
         <div className={styles.userWidget} onClick={openMenuHandler}>
           <div className={styles.userImage}>
-            {user.photoURL ? (
+            {user.image ? (
               <Image
-                src={user.photoURL}
+                src={user.image}
                 alt="profile picture"
                 width={28}
                 height={28}
               />
             ) : (
-              user.displayName
+              user.name
                 ?.split(" ")
-                .map((n) => n[0])
+                .map((n: string) => n[0])
                 .join("")
             )}
           </div>
@@ -37,7 +37,7 @@ const UserMenu = () => {
             <div className={styles.userMenuList}>
               <div
                 className={styles.userMenuItem}
-                onClick={() => signOutHandler(auth)}
+                onClick={() => signOut()}
               >
                 sign out
               </div>

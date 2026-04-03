@@ -1,15 +1,12 @@
 "use client";
 
 import { TextField } from "@mui/material";
-import { useClientSession } from "app/sessionContext";
 import { Loading } from "app/shared/Loading";
-import { FirebaseError } from "firebase/app";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import styles from "./signIn.module.css";
-import { updateUser } from "./updateUser";
+import { signIn } from "next-auth/react";
 
 interface Inputs {
   email: string;
@@ -27,7 +24,6 @@ const SignUpWithEmail = ({
   setEmail: Dispatch<SetStateAction<string | undefined>>;
   setUserExists: Dispatch<SetStateAction<boolean | undefined>>;
 }) => {
-  const { auth } = useClientSession();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
@@ -40,25 +36,38 @@ const SignUpWithEmail = ({
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
       setIsLoading(true);
-      const { user } = await createUserWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password
-      );
-      if (user) {
-        await updateProfile(user, { displayName: data.name });
-        await updateUser(user, auth);
+      setError("");
+
+      const regResponse = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+          name: data.name,
+        }),
+      });
+
+      if (!regResponse.ok) {
+        const regData = await regResponse.json();
+        throw new Error(regData.error || "Registration failed");
+      }
+
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: data.email,
+        password: data.password,
+      });
+
+      if (result?.error) {
+        throw new Error(result.error);
       }
 
       setIsLoading(false);
       router.push("/lists");
-    } catch (err) {
+    } catch (err: any) {
       setIsLoading(false);
-      if (typeof err === "string") {
-        setError(err);
-      } else if (err instanceof FirebaseError) {
-        setError(err.code);
-      }
+      setError(err.message || "An error occurred");
     }
   };
 
@@ -136,7 +145,7 @@ const SignUpWithEmail = ({
               required: "Password is required",
               pattern: {
                 value: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,99}$/,
-                message: "Invalid password",
+                message: "Password must be at least 8 characters and include uppercase, lowercase, and a number",
               },
             }}
           />
@@ -180,7 +189,7 @@ const SignUpWithEmail = ({
           </button>
         </form>
       )}
-      {error && <div>Error: {error}</div>}
+      {error && <div style={{ color: "red", marginTop: "1rem" }}>Error: {error}</div>}
     </>
   );
 };

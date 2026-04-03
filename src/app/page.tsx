@@ -5,14 +5,15 @@ import SignInBtn from "./SignInBtn";
 import getServerSession from "auth/getServerSession";
 
 const Page = async () => {
-  const {user} = await getServerSession();
+  const session = await getServerSession();
+  const user = 'user' in session ? session.user : null;
 
   return (
     <>
       <h1>Shared Lists</h1>
       {user && (
         <p>
-          Hi {user.displayName}, your ID is {user.uid}
+          Hi {user.name || user.email}, your ID is {user.id}
         </p>
       )}
       <p>This is an empty home page, to be filled!</p>

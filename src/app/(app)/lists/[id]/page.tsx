@@ -16,12 +16,12 @@ const page = async (props: { params: Promise<{ id: string }> }) => {
   const params = await props.params;
   const { user } = await getServerSession();
 
-  const prefetchedLists = user ? await getLists(user.uid) : undefined;
+  const prefetchedLists = user ? await getLists(user.id) : undefined;
   const cleanLists = prefetchedLists
     ? (JSON.parse(prefetchedLists) as AdminList[])
     : undefined;
 
-  const activeList = cleanLists?.find((list) => list.ref.id === params.id);
+  const activeList = cleanLists?.find((list) => list.id === params.id);
   if (!activeList) {
     const firstListId = await getFirstListId();
     if (firstListId) {
@@ -34,7 +34,7 @@ const page = async (props: { params: Promise<{ id: string }> }) => {
   return (
     <>
       {user && (
-        <ItemsContextProvider list={activeList} userId={user.uid}>
+        <ItemsContextProvider list={activeList} userId={user.id}>
           <ItemDndContext list={activeList} />
           <AddButton activeList={activeList} />
         </ItemsContextProvider>

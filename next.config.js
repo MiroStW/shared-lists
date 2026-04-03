@@ -13,9 +13,7 @@ const nextConfig = {
       },
     ];
   },
-  env: {
-    FIREBASE_PROJECT_ID: "shared-lists-8fc29",
-  },
+  output: "standalone",
   distDir: "build",
   reactStrictMode: true,
   images: {
@@ -32,7 +30,7 @@ const nextConfig = {
 const withSerwist = require("@serwist/next").default({
   swSrc: "src/app/sw.ts",
   swDest: "public/sw.js",
-  disable: process.env.NODE_ENV === "production", // Disable SW in production due to Firebase Functions
+  disable: false, // Enable SW in production for PWA capability
 });
 
 module.exports = withSerwist(nextConfig);

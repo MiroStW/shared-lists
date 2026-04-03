@@ -3,6 +3,7 @@ import { AdminList, Item, Section } from "types/types";
 import styles from "./items.module.css";
 import { Items } from "./Items";
 import ListHeader from "./ListHeader";
+import { SearchBar } from "./SearchBar";
 
 const ItemArea = ({
   list,
@@ -14,6 +15,8 @@ const ItemArea = ({
   items: { [key: string]: Item[] };
 }) => {
   const [hideCompleted, setHideCompleted] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
 
   return (
     <>
@@ -33,18 +36,20 @@ const ItemArea = ({
             ) : (
               <>
                 <Items
-                  containerId={list.ref.id}
-                  items={items[list.ref.id]}
+                  containerId={list.id}
+                  items={items[list.id]}
                   hideCompleted={hideCompleted}
+                  searchQuery={searchQuery}
                 />
                 {sections.length > 0 &&
                   sections.map((section) => (
-                    <div key={section.ref.id}>
+                    <div key={section.id}>
                       <Items
                         section={section}
-                        containerId={section.ref.id}
-                        items={items[section.ref.id]}
+                        containerId={section.id}
+                        items={items[section.id]}
                         hideCompleted={hideCompleted}
+                        searchQuery={searchQuery}
                       />
                     </div>
                   ))}
@@ -53,6 +58,12 @@ const ItemArea = ({
           </>
         )}
       </div>
+      <SearchBar
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        isExpanded={isSearchExpanded}
+        setIsExpanded={setIsSearchExpanded}
+      />
     </>
   );
 };

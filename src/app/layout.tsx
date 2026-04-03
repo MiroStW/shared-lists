@@ -16,11 +16,16 @@ export const viewport: Viewport = {
   themeColor: "#ffffff",
 };
 
+import OfflineBanner from "./shared/OfflineBanner";
+import InstallPrompt from "./shared/InstallPrompt";
+
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning={true}>
       <body suppressHydrationWarning={true}>
+        <OfflineBanner />
         <SessionContextProvider>{children}</SessionContextProvider>
+        <InstallPrompt />
         <div id="modal"></div>
       </body>
     </html>

@@ -1,13 +1,5 @@
 "use client";
 
-import { listConverter } from "db/firestoreConverter";
-import {
-  FirestoreError,
-  onSnapshot,
-  orderBy,
-  query,
-  where,
-} from "firebase/firestore";
 import {
   createContext,
   ReactNode,
@@ -15,101 +7,52 @@ import {
   useEffect,
   useState,
 } from "react";
-import { List } from "types/types";
-import { lists as listsRef } from "db/useDb";
+import { List, ListData } from "types/types";
 import { useClientSession } from "app/sessionContext";
 
 const listsContext = createContext({
   lists: [] as List[] | undefined,
   loading: true,
-  error: undefined as FirestoreError | undefined,
+  error: undefined as any | undefined,
+  refreshLists: () => {},
 });
 
 export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useClientSession();
-  const [ownedLists, setOwnedLists] = useState<List[]>([]);
-  const [joinedLists, setJoinedLists] = useState<List[]>([]);
+  const [lists, setLists] = useState<List[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<FirestoreError | undefined>(undefined);
+  const [error, setError] = useState<any | undefined>(undefined);
 
-  const getOwnedLists = () => {
-    const ownedListsQuery = query(
-      listsRef,
-      where("ownerID", "==", user?.uid),
-      where("isArchived", "==", false),
-      orderBy("createdDate", "asc")
-    ).withConverter(listConverter);
-
-    const unsubscribe = onSnapshot(
-      ownedListsQuery,
-      { includeMetadataChanges: true },
-      async (snapshot) => {
-        const listsnapshot: List[] = [];
-        setLoading(true);
-        snapshot.forEach((doc) => {
-          listsnapshot.push(doc.data());
-        });
-        setOwnedLists(listsnapshot);
-        setLoading(false);
-      },
-      (err) => {
-        setError(err);
-        setLoading(false);
+  const fetchLists = async () => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const response = await fetch("/api/lists");
+      if (!response.ok) {
+        throw new Error("Failed to fetch lists");
       }
-    );
-    return unsubscribe;
-  };
-
-  const getJoinedLists = () => {
-    const joinedListsQuery = query(
-      listsRef,
-      where("contributors", "array-contains", user?.uid),
-      where("isArchived", "==", false),
-      orderBy("createdDate", "asc")
-    ).withConverter(listConverter);
-
-    const unsubscribe = onSnapshot(
-      joinedListsQuery,
-      { includeMetadataChanges: true },
-      async (snapshot) => {
-        const listsnapshot: List[] = [];
-        setLoading(true);
-        snapshot.forEach((doc) => {
-          listsnapshot.push(doc.data());
-        });
-        setJoinedLists(listsnapshot);
-        setLoading(false);
-      },
-      (err) => {
-        setError(err);
-        setLoading(false);
-      }
-    );
-
-    return unsubscribe;
+      const data: ListData[] = await response.json();
+      setLists(data.map(d => ({ id: d.id, data: d })));
+      setError(undefined);
+    } catch (err) {
+      console.error("fetchLists error: ", err);
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    if (user) {
-      const unsubscribeOwnedLists = getOwnedLists();
-
-      const unsubscribeJoinedLists = getJoinedLists();
-
-      return () => {
-        unsubscribeOwnedLists();
-        unsubscribeJoinedLists();
-      };
-    }
-
-    return undefined;
+    fetchLists();
   }, [user]);
 
   return (
     <listsContext.Provider
       value={{
-        lists: ownedLists.concat(joinedLists),
+        lists,
         loading,
         error,
+        refreshLists: fetchLists,
       }}
     >
       {children}

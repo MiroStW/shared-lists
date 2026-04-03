@@ -1,15 +1,12 @@
 "use client";
 
 import { TextField } from "@mui/material";
-import { useClientSession } from "app/sessionContext";
 import { Loading } from "app/shared/Loading";
-import { FirebaseError } from "firebase/app";
-import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import styles from "./signIn.module.css";
-import { updateUser } from "./updateUser";
+import { signIn } from "next-auth/react";
 
 interface Inputs {
   email: string;
@@ -27,7 +24,6 @@ const SignInWithEmail = ({
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-  const { auth } = useClientSession();
   const router = useRouter();
   const {
     handleSubmit,
@@ -36,25 +32,25 @@ const SignInWithEmail = ({
   } = useForm<Inputs>();
 
   const onSubmit = async (data: Inputs) => {
-    // check if user exists, if not show sign up form, otherweise log in form
     try {
       setIsLoading(true);
-      const { user } = await signInWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password
-      );
+      setError("");
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: data.email,
+        password: data.password,
+      });
 
-      if (user) await updateUser(user, auth);
-      setIsLoading(false);
-      router.push("/lists");
-    } catch (err) {
-      setIsLoading(false);
-      if (typeof err === "string") {
-        setError(err);
-      } else if (err instanceof FirebaseError) {
-        setError(err.code);
+      if (result?.error) {
+        setError("Invalid email or password");
+        setIsLoading(false);
+      } else {
+        setIsLoading(false);
+        router.push("/lists");
       }
+    } catch (err: any) {
+      setIsLoading(false);
+      setError(err.message || "An error occurred");
     }
 
     return null;
@@ -117,7 +113,7 @@ const SignInWithEmail = ({
             className={`primary ${styles.signInOptionButton}`}
             type="submit"
           >
-            next
+            Sign-in
           </button>
           <button
             className={styles.signInOptionButton}
@@ -130,7 +126,7 @@ const SignInWithEmail = ({
           </button>
         </form>
       )}
-      {error && <div>Error: {error}</div>}
+      {error && <div style={{ color: "red", marginTop: "1rem" }}>Error: {error}</div>}
     </>
   );
 };

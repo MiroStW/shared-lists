@@ -1,28 +1,10 @@
-import { firebaseAdmin } from "@firebase/firebaseAdmin";
-import { getAuth } from "firebase-admin/auth";
-import { cookies } from "next/headers";
+import { getServerSession as getNextAuthSession } from "next-auth/next";
+import { authOptions } from "./authOptions";
 
-export const getAdminAuth = () => {
-  if (!firebaseAdmin) {
-    throw new Error("Firebase Admin not initialized");
-  }
-  return getAuth(firebaseAdmin);
-};
-
-const getServerSession = async () => {
-  const sessionCookie = (await cookies()).get("__session")?.value;
-  if (sessionCookie) {
-    try {
-      const { uid } = await getAdminAuth().verifySessionCookie(sessionCookie);
-      if (uid) {
-        const user = await getAdminAuth().getUser(uid);
-
-        return { user };
-      }
-    } catch (error) {
-      console.log("verifySession error: ", error);
-      return { error };
-    }
+export const getServerSession = async () => {
+  const session = await getNextAuthSession(authOptions);
+  if (session?.user) {
+    return { user: session.user };
   }
   return { error: "No user found" };
 };

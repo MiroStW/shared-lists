@@ -23,9 +23,10 @@ const ListHeader = ({
     container: AdminList | Section;
     children: React.ReactNode;
   }) => {
-    const type = container.ref.parent.id === "lists" ? "list" : "section";
+    // A section has a 'listID' property; a list does not.
+    const type = "listID" in container ? "section" : "list";
     const { setNodeRef } = useDroppable({
-      id: container.ref.id,
+      id: container.id,
       data: {
         type,
         element: container,

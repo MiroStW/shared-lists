@@ -1,6 +1,6 @@
 import { defaultCache } from "@serwist/next/worker";
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
-import { Serwist, NetworkFirst, ExpirationPlugin } from "serwist";
+import { Serwist, NetworkFirst, ExpirationPlugin, CacheFirst } from "serwist";
 
 // This declares the value of `injectionPoint` to typescript.
 // `injectionPoint` is the string that will be replaced by the actual precache list.
@@ -26,6 +26,20 @@ const serwist = new Serwist({
         plugins: [
           new ExpirationPlugin({
             maxEntries: 50,
+            maxAgeSeconds: 60 * 60 * 24 * 30, // 30 Days
+          }),
+        ],
+      }),
+    },
+    {
+      matcher: ({ request }: { request: Request }) =>
+        request.destination === "image" ||
+        request.url.includes("googleusercontent.com"),
+      handler: new NetworkFirst({
+        cacheName: "images",
+        plugins: [
+          new ExpirationPlugin({
+            maxEntries: 60,
             maxAgeSeconds: 60 * 60 * 24 * 30, // 30 Days
           }),
         ],

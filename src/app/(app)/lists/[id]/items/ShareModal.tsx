@@ -1,11 +1,7 @@
 import { Modal } from "app/shared/Modal";
 import { useClientSession } from "app/sessionContext";
-import { createInviteData } from "db/factory";
-import { invites } from "db/useDb";
-import { addDoc } from "firebase/firestore";
 import { Dispatch, SetStateAction, useState } from "react";
 import { AdminList } from "types/types";
-import { User } from "firebase/auth";
 
 const ShareModal = ({
   list,
@@ -14,13 +10,26 @@ const ShareModal = ({
   list: AdminList;
   setShowShareModal: Dispatch<SetStateAction<boolean>>;
 }) => {
-  const { user } = useClientSession() as unknown as { user: User };
+  const { user } = useClientSession();
   const [email, setEmail] = useState("");
-  const handleShare = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleShare = async (e: React.FormEvent) => {
     e.preventDefault();
     if (user && email) {
-      addDoc(invites, createInviteData(user, email, list));
-      setShowShareModal(false);
+      setIsLoading(true);
+      try {
+        await fetch("/api/invites", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ inviteeEmail: email, listId: list.id }),
+        });
+        setShowShareModal(false);
+      } catch (err) {
+        console.error("Failed to share:", err);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -29,17 +38,17 @@ const ShareModal = ({
       setOpenModal={setShowShareModal}
       title={`Who do you want to share ${list.data.name} with?`}
     >
-      {/* TODO: add validation */}
-      <form>
+      <form onSubmit={handleShare}>
         <label htmlFor="inviteeEmail">E-Mail:</label>
         <input
           autoFocus
           type="text"
           name="inviteeEmail"
           placeholder="share@with.me"
+          value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <input type="submit" value="Submit" onClick={handleShare} />
+        <input type="submit" value={isLoading ? "Sharing..." : "Submit"} disabled={isLoading} />
       </form>
     </Modal>
   );

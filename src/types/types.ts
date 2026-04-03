@@ -1,104 +1,69 @@
-/* eslint-disable max-classes-per-file */
-import { DocumentReference, Timestamp } from "firebase/firestore";
-// eslint-disable-next-line import/no-unresolved
-import * as admin from "firebase-admin/firestore";
+export interface UserData {
+  id: string;
+  name?: string | null;
+  email: string;
+  image?: string | null;
+}
 
 export interface ListData {
+  id: string;
   name: string;
   isArchived: boolean;
-  createdDate: Timestamp | admin.Timestamp;
+  createdDate: Date | string;
   ownerID: string;
-  contributors?: string[];
-}
-
-export class List {
-  readonly ref: DocumentReference<ListData>;
-
-  readonly data: ListData;
-
-  constructor(ref: DocumentReference<ListData>, data: ListData) {
-    this.ref = ref;
-    this.data = data;
-  }
-}
-
-export class AdminList {
-  readonly ref: admin.DocumentReference<ListData>;
-
-  readonly data: ListData;
-
-  constructor(ref: admin.DocumentReference<ListData>, data: ListData) {
-    this.ref = ref;
-    this.data = data;
-  }
+  owner?: UserData;
+  contributors?: UserData[];
 }
 
 export interface SectionData {
+  id: string;
   name: string;
-  createdDate: Timestamp | admin.Timestamp;
-  authorizedUsers: string[];
-}
-
-export class Section {
-  readonly ref: DocumentReference<SectionData>;
-
-  readonly data: SectionData;
-
-  constructor(ref: DocumentReference<SectionData>, data: SectionData) {
-    this.ref = ref;
-    this.data = data;
-  }
+  createdDate: Date | string;
+  listId: string;
 }
 
 export interface ItemData {
+  id: string;
   name: string;
   completed: boolean;
   description: string;
-  createdDate: Timestamp | admin.Timestamp;
-  authorizedUsers: string[];
+  createdDate: Date | string;
   order: number;
-  list: string;
-}
-
-export class Item {
-  readonly ref: DocumentReference<ItemData> | DocumentReference;
-
-  readonly data: ItemData;
-
-  constructor(ref: DocumentReference<ItemData>, data: ItemData) {
-    this.ref = ref;
-    this.data = data;
-  }
+  listID: string;
+  sectionID?: string | null;
 }
 
 export interface InviteData {
+  id: string;
   inviterID: string;
   inviterName: string;
   inviteeEmail: string;
   listID: string;
   listName: string;
   status: "pending" | "accepted" | "declined";
-  createdDate: Timestamp | admin.Timestamp;
+  createdDate: Date | string;
 }
 
-export class Invite {
-  readonly ref: DocumentReference<InviteData>;
+// Compatibility types to minimize refactoring effort in components
+export type List = {
+  id: string;
+  data: ListData;
+};
 
-  readonly data: InviteData;
+export type Section = {
+  id: string;
+  data: SectionData;
+};
 
-  constructor(ref: DocumentReference<InviteData>, data: InviteData) {
-    this.ref = ref;
-    this.data = data;
-  }
-}
+export type Item = {
+  id: string;
+  data: ItemData;
+};
 
-export class AdminInvite {
-  readonly ref: admin.DocumentReference<InviteData>;
+export type Invite = {
+  id: string;
+  data: InviteData;
+};
 
-  readonly data: InviteData;
-
-  constructor(ref: admin.DocumentReference<InviteData>, data: InviteData) {
-    this.ref = ref;
-    this.data = data;
-  }
-}
+export type AdminList = List;
+export type AdminInvite = Invite;

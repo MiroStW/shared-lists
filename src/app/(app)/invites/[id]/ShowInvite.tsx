@@ -1,11 +1,7 @@
 "use client";
 
-import { doc, updateDoc } from "firebase/firestore";
-import { httpsCallable } from "firebase/functions";
 import { useRouter } from "next/navigation";
 import { AdminInvite } from "types/types";
-import { db } from "db/useDb";
-import { functions } from "@firebase/firebase";
 import { useState } from "react";
 
 const ShowInvite = ({ invite }: { invite: AdminInvite }) => {
@@ -16,23 +12,27 @@ const ShowInvite = ({ invite }: { invite: AdminInvite }) => {
   const handleJoinList = async (response: boolean) => {
     if (invite && response) {
       setLoading(true);
+      setError(null);
 
-      const addAuthorizedUser = httpsCallable(functions, "addauthorizeduser");
       try {
-        await addAuthorizedUser({ listId: invite.data.listID });
-        updateDoc(doc(db, invite.ref.path), {
-          status: response ? "accepted" : "declined",
+        const res = await fetch(`/api/invites/${invite.id}/accept`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" }
         });
-        router.push(`/lists/${invite?.data.listID}`);
-      } catch (err: unknown) {
-        if (typeof err === "string") {
-          setError(err);
-        } else if (err instanceof Error) {
-          setError(err.message);
-          setLoading(false);
+
+        if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.error || "Failed to join list");
         }
+
+        router.push(`/lists/${invite.data.listID}`);
+      } catch (err: any) {
+        setError(err.message);
+        setLoading(false);
       }
-    } else router.push("/lists");
+    } else {
+        router.push("/lists");
+    }
   };
 
   return (

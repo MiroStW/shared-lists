@@ -1,14 +1,6 @@
 "use client";
 
 import {
-  doc,
-  FirestoreError,
-  onSnapshot,
-  orderBy,
-  query,
-  where,
-} from "firebase/firestore";
-import {
   createContext,
   Dispatch,
   ReactNode,
@@ -17,10 +9,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { AdminList, Item as ItemType, Section } from "types/types";
-import { db, items as itemsCol, sectionsOfList } from "db/useDb";
-import { createItemData } from "db/factory";
-import { itemConverter, sectionConverter } from "db/firestoreConverter";
+import { AdminList, Item as ItemType, Section, ItemData } from "types/types";
 
 interface ItemsContextType {
   items: ItemType[];
@@ -36,7 +25,8 @@ interface ItemsContextType {
     order?: number;
   }) => void;
   loading: boolean;
-  error?: FirestoreError;
+  error?: any;
+  refreshItems: () => void;
 }
 
 const itemsContext = createContext({} as ItemsContextType);
@@ -51,127 +41,84 @@ export const ItemsContextProvider = ({
   list: AdminList;
 }) => {
   const [items, setItems] = useState<ItemType[]>([]);
-  const [loadingItems, setLoadingItems] = useState(true);
-  const [errorItems, setErrorItems] = useState<FirestoreError | undefined>(
-    undefined
-  );
-
   const [sections, setSections] = useState<Section[]>([]);
-  const [loadingSections, setLoadingSections] = useState(true);
-  const [errorSections, setErrorSections] = useState<
-    FirestoreError | undefined
-  >(undefined);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<any>(undefined);
 
   const [localItems, setLocalItems] = useState<{
     [key: string]: ItemType[];
   }>({});
 
-  const getItems = () => {
-    const itemsQuery = query(
-      itemsCol,
-      where("list", "==", list.ref.id),
-      // orderBy(documentId()),
-      // startAt(list.ref.path),
-      // endAt(`${list.ref.path}\uf8ff`) // hack to get all subcollections of list
-      where("authorizedUsers", "array-contains", userId),
-      orderBy("order", "asc")
-    ).withConverter(itemConverter);
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const [itemsRes, sectionsRes] = await Promise.all([
+        fetch(`/api/lists/${list.id}/items`),
+        fetch(`/api/lists/${list.id}/sections`)
+      ]);
 
-    const unsubscribe = onSnapshot(
-      itemsQuery,
-      { includeMetadataChanges: true },
-      async (snapshot) => {
-        const itemsnapshot: ItemType[] = [];
-        setLoadingItems(true);
-        snapshot.forEach((item) => {
-          itemsnapshot.push(item.data());
-        });
-        setItems(itemsnapshot);
-        setLoadingItems(false);
-      },
-      (err) => {
-        setErrorItems(err);
-        setLoadingItems(false);
-      }
-    );
-    return unsubscribe;
-  };
+      if (!itemsRes.ok || !sectionsRes.ok) throw new Error("Failed to fetch items or sections");
 
-  const getSections = () => {
-    const sectionsQuery = query(
-      sectionsOfList(list),
-      where("authorizedUsers", "array-contains", userId)
-    ).withConverter(sectionConverter);
+      const itemsData: ItemData[] = await itemsRes.json();
+      const sectionsData: any[] = await sectionsRes.json();
 
-    const unsubscribe = onSnapshot(
-      sectionsQuery,
-      { includeMetadataChanges: true },
-      async (snapshot) => {
-        const sectionSnapshot: Section[] = [];
-        setLoadingSections(true);
-        snapshot.forEach((section) => {
-          sectionSnapshot.push(section.data());
-        });
-        setSections(sectionSnapshot);
-        setLoadingSections(false);
-      },
-      (err) => {
-        setErrorSections(err);
-        setLoadingSections(false);
-      }
-    );
-    return unsubscribe;
+      const mappedItems = itemsData.map(d => ({ id: d.id, data: d }));
+      const mappedSections = sectionsData.map(d => ({ id: d.id, data: d }));
+
+      setItems(mappedItems);
+      setSections(mappedSections);
+      setError(undefined);
+    } catch (err) {
+      console.error("fetchData error: ", err);
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    const unsubscribeItems = getItems();
-    const unsubscribeSections = getSections();
-    return () => {
-      unsubscribeItems();
-      unsubscribeSections();
-    };
-  }, []);
+    fetchData();
+  }, [list.id]);
 
   // update localItems when items or sections change
   useEffect(() => {
     if (items) {
-      // get newItems that have not been saved to db yet, to persist them in localItems
       const newItems = Object.keys(localItems).reduce(
         (acc, container) => [
           ...acc,
           ...localItems[container].filter((item) =>
-            item.ref.id.startsWith("newItem_")
+            item.id.startsWith("newItem_")
           ),
         ],
         [] as ItemType[]
       );
 
-      const updatedLocalItems = {
-        [list.ref.id]: items
+      const updatedLocalItems: { [key: string]: ItemType[] } = {
+        [list.id]: items
           ?.concat(newItems)
-          .filter((item) => item.ref.parent.parent?.id === list.ref.id)
+          .filter((item) => item.data.listID === list.id && !item.data.sectionID)
           .sort((a, b) => a.data.order - b.data.order),
       };
 
       sections.forEach((section) => {
-        updatedLocalItems[section.ref.id] = items
+        updatedLocalItems[section.id] = items
           ? items
               .concat(newItems)
-              .filter((item) => item.ref.parent.parent?.id === section.ref.id)
+              .filter((item) => item.data.sectionID === section.id)
               .sort((a, b) => a.data.order - b.data.order)
           : [];
       });
 
       setLocalItems(updatedLocalItems);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, sections]);
 
   const deleteLocalItem = (item: ItemType) => {
-    // delete item from localItems if name is empty & update order of other items
+    const containerId = item.data.sectionID || list.id;
     setLocalItems((prev) => {
-      const filteredItems = prev[item.ref.parent.parent!.id].filter(
-        (i) => i.ref.id !== item.ref.id
+      const filteredItems = prev[containerId].filter(
+        (i) => i.id !== item.id
       );
 
       const reorderedItems = filteredItems.map((i, index) => {
@@ -186,43 +133,39 @@ export const ItemsContextProvider = ({
 
       return {
         ...prev,
-        [item.ref.parent.parent!.id]: reorderedItems,
+        [containerId]: reorderedItems,
       };
     });
   };
 
   const addLocalItem = ({
     sectionId,
-    order = localItems[sectionId || list.ref.id].length,
+    order = localItems[sectionId || list.id]?.length || 0,
   }: {
     sectionId?: string;
     order?: number;
   }) => {
-    const newItem = {
-      ref: doc(
-        db,
-        sectionId
-          ? `lists/${list.ref.id}/sections/${sectionId}/items`
-          : `lists/${list.ref.id}/items`,
-        `newItem_${new Date().getTime()}`
-      ),
-      data: createItemData({
+    const containerId = sectionId || list.id;
+    const newItem: ItemType = {
+      id: `newItem_${new Date().getTime()}`,
+      data: {
+        id: "",
         name: "",
-        authorizedUsers: list.data.contributors
-          ? [list.data.ownerID, ...list.data.contributors]
-          : [list.data.ownerID],
-        list,
+        completed: false,
+        description: "",
+        createdDate: new Date().toISOString(),
         order,
-      }),
+        listID: list.id,
+        sectionID: sectionId || null,
+      }
     };
 
-    // add new item locally & update order of other items
     setLocalItems((prev) => ({
       ...prev,
-      [sectionId || list.ref.id]: [
-        ...prev[sectionId || list.ref.id].slice(0, order),
+      [containerId]: [
+        ...(prev[containerId] || []).slice(0, order),
         newItem,
-        ...prev[sectionId || list.ref.id].slice(order).map((i) => {
+        ...(prev[containerId] || []).slice(order).map((i) => {
           return {
             ...i,
             data: {
@@ -244,8 +187,9 @@ export const ItemsContextProvider = ({
         setLocalItems,
         deleteLocalItem,
         addLocalItem,
-        loading: loadingItems || loadingSections,
-        error: errorItems || errorSections,
+        loading,
+        error,
+        refreshItems: fetchData,
       }}
     >
       {children}

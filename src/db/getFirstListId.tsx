@@ -1,26 +1,33 @@
-import { adminDb } from "@firebase/firebaseAdmin";
-import { createAdminListData } from "./adminFactory";
-import getServerSession from "auth/getServerSession";
+import { prisma } from "./prisma";
+import getServerSession from "../auth/getServerSession";
 
 export const getFirstListId = async () => {
-  const { user } = await getServerSession();
-  if (user) {
-    const snapshot = await adminDb()
-      .collection("lists")
-      .where("ownerID", "==", user.uid)
-      .where("isArchived", "==", false)
-      .orderBy("createdDate", "asc")
-      .limit(1)
-      .get();
-    if (snapshot.empty) {
-      const newList = await adminDb()
-        .collection("lists")
-        .add(createAdminListData("my first list", user.uid));
+  const session = await getServerSession();
+  const userId = session?.user?.id;
+
+  if (userId) {
+    const list = await prisma.list.findFirst({
+      where: {
+        ownerID: userId,
+        isArchived: false,
+      },
+      orderBy: {
+        createdDate: "asc",
+      },
+    });
+
+    if (!list) {
+      const newList = await prisma.list.create({
+        data: {
+          name: "my first list",
+          ownerID: userId,
+        },
+      });
 
       return newList.id;
     }
 
-    return snapshot.docs[0].id;
+    return list.id;
   }
   return null;
 };
