@@ -1,0 +1,153 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String?
+  accounts      Account[]
+  sessions      Session[]
+
+  ownedLists       List[]   @relation("ListOwner")
+  contributedLists List[]   @relation("ListContributors")
+  sentInvites      Invite[] @relation("InviteSender")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model List {
+  id          String   @id @default(cuid())
+  name        String
+  isArchived  Boolean  @default(false)
+  createdDate DateTime @default(now())
+  ownerID     String
+  owner       User     @relation("ListOwner", fields: [ownerID], references: [id], onDelete: Cascade)
+
+  contributors User[]    @relation("ListContributors")
+  items        Item[]
+  sections     Section[]
+  invites      Invite[]
+}
+
+model Section {
+  id          String   @id @default(cuid())
+  name        String
+  createdDate DateTime @default(now())
+  listId      String
+  list        List     @relation(fields: [listId], references: [id], onDelete: Cascade)
+  items       Item[]
+}
+
+model Item {
+  id          String   @id @default(cuid())
+  name        String
+  completed   Boolean  @default(false)
+  description String   @default("")
+  createdDate DateTime @default(now())
+  order       Int      @default(0)
+
+  listID    String
+  list      List     @relation(fields: [listID], references: [id], onDelete: Cascade)
+  sectionID String?
+  section   Section? @relation(fields: [sectionID], references: [id], onDelete: Cascade)
+
+  normalized String      @default("")
+  aliases    ItemAlias[]
+}
+
+model Invite {
+  id           String   @id @default(cuid())
+  inviterID    String
+  inviterName  String
+  inviteeEmail String
+  listID       String
+  listName     String
+  status       String   @default("pending") // "pending", "accepted", "declined"
+  createdDate  DateTime @default(now())
+
+  inviter User @relation("InviteSender", fields: [inviterID], references: [id], onDelete: Cascade)
+  list    List @relation(fields: [listID], references: [id], onDelete: Cascade)
+}
+
+model ItemAlias {
+  id          String   @id @default(cuid())
+  itemId      String
+  alias       String
+  normalized  String
+  locale      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, normalized])
+}
+
+model ItemUpdateLog {
+  id              String   @id @default(cuid())
+  listId          String
+  itemId          String?
+  source          String
+  action          String
+  rawInput        String
+  normalizedInput String
+  matchConfidence Float?
+  createdAt       DateTime @default(now())
+}
