@@ -1,0 +1,137 @@
+.searchBar {
+  position: fixed;
+  bottom: 90px; /* Stacked above add button (30 + 50 + 10 gap) */
+  right: 15px; /* Same as add button */
+  z-index: 100;
+  transition: all 0.25s ease-out;
+}
+
+.searchBar.expanded {
+  left: 15px;
+  right: 15px;
+  bottom: 20px;
+}
+
+/* Collapsed state - search button */
+.searchButton {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  border: none;
+  border-radius: 25px;
+  background-color: #5f6368;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.searchButton:hover {
+  background-color: #6b7075;
+}
+
+.searchButton:active {
+  background-color: #505459;
+}
+
+/* Expanded state - input container */
+.inputContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background-color: rgba(32, 33, 36, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid #5f6368;
+  border-radius: 20px;
+  animation: expandIn 0.25s ease-out;
+}
+
+@keyframes expandIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.searchInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 16px;
+  min-width: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Hide Safari/Chrome search input clear button (we have our own) */
+.searchInput::-webkit-search-cancel-button,
+.searchInput::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.searchInput::placeholder {
+  color: #9aa0a6;
+}
+
+.closeButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 6px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: #9aa0a6;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.closeButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* Hide add button when search is expanded */
+.searchBar.expanded ~ button,
+.searchBar.expanded + button {
+  display: none;
+}
+
+/* Ensure input container icons are styled consistently */
+.inputContainer > span {
+  color: #9aa0a6;
+  flex-shrink: 0;
+}
+
+/* Mobile adjustments */
+@media (max-width: 500px) {
+  .searchBar {
+    right: 15px;
+    bottom: 90px; /* Same spacing as desktop */
+  }
+
+  .searchBar.expanded {
+    left: 10px;
+    right: 10px;
+    bottom: 15px;
+  }
+
+  .inputContainer {
+    padding: 6px 10px;
+    border-radius: 18px;
+  }
+
+  .searchInput {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+}
