@@ -5,7 +5,7 @@ services:
     build: .
     container_name: shared-lists-web
     ports:
-      - "3000:3000"
+      - "3005:3000"
     restart: unless-stopped
     env_file:
       - .env

@@ -2,7 +2,6 @@ Dockerfile
 .dockerignore
 node_modules
 npm-debug.log
-bun.lockb
 pnpm-lock.yaml
 yarn.lock
 README.md
