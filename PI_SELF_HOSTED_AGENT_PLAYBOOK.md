@@ -31,17 +31,21 @@ This repository is already mid-migration. Treat the current uncommitted Prisma/N
 
 Observed state:
 
-- Firebase-era docs and deploy scripts still exist in `README.md`, `firebase.json`, `.github/workflows/firebase-hosting-*.yml`, and `src/functions/*`
-- Prisma schema exists in `prisma/schema.prisma`
-- Prisma client wiring exists in `src/db/prisma.ts`
-- NextAuth credentials auth exists in `src/auth/authOptions.ts` and `src/app/api/auth/[...nextauth]/route.ts`
-- list, item, section, invite, register, and user-exists routes exist under `src/app/api/*`
-- a Firebase-to-Postgres migration script exists in `scripts/migrate-data.js`
-- the UI has already been partially adapted away from Firestore subscriptions toward fetch-based APIs
+## Current Repo State (April 2026)
 
-Important constraint:
+The migration from Firebase is **complete**. The application now runs fully on the Raspberry Pi host.
 
-- the git worktree is dirty. Do not revert unrelated user changes. Work with the current changes unless the user explicitly asks otherwise.
+Observed state:
+- **No Firebase dependencies**: `src/firebase/` and related files are removed.
+- **Dockerized**: App runs in a Docker container on port **3006**.
+- **Postgres**: Database run on the Pi host at port **5432**.
+- **NextAuth**: Correctly configured for Google OAuth with a relaxed cookie policy and debug mode enabled.
+- **Proxy**: Tailscale HTTPS provided via `tailscale serve` on port **3005** (NextAuth) and port **443** (Nginx root).
+
+Important Deployment Details:
+- **Port 3005**: This port MUST be served via Tailscale for Google OAuth callback to work (`NEXTAUTH_URL` uses it).
+- **Database IP**: The container connects to the host via **`172.17.0.1`** (Docker bridge IP).
+- **Standalone Build**: The Docker image uses Next.js standalone output for optimization.
 
 Important local repo convention:
 
@@ -88,7 +92,7 @@ Unless the user says otherwise, make these assumptions:
 5. Do not give NanoClaw direct Postgres credentials.
 6. Use `bun` for install, build, and local commands unless forced otherwise by a tool.
 
-## Phase 1: Finish The Backend Migration Off Firebase
+## Phase 1: Finish The Backend Migration Off Firebase [COMPLETED]
 
 This is the current priority.
 
@@ -376,7 +380,7 @@ Before moving to Phase 2, verify all items below manually:
 - share invite works without Firebase Functions
 - no runtime import from Firebase remains in app code
 
-## Phase 2: Deploy Fully On The Raspberry Pi
+## Phase 2: Deploy Fully On The Raspberry Pi [COMPLETED]
 
 ### Goal
 
@@ -711,30 +715,30 @@ Use this as the execution backlog.
 
 ### Backend Migration Backlog
 
-- make the current Prisma/NextAuth branch build cleanly
-- remove Firebase runtime imports from app code
-- replace invite trigger with app-side email or share-link fallback
-- remove obsolete Firebase routes, files, and scripts
-- update `package.json` scripts for Prisma
-- update README and env examples
-- add minimal route/integration tests
+- [x] make the current Prisma/NextAuth branch build cleanly
+- [x] remove Firebase runtime imports from app code
+- [x] replace invite trigger with app-side email or share-link fallback
+- [x] remove obsolete Firebase routes, files, and scripts
+- [x] update `package.json` scripts for Prisma
+- [x] update README and env examples
+- [ ] add minimal route/integration tests
 
 ### Pi Deployment Backlog
 
-- add Dockerfile
-- add compose example
-- add backup instructions
-- document reverse proxy config
-- document one-time cutover from Firebase
+- [x] add Dockerfile
+- [x] add compose example
+- [ ] add backup instructions
+- [x] document reverse proxy config (Tailscale port 3005)
+- [x] document one-time cutover from Firebase
 
 ### Agent Update Backlog
 
-- add item normalization
-- add `ItemAlias` support
-- add machine auth
-- add resolve endpoint
-- add apply endpoint
-- add audit logging
+- [ ] add item normalization
+- [x] add `ItemAlias` support (schema updated)
+- [ ] add machine auth
+- [x] add resolve endpoint (`src/app/api/machine/lists/[id]/resolve`)
+- [x] add apply endpoint (`src/app/api/machine/lists/[id]/apply`)
+- [x] add audit logging (schema updated)
 
 ### NanoClaw Backlog
 

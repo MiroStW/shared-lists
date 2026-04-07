@@ -1,10 +1,17 @@
-const { prisma } = require("../src/db/prisma");
+const { PrismaClient } = require("@prisma/client");
+const { PrismaPg } = require("@prisma/adapter-pg");
+const pg = require("pg");
+
+const connectionString = process.env.DATABASE_URL || "postgresql://postgres:29e570f9c0fee0806806619d63a5dd1b@127.0.0.1:5432/shared_lists?sslmode=disable";
+const pool = new pg.Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 const admin = require("firebase-admin");
 const { readFileSync } = require("fs");
 
 // Initialize Firebase Admin
 // Make sure to set GOOGLE_APPLICATION_CREDENTIALS or have firebase-adminsdk.json in place
-const serviceAccount = JSON.parse(readFileSync("./firebase-adminsdk.json", "utf8"));
+const serviceAccount = JSON.parse(readFileSync("./.firebase-adminsdk.json", "utf8"));
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
@@ -47,22 +54,23 @@ async function migrate() {
     const data = listDoc.data();
     console.log(`Migrating list: ${data.name}`);
 
-    await prisma.list.upsert({
-      where: { id: listDoc.id },
-      update: {
-        name: data.name,
-        isArchived: data.isArchived || false,
-        createdDate: data.createdDate.toDate(),
-        ownerID: data.ownerID,
-      },
-      create: {
-        id: listDoc.id,
-        name: data.name,
-        isArchived: data.isArchived || false,
-        createdDate: data.createdDate.toDate(),
-        ownerID: data.ownerID,
-      },
-    });
+    try {
+      await prisma.list.upsert({
+        where: { id: listDoc.id },
+        update: {
+          name: data.name,
+          isArchived: data.isArchived || false,
+          createdDate: data.createdDate.toDate(),
+          ownerID: data.ownerID,
+        },
+        create: {
+          id: listDoc.id,
+          name: data.name,
+          isArchived: data.isArchived || false,
+          createdDate: data.createdDate.toDate(),
+          ownerID: data.ownerID,
+        },
+      });
 
     // Handle contributors (Many-to-Many)
     if (data.contributors && Array.isArray(data.contributors)) {
@@ -157,34 +165,41 @@ async function migrate() {
         },
       });
     }
+    } catch (e) {
+      console.warn(`  ⚠ Skipping list "${data.name}" (${listDoc.id}): ${e.message}`);
+    }
   }
 
   // 5. Migrate Invites
   const invitesSnapshot = await db.collection("invites").get();
   for (const inviteDoc of invitesSnapshot.docs) {
     const invData = inviteDoc.data();
-    await prisma.invite.upsert({
-      where: { id: inviteDoc.id },
-      update: {
-        inviterID: invData.inviterID,
-        inviterName: invData.inviterName,
-        inviteeEmail: invData.inviteeEmail,
-        listID: invData.listID,
-        listName: invData.listName,
-        status: invData.status,
-        createdDate: invData.createdDate.toDate(),
-      },
-      create: {
-        id: inviteDoc.id,
-        inviterID: invData.inviterID,
-        inviterName: invData.inviterName,
-        inviteeEmail: invData.inviteeEmail,
-        listID: invData.listID,
-        listName: invData.listName,
-        status: invData.status,
-        createdDate: invData.createdDate.toDate(),
-      },
-    });
+    try {
+      await prisma.invite.upsert({
+        where: { id: inviteDoc.id },
+        update: {
+          inviterID: invData.inviterID,
+          inviterName: invData.inviterName,
+          inviteeEmail: invData.inviteeEmail,
+          listID: invData.listID,
+          listName: invData.listName,
+          status: invData.status,
+          createdDate: invData.createdDate.toDate(),
+        },
+        create: {
+          id: inviteDoc.id,
+          inviterID: invData.inviterID,
+          inviterName: invData.inviterName,
+          inviteeEmail: invData.inviteeEmail,
+          listID: invData.listID,
+          listName: invData.listName,
+          status: invData.status,
+          createdDate: invData.createdDate.toDate(),
+        },
+      });
+    } catch (e) {
+      console.warn(`  ⚠ Skipping invite ${inviteDoc.id}: ${e.message}`);
+    }
   }
 
   console.log("Migration completed!");
