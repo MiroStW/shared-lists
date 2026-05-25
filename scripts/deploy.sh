@@ -11,8 +11,8 @@ echo "🚀 Deploying shared-lists to $SSH_TARGET..."
 
 ssh $SSH_TARGET "bash -s" << EOF
   set -e
-  echo "📁 Navigating to \$DEPLOY_DIR..."
-  cd \$DEPLOY_DIR || { echo "Directory not found!"; exit 1; }
+  echo "📁 Navigating to $DEPLOY_DIR..."
+  cd $DEPLOY_DIR || { echo "Directory not found!"; exit 1; }
 
   echo "⬇️ Pulling latest changes from git..."
   git pull origin main
