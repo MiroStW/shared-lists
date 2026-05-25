@@ -5,7 +5,7 @@ set -e
 # Configuration
 SSH_TARGET="miro@skynet"
 # Update this path if the app is located elsewhere on Skynet
-DEPLOY_DIR="/home/miro/stack/shared-lists"
+DEPLOY_DIR="/srv/stack/compose/shared-lists"
 
 echo "🚀 Deploying shared-lists to $SSH_TARGET..."
 
