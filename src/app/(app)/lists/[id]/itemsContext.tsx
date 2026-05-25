@@ -49,8 +49,8 @@ export const ItemsContextProvider = ({
     [key: string]: ItemType[];
   }>({});
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       const [itemsRes, sectionsRes] = await Promise.all([
         fetch(`/api/lists/${list.id}/items`),
@@ -189,7 +189,7 @@ export const ItemsContextProvider = ({
         addLocalItem,
         loading,
         error,
-        refreshItems: fetchData,
+        refreshItems: () => fetchData(false),
       }}
     >
       {children}
