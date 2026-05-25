@@ -8,7 +8,7 @@
     "build": "next build --webpack && tsc",
     "start": "next start",
     "lint": "next lint",
-    "deploy": "firebase deploy --only functions,hosting"
+    "deploy": "./scripts/deploy.sh"
   },
   "main": "src/functions/firebaseFunctions.js",
   "engine": {
