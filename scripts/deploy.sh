@@ -10,7 +10,7 @@ echo "🚀 Deploying shared-lists to $SSH_TARGET..."
 
 echo "📦 Syncing files to Skynet..."
 # We use rsync because the remote directory doesn't seem to be a git repository.
-rsync -avz --exclude "node_modules" --exclude ".git" --exclude ".next" --exclude "build" ./ "$SSH_TARGET:$DEPLOY_DIR/"
+rsync -avz --exclude "node_modules" --exclude ".git" --exclude ".next" --exclude "build" --exclude ".env" --exclude ".env.local" ./ "$SSH_TARGET:$DEPLOY_DIR/"
 
 echo "🔨 Rebuilding and restarting Docker containers..."
 ssh "$SSH_TARGET" "bash -s" << EOF
