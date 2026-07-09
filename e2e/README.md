@@ -2,8 +2,9 @@
 
 These tests use a deterministic local user, list, and item.
 
-1. Copy `.env.e2e.example` to `.env.e2e` if you want to override defaults.
-2. Make sure `DATABASE_URL` points at a disposable local database.
+1. Copy `.env.e2e.example` to `.env.e2e`.
+2. Set `E2E_DATABASE_URL` to a disposable database that is reachable from your host machine.
+   If your app `.env` uses `172.17.0.1`, override it here with a host-reachable address such as `localhost`.
 3. Install Playwright's browser once:
 
    ```sh

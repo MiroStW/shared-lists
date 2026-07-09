@@ -30,9 +30,24 @@ loadEnvFile(".env");
 loadEnvFile(".env.local", { override: true });
 loadEnvFile(".env.e2e", { override: true });
 
-const databaseUrl = process.env.DATABASE_URL;
+const databaseUrl = process.env.E2E_DATABASE_URL || process.env.DATABASE_URL;
 if (!databaseUrl) {
-  throw new Error("DATABASE_URL is required to seed E2E data");
+  throw new Error("E2E_DATABASE_URL or DATABASE_URL is required to seed E2E data");
+}
+
+const parsedDatabaseUrl = new URL(databaseUrl);
+if (
+  process.platform === "darwin" &&
+  parsedDatabaseUrl.hostname === "172.17.0.1" &&
+  !process.env.E2E_DATABASE_URL
+) {
+  throw new Error(
+    [
+      "DATABASE_URL points to 172.17.0.1, which is a Docker bridge address and is not reachable from macOS host-side E2E runs.",
+      "Create .env.e2e with a host-reachable database URL, for example:",
+      'E2E_DATABASE_URL="postgresql://user:password@localhost:5432/shared_lists"',
+    ].join("\n"),
+  );
 }
 
 const seed = {
@@ -46,7 +61,10 @@ const seed = {
   itemName: process.env.E2E_ITEM_NAME || "E2E Checkbox Item",
 };
 
-const pool = new pg.Pool({ connectionString: databaseUrl });
+const pool = new pg.Pool({
+  connectionString: databaseUrl,
+  connectionTimeoutMillis: 5_000,
+});
 
 const main = async () => {
   const now = new Date();

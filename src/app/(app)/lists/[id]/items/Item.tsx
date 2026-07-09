@@ -4,6 +4,7 @@ import {
   ChangeEvent,
   FocusEvent,
   KeyboardEvent,
+  MouseEvent,
   useEffect,
   useRef,
   useState,
@@ -107,8 +108,7 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
     refreshItems();
   };
 
-  const toggleComplete = async (e: ChangeEvent<HTMLInputElement>) => {
-    const completed = e.target.checked;
+  const toggleComplete = async (completed: boolean) => {
     const previousCompleted = item.data.completed;
 
     updateLocalItem(item.id, { completed });
@@ -143,6 +143,12 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
     }
   };
 
+  const handleCheckboxClick = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    void toggleComplete(!item.data.completed);
+  };
+
   return (
     <Sortable
       item={item}
@@ -162,9 +168,9 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
                 color: "grey",
               },
             }}
-            onChange={toggleComplete}
+            onChange={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
-            onClick={(e) => e.stopPropagation()}
+            onClick={handleCheckboxClick}
           />
           {inlineEdit || focus ? (
             <TextareaAutosize
