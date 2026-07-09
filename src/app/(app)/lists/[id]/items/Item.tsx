@@ -19,9 +19,16 @@ import { TextareaAutosize } from "@mui/material";
 const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
   const [inlineEdit, setInlineEdit] = useState(false);
   const [itemName, setItemName] = useState(item.data.name);
-  const { deleteLocalItem, addLocalItem, localItems, refreshItems } = useItems();
+  const {
+    deleteLocalItem,
+    addLocalItem,
+    localItems,
+    refreshItems,
+    updateLocalItem,
+  } = useItems();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const divRef = useRef<HTMLDivElement>(null);
+  const completionRequestId = useRef(0);
 
   useEffect(() => {
     if (inlineEdit || focus) {
@@ -68,6 +75,7 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: itemName,
+            completed: item.data.completed,
             sectionID: item.data.sectionID,
             order: item.data.order,
           }),
@@ -99,13 +107,40 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
     refreshItems();
   };
 
-  const toggleComplete = async () => {
-    await fetch(`/api/items/${item.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ completed: !item.data.completed }),
-    });
-    refreshItems();
+  const toggleComplete = async (e: ChangeEvent<HTMLInputElement>) => {
+    const completed = e.target.checked;
+    const previousCompleted = item.data.completed;
+
+    updateLocalItem(item.id, { completed });
+
+    if (item.id.startsWith("newItem_")) {
+      return;
+    }
+
+    const requestId = ++completionRequestId.current;
+
+    try {
+      const response = await fetch(`/api/items/${item.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ completed }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update item");
+      }
+
+      const updatedItem = await response.json();
+      if (requestId === completionRequestId.current) {
+        updateLocalItem(item.id, updatedItem);
+      }
+    } catch (err) {
+      console.error("Update item completion failed:", err);
+      if (requestId === completionRequestId.current) {
+        updateLocalItem(item.id, { completed: previousCompleted });
+        refreshItems();
+      }
+    }
   };
 
   return (
@@ -128,6 +163,8 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
               },
             }}
             onChange={toggleComplete}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           />
           {inlineEdit || focus ? (
             <TextareaAutosize

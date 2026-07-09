@@ -58,7 +58,7 @@ export async function POST(
 
   try {
     const body = await request.json();
-    const { name, sectionID, order } = body;
+    const { name, completed, sectionID, order } = body;
 
     if (!name) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
@@ -82,6 +82,7 @@ export async function POST(
     const newItem = await prisma.item.create({
       data: {
         name,
+        completed: completed ?? false,
         listID: listId,
         sectionID: sectionID || null,
         order: order || 0,

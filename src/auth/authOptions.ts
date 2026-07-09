@@ -5,6 +5,10 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "db/prisma";
 import bcrypt from "bcrypt";
 
+const useSecureCookies = process.env.NEXTAUTH_URL
+  ? process.env.NEXTAUTH_URL.startsWith("https://")
+  : process.env.NODE_ENV === "production";
+
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   debug: true,
@@ -15,7 +19,7 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: true,
+        secure: useSecureCookies,
       },
     },
     callbackUrl: {
@@ -23,7 +27,7 @@ export const authOptions: NextAuthOptions = {
       options: {
         sameSite: "lax",
         path: "/",
-        secure: true,
+        secure: useSecureCookies,
       },
     },
     csrfToken: {
@@ -32,7 +36,7 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: true,
+        secure: useSecureCookies,
       },
     },
   },

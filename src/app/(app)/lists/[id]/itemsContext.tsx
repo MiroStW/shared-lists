@@ -16,6 +16,7 @@ interface ItemsContextType {
   sections: Section[];
   localItems: { [key: string]: ItemType[] };
   setLocalItems: Dispatch<SetStateAction<{ [key: string]: ItemType[] }>>;
+  updateLocalItem: (id: string, updates: Partial<ItemData>) => void;
   deleteLocalItem: (item: ItemType) => void;
   addLocalItem: ({
     sectionId,
@@ -138,6 +139,29 @@ export const ItemsContextProvider = ({
     });
   };
 
+  const updateLocalItem = (id: string, updates: Partial<ItemData>) => {
+    const updateItem = (item: ItemType): ItemType =>
+      item.id === id
+        ? {
+            ...item,
+            data: {
+              ...item.data,
+              ...updates,
+            },
+          }
+        : item;
+
+    setItems((prev) => prev.map(updateItem));
+    setLocalItems((prev) =>
+      Object.fromEntries(
+        Object.entries(prev).map(([containerId, containerItems]) => [
+          containerId,
+          containerItems.map(updateItem),
+        ]),
+      ),
+    );
+  };
+
   const addLocalItem = ({
     sectionId,
     order = localItems[sectionId || list.id]?.length || 0,
@@ -185,6 +209,7 @@ export const ItemsContextProvider = ({
         sections,
         localItems,
         setLocalItems,
+        updateLocalItem,
         deleteLocalItem,
         addLocalItem,
         loading,
