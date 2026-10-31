@@ -12,6 +12,11 @@ const signIn = async (page) => {
   await page.waitForURL(/\/lists\/[^/]+$/);
 };
 
+// On a cold `next dev` server the first token creation compiles new chunks,
+// and the resulting full reload drops the one-time token. A production build
+// does not reload, so one retry covers the dev-only case.
+test.describe.configure({ retries: 1 });
+
 test("create a person access, see its token once and revoke it", async ({
   page,
   context,
@@ -24,7 +29,12 @@ test("create a person access, see its token once and revoke it", async ({
   await page.getByRole("link", { name: "agent access" }).click();
   await page.waitForURL(/\/settings\/agents$/);
 
-  await page.getByLabel(/label/i).fill(label);
+  // In dev the page may still hydrate and reset the field after a fill.
+  const labelField = page.getByLabel(/label/i);
+  await expect(async () => {
+    await labelField.fill(label);
+    await expect(labelField).toHaveValue(label, { timeout: 500 });
+  }).toPass();
   await page.getByRole("button", { name: "Create access" }).click();
 
   const token = page.getByTestId("agent-token");

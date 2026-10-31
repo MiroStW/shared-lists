@@ -9,7 +9,7 @@ const DEBOUNCE_MS = 300;
 
 type LiveChange = { listIds: string[]; clientId: string | null };
 
-// `null` means the stream reconnected and changes may have been missed.
+// `null` means the stream (re)opened and changes may have been missed.
 type Subscriber = (listIds: string[] | null) => void;
 
 // One EventSource per tab, shared by every hook instance and closed when the
@@ -23,7 +23,6 @@ const notify = (listIds: string[] | null) => {
 
 const openSource = () => {
   const eventSource = new EventSource("/api/events");
-  let hadError = false;
 
   eventSource.addEventListener("change", (event) => {
     let change: LiveChange;
@@ -35,16 +34,10 @@ const openSource = () => {
     if (change.clientId === getClientId()) return;
     notify(change.listIds ?? []);
   });
-  // The browser reconnects by itself after an error. Reload once when it is
-  // back, since changes made in between were not delivered.
-  eventSource.onerror = () => {
-    hadError = true;
-  };
-  eventSource.onopen = () => {
-    if (!hadError) return;
-    hadError = false;
-    notify(null);
-  };
+  // Reload once whenever the stream (re)opens: changes made between the
+  // initial data load and the subscription, or during a reconnect after an
+  // error (the browser reconnects by itself), were not delivered.
+  eventSource.onopen = () => notify(null);
   return eventSource;
 };
 
@@ -61,7 +54,7 @@ const subscribe = (subscriber: Subscriber) => {
 };
 
 // Calls `refresh` (debounced) when another tab, user or agent changed a list
-// for which `affects` returns true, and once after the stream reconnected.
+// for which `affects` returns true, and once each time the stream (re)opens.
 // `refresh` must reload without a loading state so nothing flickers.
 export const useLiveUpdates = (
   affects: (listIds: string[]) => boolean,
