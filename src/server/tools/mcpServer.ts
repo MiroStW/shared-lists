@@ -7,12 +7,16 @@ import { invokeTool, tools } from "./registry";
 const INSTRUCTIONS =
   "Tools for shared shopping and to-do lists. Read lists with list_lists, get_list and find_items. " +
   "Add items with add_items: it matches existing items first and reports ambiguous names instead of creating duplicates. " +
-  "Every call is its own command; undo_last_command takes back the latest one.";
+  "Every call is its own command; undo_last_command takes back the latest one. " +
+  "run_command hands a whole sentence to the list agent instead.";
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
-const jsonResult = (value: unknown, isError = false): CallToolResult => ({
+export const jsonResult = (
+  value: unknown,
+  isError = false,
+): CallToolResult => ({
   content: [{ type: "text", text: JSON.stringify(value) }],
   ...(isPlainObject(value) && !isError ? { structuredContent: value } : {}),
   ...(isError ? { isError: true } : {}),

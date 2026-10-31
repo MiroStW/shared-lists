@@ -1,19 +1,22 @@
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
+import { registerRunCommandTool } from "server/agent/mcpTool";
 import { actorFromAgentRequest } from "server/auth/agentAuth";
 import { UnauthenticatedError } from "server/http/errors";
 import { toolErrorResponse } from "server/tools/errors";
 import { createMcpServer } from "server/tools/mcpServer";
 
-// MCP over Streamable HTTP for Claude Code and other MCP clients (KTD7).
-// Stateless: every POST gets a fresh server and transport, answers with JSON
-// and needs an agent token (`Authorization: Bearer sl_...`); a household
-// access may add `x-acting-user`.
+// MCP over Streamable HTTP for Claude Code and other MCP clients (KTD7):
+// every registry tool plus run_command for sentences. Stateless: every POST
+// gets a fresh server and transport, answers with JSON and needs an agent
+// token (`Authorization: Bearer sl_...`); a household access may add
+// `x-acting-user`.
 export async function POST(request: Request) {
   let server: ReturnType<typeof createMcpServer>;
   try {
     const actor = await actorFromAgentRequest(request, { origin: "tool" });
     if (!actor) throw new UnauthenticatedError();
     server = createMcpServer(actor);
+    registerRunCommandTool(server, actor);
   } catch (error) {
     return toolErrorResponse(error, "MCP authentication error:");
   }

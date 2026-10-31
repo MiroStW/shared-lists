@@ -76,7 +76,7 @@ describe("/api/mcp", () => {
     expect(body.result.capabilities.tools).toBeDefined();
   });
 
-  test("tools/list returns every registry tool with an object schema", async () => {
+  test("tools/list returns every registry tool and run_command with an object schema", async () => {
     const { status, body } = await rpc("tools/list", {});
     expect(status).toBe(200);
     const listed = body.result.tools as {
@@ -85,7 +85,7 @@ describe("/api/mcp", () => {
       inputSchema: { type: string };
     }[];
     expect(listed.map((tool) => tool.name).sort()).toEqual(
-      tools.map((tool) => tool.name).sort(),
+      [...tools.map((tool) => tool.name), "run_command"].sort(),
     );
     for (const tool of listed) {
       expect(tool.description).toBeString();
