@@ -34,18 +34,6 @@ export async function POST(
           data: { completed: false },
         });
 
-        await prisma.itemUpdateLog.create({
-          data: {
-            listId,
-            itemId: op.itemId,
-            source: "machine_api",
-            action: "reopen",
-            rawInput: op.query,
-            normalizedInput: normalizeItemName(op.query),
-            matchConfidence: 1.0, 
-          }
-        });
-
         results.push({ ...op, status: "success" });
       } else if (op.type === "create") {
         const normalized = normalizeItemName(op.name);
@@ -55,17 +43,6 @@ export async function POST(
             name: op.name,
             listID: listId,
             normalized,
-          }
-        });
-
-        await prisma.itemUpdateLog.create({
-          data: {
-            listId,
-            itemId: newItem.id,
-            source: "machine_api",
-            action: "create",
-            rawInput: op.name,
-            normalizedInput: normalized,
           }
         });
 
