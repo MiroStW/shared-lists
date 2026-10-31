@@ -1,24 +1,19 @@
+// Lowercase, trimmed, with single spaces. The plain form for comparing names.
+export const simplifyItemName = (name: string): string =>
+  (name ?? "").toLowerCase().trim().replace(/\s+/g, " ");
+
+// Known bilingual names and common variants, mapped to one canonical form.
+const BILINGUAL_NAMES: Record<string, string> = {
+  koriander: "coriander",
+  erdnussbutter: "peanut butter",
+  frühlingszwiebeln: "spring onions",
+  frühlingszwiebel: "spring onions",
+  "fruhling zwiebeln": "spring onions",
+};
+
+// The stored normalized name: the simplified name, translated when the
+// bilingual table knows it.
 export function normalizeItemName(name: string): string {
-  if (!name) return "";
-
-  // 1. Lowercase
-  let normalized = name.toLowerCase().trim();
-
-  // 2. Collapse whitespace
-  normalized = normalized.replace(/\s+/g, " ");
-
-  // 3. Known bilingual maps or common variants
-  const maps: Record<string, string> = {
-    "koriander": "coriander",
-    "erdnussbutter": "peanut butter",
-    "frühlingszwiebeln": "spring onions",
-    "frühlingszwiebel": "spring onions",
-    "fruhling zwiebeln": "spring onions",
-  };
-
-  if (maps[normalized]) {
-    normalized = maps[normalized];
-  }
-
-  return normalized;
+  const simplified = simplifyItemName(name);
+  return BILINGUAL_NAMES[simplified] ?? simplified;
 }

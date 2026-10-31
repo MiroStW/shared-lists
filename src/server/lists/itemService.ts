@@ -1,4 +1,9 @@
-import type { Item, Prisma } from "@prisma/client";
+import type { Item, ItemAlias, Prisma } from "@prisma/client";
+import {
+  decideAddition,
+  findCandidates,
+  type MatchCandidate,
+} from "server/itemMatching";
 import { normalizeItemName } from "server/itemNormalization";
 import {
   assertItemVisible,
@@ -25,8 +30,18 @@ const requireName = (name: unknown) => {
   }
 };
 
-export const createItem = (
-  ctx: CommandContext,
+type NewItem = {
+  listId: string;
+  name: string;
+  completed?: boolean;
+  sectionId?: string | null;
+  description?: string;
+  order?: number;
+};
+
+// Inserts an item into a list already checked for visibility.
+const insertItem = async (
+  { tx, record }: WriteScope,
   {
     listId,
     name,
@@ -34,39 +49,36 @@ export const createItem = (
     sectionId = null,
     description = "",
     order = 0,
-  }: {
-    listId: string;
-    name: string;
-    completed?: boolean;
-    sectionId?: string | null;
-    description?: string;
-    order?: number;
-  },
-) =>
-  runWrite(ctx, async ({ tx, actor, record }) => {
-    requireName(name);
-    await assertListVisible(tx, actor, listId);
-    const sectionID = sectionId || null;
-    await assertSectionInList(tx, sectionID, listId);
-    const item = await tx.item.create({
-      data: {
-        name,
-        completed,
-        description,
-        order,
-        listID: listId,
-        sectionID,
-        normalized: normalizeItemName(name),
-      },
-    });
-    record({
-      type: EVENT.itemCreated,
-      listId,
-      itemId: item.id,
-      sectionId: sectionID,
-      after: { name, sectionID, description, completed },
-    });
-    return item;
+  }: NewItem,
+) => {
+  const sectionID = sectionId || null;
+  await assertSectionInList(tx, sectionID, listId);
+  const item = await tx.item.create({
+    data: {
+      name,
+      completed,
+      description,
+      order,
+      listID: listId,
+      sectionID,
+      normalized: normalizeItemName(name),
+    },
+  });
+  record({
+    type: EVENT.itemCreated,
+    listId,
+    itemId: item.id,
+    sectionId: sectionID,
+    after: { name, sectionID, description, completed },
+  });
+  return item;
+};
+
+export const createItem = (ctx: CommandContext, newItem: NewItem) =>
+  runWrite(ctx, async (scope) => {
+    requireName(newItem.name);
+    await assertListVisible(scope.tx, scope.actor, newItem.listId);
+    return insertItem(scope, newItem);
   });
 
 // Applies the changed fields of one item and records one event per kind of
@@ -210,4 +222,112 @@ export const reorderItems = (
         sectionId: entry.sectionId,
       });
     }
+  });
+
+export type AddItemEntry = {
+  name: string;
+  sectionId?: string | null;
+  description?: string;
+};
+
+type MatchedItem = Item & { aliases: ItemAlias[] };
+
+export type AddItemOutcome =
+  | {
+      name: string;
+      status: "created";
+      item: Item;
+      hints: MatchCandidate<MatchedItem>[];
+    }
+  | { name: string; status: "reopened" | "already_open"; item: Item }
+  | {
+      name: string;
+      status: "ambiguous";
+      candidates: MatchCandidate<MatchedItem>[];
+    };
+
+// Adds names to a list without creating duplicates (KTD9): each name is
+// matched against the list's items and then created, reopened, reported as
+// already open, or reported as ambiguous without writing anything. A note is
+// set on created and reopened items. With createNew every name is created.
+// All writes share one transaction; names of the same call see each other.
+export const addItems = (
+  ctx: CommandContext,
+  {
+    listId,
+    entries,
+    createNew = false,
+  }: { listId: string; entries: AddItemEntry[]; createNew?: boolean },
+) =>
+  runWrite(ctx, async (scope) => {
+    entries.forEach((entry) => requireName(entry.name));
+    await assertListVisible(scope.tx, scope.actor, listId);
+    const sectionIds = new Set(entries.map((entry) => entry.sectionId || null));
+    for (const sectionId of sectionIds) {
+      await assertSectionInList(scope.tx, sectionId, listId);
+    }
+
+    const items: MatchedItem[] = await scope.tx.item.findMany({
+      where: { listID: listId },
+      include: { aliases: true },
+      orderBy: { order: "asc" },
+    });
+    const nextOrder = (sectionId: string | null) =>
+      Math.max(
+        -1,
+        ...items
+          .filter((item) => item.sectionID === sectionId)
+          .map((item) => item.order),
+      ) + 1;
+
+    const outcomes: AddItemOutcome[] = [];
+    for (const { name, sectionId = null, description } of entries) {
+      const decision = createNew
+        ? { action: "create" as const, hints: [] }
+        : decideAddition(findCandidates(name, items));
+
+      switch (decision.action) {
+        case "create": {
+          const sectionID = sectionId || null;
+          const item = await insertItem(scope, {
+            listId,
+            name,
+            sectionId: sectionID,
+            description,
+            order: nextOrder(sectionID),
+          });
+          items.push({ ...item, aliases: [] });
+          outcomes.push({
+            name,
+            status: "created",
+            item,
+            hints: decision.hints,
+          });
+          break;
+        }
+        case "reopen": {
+          const item = await applyItemChanges(scope, decision.item, {
+            completed: false,
+            description,
+          });
+          items[items.indexOf(decision.item)] = {
+            ...item,
+            aliases: decision.item.aliases,
+          };
+          outcomes.push({ name, status: "reopened", item });
+          break;
+        }
+        case "already_open":
+          outcomes.push({ name, status: "already_open", item: decision.item });
+          break;
+        case "ambiguous":
+          outcomes.push({
+            name,
+            status: "ambiguous",
+            candidates: decision.candidates,
+          });
+          break;
+      }
+    }
+    return outcomes;
   });

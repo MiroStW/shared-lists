@@ -1,4 +1,5 @@
 import { prisma } from "db/prisma";
+import { generateAgentToken } from "server/auth/agentTokens";
 
 // Test data is created directly with Prisma, bypassing the list service, so
 // fixtures never write commands or events of their own.
@@ -60,4 +61,27 @@ export const caught = async (fn: () => Promise<unknown>) => {
   } catch (error) {
     return error;
   }
+};
+
+// An agent access created directly in the database, with its plain token.
+export const createAgentAccess = async (
+  creator: { id: string },
+  {
+    kind = "person" as "person" | "household",
+    label = "test-agent",
+    memberIds = [creator.id],
+  } = {},
+) => {
+  const { token, tokenId, tokenHash } = generateAgentToken();
+  const access = await prisma.agentAccess.create({
+    data: {
+      label,
+      kind,
+      tokenId,
+      tokenHash,
+      createdById: creator.id,
+      members: { connect: memberIds.map((id) => ({ id })) },
+    },
+  });
+  return { access, token };
 };
