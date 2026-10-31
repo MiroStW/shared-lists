@@ -60,11 +60,16 @@ export const getList = async (actor: Actor, listId: string) => {
   });
 };
 
-export const getListItems = async (actor: Actor, listId: string) => {
+// Items in display order, or in creation order (the v1 API's contract).
+export const getListItems = async (
+  actor: Actor,
+  listId: string,
+  { orderBy = "order" }: { orderBy?: "order" | "createdDate" } = {},
+) => {
   await assertListVisible(prisma, actor, listId);
   return prisma.item.findMany({
     where: { listID: listId },
-    orderBy: { order: "asc" },
+    orderBy: orderBy === "createdDate" ? { createdDate: "asc" } : { order: "asc" },
   });
 };
 
