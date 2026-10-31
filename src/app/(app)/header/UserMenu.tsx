@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import styles from "./userMenu.module.css";
 import { useClientSession } from "app/sessionContext";
@@ -17,7 +18,12 @@ const UserMenu = () => {
   return (
     <>
       {user && (
-        <div className={styles.userWidget} onClick={openMenuHandler}>
+        <div
+          className={styles.userWidget}
+          onClick={openMenuHandler}
+          role="button"
+          aria-label="User menu"
+        >
           <div className={styles.userImage}>
             {user.image ? (
               <Image
@@ -35,6 +41,9 @@ const UserMenu = () => {
           </div>
           <div className={styles.userMenu} hidden={hideMenu}>
             <div className={styles.userMenuList}>
+              <Link className={styles.userMenuItem} href="/settings/agents">
+                agent access
+              </Link>
               <div
                 className={styles.userMenuItem}
                 onClick={() => signOut()}
