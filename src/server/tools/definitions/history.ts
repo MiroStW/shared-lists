@@ -3,6 +3,7 @@ import { prisma } from "db/prisma";
 import type { EventFields } from "server/lists/events";
 import { getRecentEvents, getVisibleLists } from "server/lists/listService";
 import { undoLastCommand, type UndoEntry } from "server/lists/undo";
+import { UNDO_TOOL_NAME } from "../names";
 import { resolveList } from "../resolve";
 import { defineTool } from "../types";
 import { listRef } from "./lists";
@@ -16,7 +17,7 @@ const undoEntryOutput = (entry: UndoEntry) => ({
 });
 
 export const undoLastCommandTool = defineTool({
-  name: "undo_last_command",
+  name: UNDO_TOOL_NAME,
   description:
     "Undo your most recent change (one command, e.g. one add_items call, possibly with several items). Fields that someone changed since are left alone and reported as skipped. Deleted lists and sections cannot be restored. There is no redo.",
   inputSchema: z.strictObject({}),
@@ -60,7 +61,7 @@ export const recentChangesTool = defineTool({
     const listId = list ? (await resolveList(actor, list)).id : undefined;
     const [events, lists] = await Promise.all([
       getRecentEvents(actor, { limit, listId }),
-      getVisibleLists(actor, { includeArchived: true }),
+      getVisibleLists(actor, { includeArchived: true, lean: true }),
     ]);
     const listNames = new Map(lists.map(({ id, name }) => [id, name]));
     const userIds = [

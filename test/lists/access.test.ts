@@ -12,7 +12,7 @@ import {
   findItems,
   getList,
   getVisibleLists,
-  renameList,
+  updateList,
 } from "server/lists/listService";
 import { resetDatabase } from "../setup/db";
 import {
@@ -156,14 +156,16 @@ describe("list access", () => {
 
     expectServiceError(
       await caught(() =>
-        renameList(new CommandContext(personActor(b.id)), list.id, "new"),
+        updateList(new CommandContext(personActor(b.id)), list.id, {
+          name: "new",
+        }),
       ),
       "forbidden",
     );
-    const renamed = await renameList(
+    const renamed = await updateList(
       new CommandContext(personActor(a.id)),
       list.id,
-      "new",
+      { name: "new" },
     );
     expect(renamed.name).toBe("new");
   });

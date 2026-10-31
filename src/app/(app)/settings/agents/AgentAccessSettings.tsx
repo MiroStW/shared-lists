@@ -14,6 +14,7 @@ import type {
   AgentAccessMember,
   AgentAccessSummary,
 } from "server/auth/agentAccess";
+import { MAX_LABEL_LENGTH } from "server/auth/agentAccessRules";
 import styles from "./agentAccess.module.css";
 
 const controlSx = {
@@ -240,7 +241,7 @@ const AgentAccessSettings = ({
             required
             helperText="Lowercase letters, digits and dashes, e.g. claude-code"
             slotProps={{
-              htmlInput: { maxLength: 40 },
+              htmlInput: { maxLength: MAX_LABEL_LENGTH },
               formHelperText: { className: styles.helper },
             }}
           />

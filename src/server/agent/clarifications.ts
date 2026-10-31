@@ -1,6 +1,8 @@
 import type { Clarification, Prisma } from "@prisma/client";
 import { prisma } from "db/prisma";
+import { isPlainObject } from "server/http/json";
 import type { Actor } from "server/lists/actor";
+import { ASK_USER_TOOL_NAME, UNDO_TOOL_NAME } from "server/tools/names";
 import { findTool } from "server/tools/registry";
 
 // Questions the agent asks with prepared tool calls (KTD11). An answer runs
@@ -17,10 +19,7 @@ export type ClarificationOption = {
 };
 
 // Tools an option must not call: undo is no choice between items.
-const FORBIDDEN_OPTION_TOOLS = new Set(["undo_last_command", "ask_user"]);
-
-const isPlainObject = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
+const FORBIDDEN_OPTION_TOOLS = new Set([UNDO_TOOL_NAME, ASK_USER_TOOL_NAME]);
 
 // Keeps the options whose tool call is valid against the registry schema and
 // drops the rest.

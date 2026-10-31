@@ -1,7 +1,9 @@
+import type { Item, Section } from "@prisma/client";
 import { z } from "zod";
 import { findCandidates, type MatchReason } from "server/itemMatching";
 import { simplifyItemName } from "server/itemNormalization";
 import { assertItemVisible } from "server/lists/access";
+import type { Actor } from "server/lists/actor";
 import {
   addItems,
   setItemCompleted,
@@ -217,10 +219,18 @@ const addOutcomeOutput = (
   }
 };
 
-const itemWithSections = async (
-  actor: Parameters<typeof getListSections>[0],
-  item: Awaited<ReturnType<typeof setItemCompleted>>,
-) => ({ item: itemOutput(item, await getListSections(actor, item.listID)) });
+const itemWithSections = async (actor: Actor, item: Item) => ({
+  item: itemOutput(item, await getListSections(actor, item.listID)),
+});
+
+// The section id for an update: undefined keeps the section, null removes it.
+const targetSectionId = (
+  sections: Section[],
+  ref: string | null | undefined,
+) => {
+  if (ref === undefined || ref === null) return ref;
+  return resolveSection(sections, ref).id;
+};
 
 export const setItemCompletedTool = defineTool({
   name: "set_item_completed",
@@ -262,16 +272,10 @@ export const updateItemTool = defineTool({
   handler: async (actor, { item_id, name, note, section }, command) => {
     const current = await assertItemVisible(prisma, actor, item_id);
     const sections = await getListSections(actor, current.listID);
-    const sectionId =
-      section === undefined
-        ? undefined
-        : section === null
-          ? null
-          : resolveSection(sections, section).id;
     const item = await updateItem(command, item_id, {
       name,
       description: note,
-      sectionId,
+      sectionId: targetSectionId(sections, section),
     });
     return { item: itemOutput(item, sections) };
   },

@@ -5,6 +5,7 @@ import {
   assertListVisible,
   assertSectionVisible,
   ListServiceError,
+  requireName,
   visibleListWhere,
 } from "./access";
 import type { Actor } from "./actor";
@@ -12,7 +13,7 @@ import { runWrite, type CommandContext, type WriteScope } from "./command";
 import { EVENT, itemSnapshot } from "./events";
 
 // Public user fields only; never hand out password hashes.
-export const publicUserSelect = {
+const publicUserSelect = {
   id: true,
   name: true,
   email: true,
@@ -24,29 +25,47 @@ const listMembersInclude = {
   contributors: { select: publicUserSelect },
 } satisfies Prisma.ListInclude;
 
-const requireName = (name: unknown) => {
-  if (typeof name !== "string" || name === "") {
-    throw new ListServiceError("invalid", "Name is required");
-  }
-  return name;
-};
-
 // ---- Reads ----
 
-export const getVisibleLists = (
+type ListWithMembers = Prisma.ListGetPayload<{
+  include: typeof listMembersInclude;
+}>;
+
+const leanListSelect = {
+  id: true,
+  name: true,
+  isArchived: true,
+} satisfies Prisma.ListSelect;
+
+type LeanList = Prisma.ListGetPayload<{ select: typeof leanListSelect }>;
+
+type VisibleListsOptions = { includeArchived?: boolean; lean?: boolean };
+
+// The actor's lists in creation order. lean returns only id, name and
+// isArchived, without owner and contributors.
+export function getVisibleLists(
   actor: Actor,
-  { includeArchived = false } = {},
-) =>
-  prisma.list.findMany({
-    where: {
-      AND: [
-        visibleListWhere(actor),
-        includeArchived ? {} : { isArchived: false },
-      ],
-    },
-    include: listMembersInclude,
-    orderBy: { createdDate: "asc" },
-  });
+  options: VisibleListsOptions & { lean: true },
+): Promise<LeanList[]>;
+export function getVisibleLists(
+  actor: Actor,
+  options?: VisibleListsOptions & { lean?: false },
+): Promise<ListWithMembers[]>;
+export function getVisibleLists(
+  actor: Actor,
+  { includeArchived = false, lean = false }: VisibleListsOptions = {},
+): Promise<LeanList[] | ListWithMembers[]> {
+  const where: Prisma.ListWhereInput = {
+    AND: [
+      visibleListWhere(actor),
+      includeArchived ? {} : { isArchived: false },
+    ],
+  };
+  const orderBy = { createdDate: "asc" } as const;
+  return lean
+    ? prisma.list.findMany({ where, select: leanListSelect, orderBy })
+    : prisma.list.findMany({ where, include: listMembersInclude, orderBy });
+}
 
 export const getList = async (actor: Actor, listId: string) => {
   await assertListVisible(prisma, actor, listId);
@@ -212,15 +231,6 @@ export const updateList = (
     if (Object.keys(data).length === 0) return list;
     return tx.list.update({ where: { id: listId }, data });
   });
-
-export const renameList = (ctx: CommandContext, listId: string, name: string) =>
-  updateList(ctx, listId, { name });
-
-export const setListArchived = (
-  ctx: CommandContext,
-  listId: string,
-  isArchived: boolean,
-) => updateList(ctx, listId, { isArchived });
 
 // Logs every contained item before deleting, so the cascade stays visible in
 // the history (KTD3). Deleted lists cannot be undone (KTD4.7).

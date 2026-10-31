@@ -1,7 +1,8 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+import { isPlainObject } from "server/http/json";
 import type { Actor } from "server/lists/actor";
-import { describeToolError } from "./errors";
+import { describeToolError, type ToolErrorBody } from "./errors";
 import { invokeTool, tools } from "./registry";
 
 const INSTRUCTIONS =
@@ -9,9 +10,6 @@ const INSTRUCTIONS =
   "Add items with add_items: it matches existing items first and reports ambiguous names instead of creating duplicates. " +
   "Every call is its own command; undo_last_command takes back the latest one. " +
   "run_command hands a whole sentence to the list agent instead.";
-
-const isPlainObject = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
 
 export const jsonResult = (
   value: unknown,
@@ -22,6 +20,21 @@ export const jsonResult = (
   ...(isError ? { isError: true } : {}),
 });
 
+// An error as an MCP error result: expected errors keep their body, anything
+// else is logged with context and answered generically.
+export const mcpErrorResult = (
+  error: unknown,
+  context: string,
+  describe: (
+    error: unknown,
+  ) => { body: ToolErrorBody } | null = describeToolError,
+): CallToolResult => {
+  const described = describe(error);
+  if (described) return jsonResult(described.body, true);
+  console.error(context, error);
+  return jsonResult({ error: "Internal error" }, true);
+};
+
 // Runs a registry tool and turns its result or error into an MCP result.
 export const callRegistryTool = async (
   actor: Actor,
@@ -31,10 +44,7 @@ export const callRegistryTool = async (
   try {
     return jsonResult(await invokeTool(actor, name, input));
   } catch (error) {
-    const described = describeToolError(error);
-    if (described) return jsonResult(described.body, true);
-    console.error(`Error running MCP tool ${name}:`, error);
-    return jsonResult({ error: "Internal error" }, true);
+    return mcpErrorResult(error, `Error running MCP tool ${name}:`);
   }
 };
 

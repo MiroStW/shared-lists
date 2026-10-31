@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "auth/getServerSession";
+import { sessionUserId } from "server/http/actorFromRequest";
+import { errorResponse } from "server/http/errors";
 import { createLiveEventStream } from "server/live/eventStream";
 
 // Long-lived stream; it needs the Node.js runtime (in-process live bus) and
@@ -9,10 +9,11 @@ export const dynamic = "force-dynamic";
 
 // Server-sent events with the list changes the signed-in user may see (KTD8).
 export async function GET(request: Request) {
-  const session = await getServerSession();
-  const userId = session.user?.id;
-  if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  let userId: string;
+  try {
+    userId = await sessionUserId();
+  } catch (error) {
+    return errorResponse(error, { context: "Error opening live events:" });
   }
 
   const stream = createLiveEventStream({ userId, signal: request.signal });

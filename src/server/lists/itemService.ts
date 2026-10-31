@@ -9,8 +9,8 @@ import {
   assertItemVisible,
   assertListVisible,
   assertSectionInList,
-  ListServiceError,
   notFound,
+  requireName,
 } from "./access";
 import { runWrite, type CommandContext, type WriteScope } from "./command";
 import { EVENT, itemSnapshot } from "./events";
@@ -22,12 +22,6 @@ export type ItemChanges = {
   // null or "" removes the section.
   sectionId?: string | null;
   order?: number;
-};
-
-const requireName = (name: unknown) => {
-  if (typeof name !== "string" || name === "") {
-    throw new ListServiceError("invalid", "Name is required");
-  }
 };
 
 type NewItem = {
@@ -166,21 +160,6 @@ export const setItemCompleted = (
   completed: boolean,
 ) => updateItem(ctx, itemId, { completed });
 
-export const renameItem = (ctx: CommandContext, itemId: string, name: string) =>
-  updateItem(ctx, itemId, { name });
-
-export const setItemNote = (
-  ctx: CommandContext,
-  itemId: string,
-  description: string,
-) => updateItem(ctx, itemId, { description });
-
-export const setItemSection = (
-  ctx: CommandContext,
-  itemId: string,
-  sectionId: string | null,
-) => updateItem(ctx, itemId, { sectionId });
-
 export const deleteItem = (ctx: CommandContext, itemId: string) =>
   runWrite(ctx, async ({ tx, actor, record }) => {
     const item = await assertItemVisible(tx, actor, itemId);
@@ -262,9 +241,15 @@ export const addItems = (
   runWrite(ctx, async (scope) => {
     entries.forEach((entry) => requireName(entry.name));
     await assertListVisible(scope.tx, scope.actor, listId);
-    const sectionIds = new Set(entries.map((entry) => entry.sectionId || null));
-    for (const sectionId of sectionIds) {
-      await assertSectionInList(scope.tx, sectionId, listId);
+    const sectionIds = [
+      ...new Set(entries.flatMap(({ sectionId }) => sectionId || [])),
+    ];
+    if (sectionIds.length > 0) {
+      const found = await scope.tx.section.findMany({
+        where: { id: { in: sectionIds }, listId },
+        select: { id: true },
+      });
+      if (found.length !== sectionIds.length) throw notFound("Section");
     }
 
     const items: MatchedItem[] = await scope.tx.item.findMany({

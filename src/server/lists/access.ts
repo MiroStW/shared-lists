@@ -22,6 +22,14 @@ export const notFound = (what: string) =>
 const forbidden = (message = "Forbidden") =>
   new ListServiceError("forbidden", message);
 
+// Returns the name; an empty or missing name is invalid.
+export const requireName = (name: unknown) => {
+  if (typeof name !== "string" || name === "") {
+    throw new ListServiceError("invalid", "Name is required");
+  }
+  return name;
+};
+
 export const assertValidActor = (actor: Actor) => {
   if (actor.memberUserIds.length === 0) {
     throw forbidden("Actor has no members");
@@ -31,14 +39,35 @@ export const assertValidActor = (actor: Actor) => {
   }
 };
 
+// Prisma condition "the user owns or contributes to the list".
+export const ownerOrContributorWhere = (
+  userId: string,
+): Prisma.ListWhereInput => ({
+  OR: [{ ownerID: userId }, { contributors: { some: { id: userId } } }],
+});
+
 // Prisma condition "every member is owner or contributor" (KTD2).
 export const visibleListWhere = (actor: Actor): Prisma.ListWhereInput => {
   assertValidActor(actor);
-  return {
-    AND: actor.memberUserIds.map((userId) => ({
-      OR: [{ ownerID: userId }, { contributors: { some: { id: userId } } }],
-    })),
-  };
+  return { AND: actor.memberUserIds.map(ownerOrContributorWhere) };
+};
+
+// The same condition in memory, for a list loaded with its member ids.
+const membersSelect = {
+  ownerID: true,
+  contributors: { select: { id: true } },
+} satisfies Prisma.ListSelect;
+
+type ListMembers = { ownerID: string; contributors: { id: string }[] };
+
+const assertMembersSee = (actor: Actor, list: ListMembers) => {
+  assertValidActor(actor);
+  const visible = actor.memberUserIds.every(
+    (userId) =>
+      list.ownerID === userId ||
+      list.contributors.some((contributor) => contributor.id === userId),
+  );
+  if (!visible) throw forbidden();
 };
 
 // Ids among listIds that the actor currently sees. Deleted lists are not seen.
@@ -60,14 +89,14 @@ export const assertListVisible = async (
   actor: Actor,
   listId: string,
 ) => {
-  const where = visibleListWhere(actor);
-  const list = await db.list.findUnique({ where: { id: listId } });
-  if (!list) throw notFound("List");
-  const visible = await db.list.findFirst({
-    where: { AND: [{ id: listId }, where] },
-    select: { id: true },
+  assertValidActor(actor);
+  const found = await db.list.findUnique({
+    where: { id: listId },
+    include: { contributors: { select: { id: true } } },
   });
-  if (!visible) throw forbidden();
+  if (!found) throw notFound("List");
+  const { contributors, ...list } = found;
+  assertMembersSee(actor, { ownerID: list.ownerID, contributors });
   return list;
 };
 
@@ -85,9 +114,13 @@ export const assertItemVisible = async (
   actor: Actor,
   itemId: string,
 ) => {
-  const item = await db.item.findUnique({ where: { id: itemId } });
-  if (!item) throw notFound("Item");
-  await assertListVisible(db, actor, item.listID);
+  const found = await db.item.findUnique({
+    where: { id: itemId },
+    include: { list: { select: membersSelect } },
+  });
+  if (!found) throw notFound("Item");
+  const { list, ...item } = found;
+  assertMembersSee(actor, list);
   return item;
 };
 
@@ -96,9 +129,13 @@ export const assertSectionVisible = async (
   actor: Actor,
   sectionId: string,
 ) => {
-  const section = await db.section.findUnique({ where: { id: sectionId } });
-  if (!section) throw notFound("Section");
-  await assertListVisible(db, actor, section.listId);
+  const found = await db.section.findUnique({
+    where: { id: sectionId },
+    include: { list: { select: membersSelect } },
+  });
+  if (!found) throw notFound("Section");
+  const { list, ...section } = found;
+  assertMembersSee(actor, list);
   return section;
 };
 

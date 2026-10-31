@@ -1,13 +1,17 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import type { Clarification } from "@prisma/client";
-import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "db/prisma";
 import { ListServiceError } from "server/lists/access";
 import type { Actor } from "server/lists/actor";
 import { CommandContext } from "server/lists/command";
-import type { EventFields } from "server/lists/events";
-import { describeToolError, ToolInputError } from "server/tools/errors";
+import { eventTarget, fieldsOf, type EventFields } from "server/lists/events";
+import {
+  describeToolError,
+  ToolInputError,
+  toolErrorResponse,
+} from "server/tools/errors";
+import { ASK_USER_TOOL_NAME, UNDO_TOOL_NAME } from "server/tools/names";
 import { invokeTool, toolCatalog } from "server/tools/registry";
 import {
   AgentUnavailableError,
@@ -33,9 +37,6 @@ import { listCatalog, pendingQuestionContext, STATIC_PROMPT } from "./prompt";
 
 // Tool rounds per sentence (KTD10).
 export const MAX_ROUNDS = 8;
-
-const ASK_USER = "ask_user";
-const UNDO = "undo_last_command";
 
 // ---- Input and output ----
 
@@ -105,12 +106,19 @@ export type AgentResponse = {
 
 // ---- Changes ----
 
-const fieldsOf = (value: unknown) => (value ?? {}) as EventFields;
 const nameIn = (fields: EventFields) =>
   typeof fields.name === "string" ? fields.name : undefined;
 
-const lastEventSeq = async () =>
-  (await prisma.listEvent.aggregate({ _max: { seq: true } }))._max.seq ?? 0;
+// The seq of the command's latest event, or 0 without one.
+const lastEventSeq = async (commandId: string | null) => {
+  if (!commandId) return 0;
+  const last = await prisma.listEvent.findFirst({
+    where: { commandId },
+    orderBy: { seq: "desc" },
+    select: { seq: true },
+  });
+  return last?.seq ?? 0;
+};
 
 // The events of the given commands, after afterSeq, as changes.
 const changesOf = async (
@@ -147,7 +155,7 @@ const changesOf = async (
 
   return events.map((event) => {
     const own = nameIn(fieldsOf(event.after)) ?? nameIn(fieldsOf(event.before));
-    const target = event.type.split(".")[0];
+    const target = eventTarget(event.type);
     return {
       type: event.type,
       list:
@@ -171,7 +179,7 @@ const changesOf = async (
 // ---- Tools for the model ----
 
 const ASK_USER_TOOL: Anthropic.Tool = {
-  name: ASK_USER,
+  name: ASK_USER_TOOL_NAME,
   description:
     "Ask the person to choose when you are unsure, e.g. when add_items reports an ambiguous name. Every option is a complete call of another tool that is run when the person picks it. This ends your turn; the question is shown with numbered options.",
   input_schema: {
@@ -275,10 +283,10 @@ class Sentence {
 
   private async hasEvents(ctx: CommandContext) {
     if (!ctx.commandId) return false;
-    return (
-      (await prisma.listEvent.count({ where: { commandId: ctx.commandId } })) >
-      0
-    );
+    return !!(await prisma.listEvent.findFirst({
+      where: { commandId: ctx.commandId },
+      select: { id: true },
+    }));
   }
 
   private async runTool(
@@ -288,7 +296,7 @@ class Sentence {
       const result = await invokeTool(this.actor, use.name, use.input, {
         command: this.current,
       });
-      if (use.name === UNDO) {
+      if (use.name === UNDO_TOOL_NAME) {
         const { undo_command_id } = result as {
           undo_command_id: string | null;
         };
@@ -390,9 +398,10 @@ class Sentence {
       // Other calls of the same turn run first; ask_user ends the sentence.
       const results: Anthropic.ToolResultBlockParam[] = [];
       for (const use of uses) {
-        if (use.name !== ASK_USER) results.push(await this.runTool(use));
+        if (use.name !== ASK_USER_TOOL_NAME)
+          results.push(await this.runTool(use));
       }
-      const question = uses.find((use) => use.name === ASK_USER);
+      const question = uses.find((use) => use.name === ASK_USER_TOOL_NAME);
       if (question) return this.ask(question, text);
       messages.push({ role: "user", content: results });
     }
@@ -411,15 +420,18 @@ const runSentence = async (
 ) => {
   const model = getAgentModel();
   if (!model) throw new AgentUnavailableError();
-  await assertWithinDailyLimit(actor);
+  const [, catalog] = await Promise.all([
+    assertWithinDailyLimit(actor),
+    listCatalog(actor),
+  ]);
   // The sentence did not answer the open question: it lapses.
   if (pending) await claimClarification(pending.id);
 
-  // Created on entry so the sentence counts against the limit even if it
-  // changes nothing (KTD10).
+  // Created on entry, after the limit check, so the sentence counts against
+  // the limit even if it changes nothing (KTD10).
   const entry = await CommandContext.start(actor, { inputText: text });
   const runtime = [
-    await listCatalog(actor),
+    catalog,
     ...(pending ? [pendingQuestionContext(pending)] : []),
   ].join("\n\n");
   const system: Anthropic.TextBlockParam[] = [
@@ -455,7 +467,7 @@ const answerClarification = async (
   // change of its own.
   if (original?.undoState === "none") ctx.commandId = clarification.commandId;
 
-  const before = await lastEventSeq();
+  const before = await lastEventSeq(ctx.commandId);
   try {
     await invokeTool(actor, option.tool, option.input, { command: ctx });
   } catch (error) {
@@ -533,11 +545,5 @@ export const describeAgentError = (error: unknown) => {
   return describeToolError(error);
 };
 
-export const agentErrorResponse = (error: unknown) => {
-  const described = describeAgentError(error);
-  if (described) {
-    return NextResponse.json(described.body, { status: described.status });
-  }
-  console.error("Error running agent command:", error);
-  return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-};
+export const agentErrorResponse = (error: unknown) =>
+  toolErrorResponse(error, "Error running agent command:", describeAgentError);

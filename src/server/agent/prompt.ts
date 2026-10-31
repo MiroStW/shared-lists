@@ -1,7 +1,7 @@
 import type { Clarification } from "@prisma/client";
 import { prisma } from "db/prisma";
+import { visibleListWhere } from "server/lists/access";
 import type { Actor } from "server/lists/actor";
-import { getVisibleLists } from "server/lists/listService";
 import { formatQuestion, optionsOf } from "./clarifications";
 
 // The static part of the list agent's system prompt. The repo is public: no
@@ -28,22 +28,16 @@ const catalogLine = (list: { name: string; sections: { name: string }[] }) =>
 // The lists the actor sees right now, with their sections, names only. A
 // household sees only the lists all members share (G-AE4).
 export const listCatalog = async (actor: Actor) => {
-  const lists = await getVisibleLists(actor);
-  if (lists.length === 0) return "The person has no lists yet.";
-  const sections = await prisma.section.findMany({
-    where: { listId: { in: lists.map((list) => list.id) } },
+  const lists = await prisma.list.findMany({
+    where: { AND: [visibleListWhere(actor), { isArchived: false }] },
+    select: {
+      name: true,
+      sections: { select: { name: true }, orderBy: { createdDate: "asc" } },
+    },
     orderBy: { createdDate: "asc" },
-    select: { listId: true, name: true },
   });
-  return [
-    "The person's lists:",
-    ...lists.map((list) =>
-      catalogLine({
-        name: list.name,
-        sections: sections.filter((section) => section.listId === list.id),
-      }),
-    ),
-  ].join("\n");
+  if (lists.length === 0) return "The person has no lists yet.";
+  return ["The person's lists:", ...lists.map(catalogLine)].join("\n");
 };
 
 // An unanswered question that the new sentence did not answer by number or

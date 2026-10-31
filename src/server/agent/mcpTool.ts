@@ -1,6 +1,6 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { Actor } from "server/lists/actor";
-import { jsonResult } from "server/tools/mcpServer";
+import { jsonResult, mcpErrorResult } from "server/tools/mcpServer";
 import {
   commandInputSchema,
   describeAgentError,
@@ -23,10 +23,11 @@ export const registerRunCommandTool = (server: McpServer, actor: Actor) => {
       try {
         return jsonResult(await runAgentCommand(actor, parseCommandInput(raw)));
       } catch (error) {
-        const described = describeAgentError(error);
-        if (described) return jsonResult(described.body, true);
-        console.error("Error running MCP run_command:", error);
-        return jsonResult({ error: "Internal error" }, true);
+        return mcpErrorResult(
+          error,
+          "Error running MCP run_command:",
+          describeAgentError,
+        );
       }
     },
   );

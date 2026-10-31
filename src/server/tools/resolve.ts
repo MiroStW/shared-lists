@@ -12,7 +12,10 @@ const nameKey = (name: string) => name.trim().toLowerCase();
 const quoted = (names: string[]) => names.map((name) => `"${name}"`).join(", ");
 
 export const resolveList = async (actor: Actor, ref: string) => {
-  const lists = await getVisibleLists(actor, { includeArchived: true });
+  const lists = await getVisibleLists(actor, {
+    includeArchived: true,
+    lean: true,
+  });
   const byId = lists.find((list) => list.id === ref);
   if (byId) return byId;
 
@@ -71,7 +74,7 @@ export const resolveSection = (sections: Section[], ref: string) => {
 
 // ---- Output shapes shared by the tools ----
 
-export type SectionRef = { id: string; name: string };
+type SectionRef = { id: string; name: string };
 
 export const sectionRef = (
   section: Pick<Section, "id" | "name">,

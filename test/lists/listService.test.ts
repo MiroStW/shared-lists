@@ -9,7 +9,6 @@ import {
   deleteItem,
   reorderItems,
   setItemCompleted,
-  setItemSection,
   updateItem,
 } from "server/lists/itemService";
 import {
@@ -19,7 +18,7 @@ import {
   deleteSection,
   getList,
   getRecentEvents,
-  setListArchived,
+  updateList,
 } from "server/lists/listService";
 import { liveBus, type ListChange } from "server/live/bus";
 import { resetDatabase } from "../setup/db";
@@ -323,7 +322,7 @@ describe("list service", () => {
       listId: list.id,
       name: "Tools",
     });
-    await setListArchived(ctx, list.id, true);
+    await updateList(ctx, list.id, { isArchived: true });
 
     const events = await fixtures.eventsOf(ctx.commandId!);
     expect(events.map((event) => [event.type, event.after])).toEqual([
@@ -414,7 +413,9 @@ describe("list service", () => {
     const list = await fixtures.createList(b.id, { contributorIds: [a.id] });
     const item = await fixtures.createItem(list.id);
 
-    await setItemSection(new CommandContext(personActor(a.id)), item.id, null);
+    await updateItem(new CommandContext(personActor(a.id)), item.id, {
+      sectionId: null,
+    });
     expect(published).toHaveLength(0);
 
     await setItemCompleted(

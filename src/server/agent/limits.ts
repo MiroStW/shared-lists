@@ -33,7 +33,7 @@ const startOfDay = (now: Date) => {
 // with its text and origin "agent" on entry. Undo commands of a sentence are
 // not counted; web clicks, tool calls and answers to a question never create
 // such a command.
-export const countSentencesToday = (actor: Actor, now = new Date()) =>
+const countSentencesToday = (actor: Actor, now = new Date()) =>
   prisma.command.count({
     where: {
       ...(actor.accessId

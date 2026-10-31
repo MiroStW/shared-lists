@@ -47,12 +47,16 @@ export const toolJsonSchema = (tool: Tool): JsonSchema => {
   return schema;
 };
 
+let catalog: { name: string; description: string; inputSchema: JsonSchema }[];
+
+// Name, description and JSON Schema of every tool. The registry is static, so
+// the conversion runs once.
 export const toolCatalog = () =>
-  tools.map((tool) => ({
+  (catalog ??= tools.map((tool) => ({
     name: tool.name,
     description: tool.description,
     inputSchema: toolJsonSchema(tool),
-  }));
+  })));
 
 // Validates and runs a tool. Without a command each call is a command of its
 // own; the list agent passes one context per sentence instead (KTD3).

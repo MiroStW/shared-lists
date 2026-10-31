@@ -26,6 +26,12 @@ export type UndoState = "none" | "undone" | "partial";
 // Only the changed fields, keyed by their Prisma field names.
 export type EventFields = Record<string, string | number | boolean | null>;
 
+// The stored before/after JSON of an event; missing fields read as empty.
+export const fieldsOf = (value: unknown) => (value ?? {}) as EventFields;
+
+// What an event type is about: "item", "list" or "section".
+export const eventTarget = (type: string) => type.split(".")[0];
+
 export type EventRecord = {
   type: EventType;
   listId: string;

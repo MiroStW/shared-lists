@@ -22,7 +22,7 @@ export type MatchCandidate<T extends MatchableItem> = {
   score: number;
 };
 
-export const MIN_COMPOUND_QUERY_LENGTH = 4;
+const MIN_COMPOUND_QUERY_LENGTH = 4;
 const FUZZY_THRESHOLD = 0.75;
 const SCORES = { exact: 1, alias: 0.95, compound: 0.8 } as const;
 // Fuzzy scores stay below every other reason.

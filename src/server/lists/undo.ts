@@ -5,6 +5,8 @@ import type { Actor } from "./actor";
 import { CommandContext, runWrite, type WriteScope } from "./command";
 import {
   EVENT,
+  eventTarget,
+  fieldsOf,
   itemSnapshot,
   type EventFields,
   type EventType,
@@ -57,8 +59,6 @@ const INVERSE_TYPE: Partial<Record<string, EventType>> = {
 };
 
 const same = (a: unknown, b: unknown) => (a ?? null) === (b ?? null);
-
-const fieldsOf = (value: unknown) => (value ?? {}) as EventFields;
 
 const entryOf = (event: ListEvent, fields: string[] = []): UndoEntry => ({
   eventId: event.id,
@@ -139,7 +139,7 @@ class EventUndoer {
     event: ListEvent,
   ): Promise<Record<string, unknown> | null> => {
     const { tx } = this.scope;
-    const target = event.type.split(".")[0];
+    const target = eventTarget(event.type);
     if (target === "item" && event.itemId) {
       return tx.item.findUnique({ where: { id: event.itemId } });
     }
@@ -155,7 +155,7 @@ class EventUndoer {
 
   private writeFields = async (event: ListEvent, data: EventFields) => {
     const { tx } = this.scope;
-    const target = event.type.split(".")[0];
+    const target = eventTarget(event.type);
     if (target === "item") {
       await tx.item.update({
         where: { id: event.itemId! },

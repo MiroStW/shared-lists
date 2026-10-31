@@ -1,6 +1,12 @@
 import type { Prisma } from "@prisma/client";
 import { prisma } from "db/prisma";
-import { ListServiceError, notFound } from "server/lists/access";
+import { isPlainObject } from "server/http/json";
+import {
+  ListServiceError,
+  notFound,
+  ownerOrContributorWhere,
+} from "server/lists/access";
+import { MAX_LABEL_LENGTH } from "./agentAccessRules";
 import { generateAgentToken } from "./agentTokens";
 
 // Managing agent accesses from the web app (KTD12). Only the creator sees and
@@ -24,8 +30,6 @@ export type AgentAccessSummary = {
   members: AgentAccessMember[];
 };
 
-// The label is the channel ("Eingang") of every change made with the access.
-export const MAX_LABEL_LENGTH = 40;
 const LABEL_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
 // Channels the app uses itself.
 const RESERVED_LABELS = new Set(["web", "v1"]);
@@ -65,10 +69,6 @@ export const listAgentAccesses = async (userId: string) => {
   return accesses.map(toSummary);
 };
 
-const ownsOrContributes = (userId: string): Prisma.ListWhereInput => ({
-  OR: [{ ownerID: userId }, { contributors: { some: { id: userId } } }],
-});
-
 // People who own or contribute to at least one list the user also owns or
 // contributes to. Only they may join the user's household access.
 export const listHouseholdCandidates = (
@@ -78,8 +78,8 @@ export const listHouseholdCandidates = (
     where: {
       id: { not: userId },
       OR: [
-        { ownedLists: { some: ownsOrContributes(userId) } },
-        { contributedLists: { some: ownsOrContributes(userId) } },
+        { ownedLists: { some: ownerOrContributorWhere(userId) } },
+        { contributedLists: { some: ownerOrContributorWhere(userId) } },
       ],
     },
     select: memberSelect,
@@ -163,19 +163,16 @@ const resolveMemberIds = async (
 // Creates an access from an untrusted request body. Returns the token, which
 // is shown once and never stored.
 export const createAgentAccess = async (creatorId: string, body: unknown) => {
-  if (typeof body !== "object" || body === null || Array.isArray(body)) {
-    throw invalid("Invalid request body");
-  }
-  const input = body as Record<string, unknown>;
-  const label = parseLabel(input.label);
-  if (input.kind !== "person" && input.kind !== "household") {
+  if (!isPlainObject(body)) throw invalid("Invalid request body");
+  const label = parseLabel(body.label);
+  if (body.kind !== "person" && body.kind !== "household") {
     throw invalid('Kind must be "person" or "household"');
   }
-  const kind: AgentAccessKind = input.kind;
+  const kind: AgentAccessKind = body.kind;
   const memberIds = await resolveMemberIds(
     creatorId,
     kind,
-    parseMemberEmails(input.memberEmails),
+    parseMemberEmails(body.memberEmails),
   );
 
   const { token, tokenId, tokenHash } = generateAgentToken();

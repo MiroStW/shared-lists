@@ -68,8 +68,15 @@ export const describeToolError = (
   return null;
 };
 
-export const toolErrorResponse = (error: unknown, context: string) => {
-  const described = describeToolError(error);
+// describe maps the expected errors; the agent adds its own to the tool ones.
+export const toolErrorResponse = (
+  error: unknown,
+  context: string,
+  describe: (
+    error: unknown,
+  ) => { status: number; body: ToolErrorBody } | null = describeToolError,
+) => {
+  const described = describe(error);
   if (described) {
     return NextResponse.json(described.body, { status: described.status });
   }
