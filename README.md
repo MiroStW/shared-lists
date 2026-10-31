@@ -66,6 +66,16 @@ docker compose run --rm --build tools <command>
 
 `scripts/deploy.sh` syncs and restarts in one go. For this release run only its `rsync` line, then these steps in the deploy directory on the host; step 4 starts the new version.
 
+The `rsync` line has no `--delete`, so files this release removes stay on the host and end up in the image. The old machine `apply` route uses the dropped `ItemUpdateLog` model and breaks the build. Remove them on the host after syncing:
+
+```bash
+rm -rf src/app/api/machine src/server/machineAuth.ts scripts/migrate-user.ts scripts/migrate-data.js src/functions
+```
+
+0. Back up the database first. The migration drops a table and the cleanup in step 7 deletes accounts; neither can be undone otherwise:
+   ```bash
+   docker exec <postgres-container> pg_dump -U <db-user> -Fc shared_lists > shared_lists-before-agent-backend.dump
+   ```
 1. Check whether `ItemUpdateLog` has rows. The migration drops this table, and the removed machine `apply` route may have written to it. Export the rows first if they matter:
    ```bash
    docker exec -it <postgres-container> psql -U <db-user> -d shared_lists -c 'SELECT count(*) FROM "ItemUpdateLog";'
@@ -84,7 +94,7 @@ docker compose run --rm --build tools <command>
    ```
 5. Check that the account addressed by the removed `scripts/migrate-user.ts` no longer accepts the default password that script set (the script stays in the public Git history). Try to sign in with it; if it works, change the password.
 6. Create an agent access for Claude Code under `/settings/agents` and register the MCP server in Claude Code (see "Agent access" above).
-7. Clean up old accounts in the same one-off container. First list what would be removed (dry run), then delete after typing the confirmation:
+7. Clean up old accounts in the same one-off container. First list what would be removed (dry run), then delete after typing the confirmation. `--apply` needs a terminal (`ssh -t`). Keep the account named in `SHARED_LISTS_API_TOKEN_OWNER_EMAIL`, or `/api/v1/*` answers 403 afterwards. Deleting an account also deletes the agent accesses it created:
    ```bash
    docker compose run --rm tools bun scripts/cleanup-accounts.ts --keep <email>,<email>
    docker compose run --rm tools bun scripts/cleanup-accounts.ts --keep <email>,<email> --apply
