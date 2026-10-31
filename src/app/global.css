@@ -18,10 +18,6 @@ body {
   height: 100%;
 }
 
-#firebaseui-auth-container {
-  grid-column-end: -1;
-  grid-column-start: 1;
-}
 ::-webkit-scrollbar {
   width: 4px;
 }
