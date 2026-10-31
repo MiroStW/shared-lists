@@ -1,104 +1,49 @@
-import { prisma } from "db/prisma";
-import getServerSession from "auth/getServerSession";
 import { NextResponse } from "next/server";
+import { actorFromRequest } from "server/http/actorFromRequest";
+import { errorResponse } from "server/http/errors";
+import { CommandContext } from "server/lists/command";
+import { deleteItem, updateItem } from "server/lists/itemService";
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await getServerSession();
+type Params = { params: Promise<{ id: string }> };
+
+export async function PATCH(request: Request, { params }: Params) {
   const itemId = (await params).id;
 
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    const body = await request.json();
-    const { name, completed, description, order, sectionID, listID } = body;
+    const actor = await actorFromRequest(request);
+    const { name, completed, description, order, sectionID, listID } =
+      await request.json();
 
-    // Verify ownership/contribution
-    const item = await prisma.item.findUnique({
-      where: { id: itemId },
-      include: { list: true }
-    });
-
-    if (!item) {
-        return NextResponse.json({ error: "Not Found" }, { status: 404 });
+    // Moving an item to another list is not supported; the web client never
+    // sends listID.
+    if (listID !== undefined) {
+      return NextResponse.json(
+        { error: "listID cannot be changed" },
+        { status: 400 },
+      );
     }
 
-    // Check if user has access to the list the item belongs to
-    const hasAccess = item.list.ownerID === session.user.id ||
-                     await prisma.list.findFirst({
-                         where: {
-                             id: item.listID,
-                             contributors: { some: { id: session.user.id } }
-                         }
-                     });
-
-    if (!hasAccess) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    const updatedItem = await prisma.item.update({
-      where: { id: itemId },
-      data: {
-        name: name !== undefined ? name : undefined,
-        completed: completed !== undefined ? completed : undefined,
-        description: description !== undefined ? description : undefined,
-        order: order !== undefined ? order : undefined,
-        sectionID: sectionID !== undefined ? (sectionID || null) : undefined,
-        listID: listID !== undefined ? listID : undefined,
-      },
+    const item = await updateItem(new CommandContext(actor), itemId, {
+      name,
+      completed,
+      description,
+      order,
+      sectionId: sectionID,
     });
-
-    return NextResponse.json(updatedItem);
+    return NextResponse.json(item);
   } catch (error) {
-    console.error("Error updating item:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return errorResponse(error, { context: "Error updating item:" });
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await getServerSession();
+export async function DELETE(request: Request, { params }: Params) {
   const itemId = (await params).id;
 
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    const item = await prisma.item.findUnique({
-      where: { id: itemId },
-      include: { list: true }
-    });
-
-    if (!item) {
-        return NextResponse.json({ error: "Not Found" }, { status: 404 });
-    }
-
-    const hasAccess = item.list.ownerID === session.user.id ||
-                     await prisma.list.findFirst({
-                         where: {
-                             id: item.listID,
-                             contributors: { some: { id: session.user.id } }
-                         }
-                     });
-
-    if (!hasAccess) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    await prisma.item.delete({
-      where: { id: itemId },
-    });
-
+    const actor = await actorFromRequest(request);
+    await deleteItem(new CommandContext(actor), itemId);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error deleting item:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return errorResponse(error, { context: "Error deleting item:" });
   }
 }

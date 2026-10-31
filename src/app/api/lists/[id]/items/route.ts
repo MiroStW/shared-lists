@@ -1,97 +1,50 @@
-import { prisma } from "db/prisma";
-import getServerSession from "auth/getServerSession";
 import { NextResponse } from "next/server";
+import { actorFromRequest } from "server/http/actorFromRequest";
+import { errorResponse } from "server/http/errors";
+import { CommandContext } from "server/lists/command";
+import { createItem } from "server/lists/itemService";
+import { getListItems } from "server/lists/listService";
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await getServerSession();
+type Params = { params: Promise<{ id: string }> };
+
+// A missing list answers 403 like a foreign one.
+export async function GET(request: Request, { params }: Params) {
   const listId = (await params).id;
 
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    // Check if user is owner or contributor to the list
-    const list = await prisma.list.findFirst({
-        where: {
-            id: listId,
-            OR: [
-                { ownerID: session.user.id },
-                { contributors: { some: { id: session.user.id } } }
-            ]
-        }
-    });
-
-    if (!list) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    const items = await prisma.item.findMany({
-      where: {
-        listID: listId,
-      },
-      orderBy: {
-        order: "asc",
-      },
-    });
-
-    return NextResponse.json(items);
+    const actor = await actorFromRequest(request);
+    return NextResponse.json(await getListItems(actor, listId));
   } catch (error) {
-    console.error("Error fetching items:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return errorResponse(error, {
+      context: "Error fetching items:",
+      notFoundStatus: 403,
+    });
   }
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await getServerSession();
+export async function POST(request: Request, { params }: Params) {
   const listId = (await params).id;
 
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    const body = await request.json();
-    const { name, completed, sectionID, order } = body;
+    const actor = await actorFromRequest(request);
+    const { name, completed, sectionID, order } = await request.json();
 
     if (!name) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
-    // Check if user is owner or contributor to the list
-    const list = await prisma.list.findFirst({
-        where: {
-            id: listId,
-            OR: [
-                { ownerID: session.user.id },
-                { contributors: { some: { id: session.user.id } } }
-            ]
-        }
+    const item = await createItem(new CommandContext(actor), {
+      listId,
+      name,
+      completed: completed ?? false,
+      sectionId: sectionID || null,
+      order: order || 0,
     });
-
-    if (!list) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    const newItem = await prisma.item.create({
-      data: {
-        name,
-        completed: completed ?? false,
-        listID: listId,
-        sectionID: sectionID || null,
-        order: order || 0,
-      },
-    });
-
-    return NextResponse.json(newItem);
+    return NextResponse.json(item);
   } catch (error) {
-    console.error("Error creating item:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return errorResponse(error, {
+      context: "Error creating item:",
+      notFoundStatus: 403,
+    });
   }
 }
