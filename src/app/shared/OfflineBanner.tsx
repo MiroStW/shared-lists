@@ -45,7 +45,8 @@ const OfflineBanner = () => {
     >
       <Icon iconName="wifi_off" size={20} />
       <Typography variant="body2" sx={{ fontWeight: 500 }}>
-        You are offline. Changes will sync when you reconnect.
+        You are offline. Changes are not saved; try again once you are back
+        online.
       </Typography>
     </Box>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { fetchWrite } from "app/shared/clientId";
 import { AdminInvite } from "types/types";
 import { useState } from "react";
 
@@ -15,7 +16,7 @@ const ShowInvite = ({ invite }: { invite: AdminInvite }) => {
       setError(null);
 
       try {
-        const res = await fetch(`/api/invites/${invite.id}/accept`, {
+        const res = await fetchWrite(`/api/invites/${invite.id}/accept`, {
           method: "POST",
           headers: { "Content-Type": "application/json" }
         });

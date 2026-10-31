@@ -3,11 +3,12 @@
 import { Item } from "types/types";
 import styles from "./item.module.css";
 import { useRouter } from "next/navigation";
+import { fetchWrite } from "app/shared/clientId";
 
 const Checkbox = ({ item }: { item: Item }) => {
   const router = useRouter();
   const handleCompleted = async () => {
-    await fetch(`/api/items/${item.id}`, {
+    await fetchWrite(`/api/items/${item.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ completed: !item.data.completed }),

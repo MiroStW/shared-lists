@@ -5,10 +5,13 @@ import {
   Dispatch,
   ReactNode,
   SetStateAction,
+  useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
+import { useLiveUpdates } from "app/shared/useLiveUpdates";
 import {
   AdminList,
   Item as ItemType,
@@ -34,6 +37,7 @@ interface ItemsContextType {
   loading: boolean;
   error?: unknown;
   refreshItems: () => void;
+  setItemEditing: (id: string, editing: boolean) => void;
 }
 
 const itemsContext = createContext({} as ItemsContextType);
@@ -56,7 +60,13 @@ export const ItemsContextProvider = ({
     [key: string]: ItemType[];
   }>({});
 
-  const fetchData = async (showLoading = true) => {
+  // Items whose input is open. A reload keeps their local copy, so a change
+  // from elsewhere neither moves nor removes an item while it is being typed
+  // in. Once the last input closes, a reload skipped meanwhile is caught up.
+  const editingItemIds = useRef(new Set<string>());
+  const reloadedWhileEditing = useRef(false);
+
+  const fetchData = useCallback(async (showLoading = true) => {
     if (showLoading) setLoading(true);
     try {
       const [itemsRes, sectionsRes] = await Promise.all([
@@ -72,6 +82,7 @@ export const ItemsContextProvider = ({
       const mappedItems = itemsData.map(d => ({ id: d.id, data: d }));
       const mappedSections = sectionsData.map(d => ({ id: d.id, data: d }));
 
+      if (editingItemIds.current.size > 0) reloadedWhileEditing.current = true;
       setItems(mappedItems);
       setSections(mappedSections);
       setError(undefined);
@@ -81,39 +92,58 @@ export const ItemsContextProvider = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [list.id]);
 
   useEffect(() => {
     fetchData();
-  }, [list.id]);
+  }, [fetchData]);
+
+  useLiveUpdates(
+    (listIds) => listIds.includes(list.id),
+    () => fetchData(false),
+  );
+
+  const setItemEditing = useCallback(
+    (id: string, editing: boolean) => {
+      if (editing) {
+        editingItemIds.current.add(id);
+        return;
+      }
+      editingItemIds.current.delete(id);
+      if (editingItemIds.current.size === 0 && reloadedWhileEditing.current) {
+        reloadedWhileEditing.current = false;
+        fetchData(false);
+      }
+    },
+    [fetchData],
+  );
 
   // update localItems when items or sections change
   useEffect(() => {
     if (items) {
-      const newItems = Object.keys(localItems).reduce(
-        (acc, container) => [
-          ...acc,
-          ...localItems[container].filter((item) =>
-            item.id.startsWith("newItem_")
-          ),
-        ],
-        [] as ItemType[]
-      );
+      // Unsaved new items and items with an open input keep their local copy.
+      const keptItems = Object.values(localItems)
+        .flat()
+        .filter(
+          (item) =>
+            item.id.startsWith("newItem_") ||
+            editingItemIds.current.has(item.id),
+        );
+      const keptIds = new Set(keptItems.map((item) => item.id));
+      const mergedItems = items
+        .filter((item) => !keptIds.has(item.id))
+        .concat(keptItems);
 
       const updatedLocalItems: { [key: string]: ItemType[] } = {
-        [list.id]: items
-          ?.concat(newItems)
+        [list.id]: mergedItems
           .filter((item) => item.data.listID === list.id && !item.data.sectionID)
           .sort((a, b) => a.data.order - b.data.order),
       };
 
       sections.forEach((section) => {
-        updatedLocalItems[section.id] = items
-          ? items
-              .concat(newItems)
-              .filter((item) => item.data.sectionID === section.id)
-              .sort((a, b) => a.data.order - b.data.order)
-          : [];
+        updatedLocalItems[section.id] = mergedItems
+          .filter((item) => item.data.sectionID === section.id)
+          .sort((a, b) => a.data.order - b.data.order);
       });
 
       setLocalItems(updatedLocalItems);
@@ -221,6 +251,7 @@ export const ItemsContextProvider = ({
         loading,
         error,
         refreshItems: () => fetchData(false),
+        setItemEditing,
       }}
     >
       {children}
