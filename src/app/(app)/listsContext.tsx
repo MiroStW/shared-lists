@@ -13,7 +13,7 @@ import { useClientSession } from "app/sessionContext";
 const listsContext = createContext({
   lists: [] as List[] | undefined,
   loading: true,
-  error: undefined as any | undefined,
+  error: undefined as unknown,
   refreshLists: () => {},
 });
 
@@ -21,7 +21,7 @@ export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useClientSession();
   const [lists, setLists] = useState<List[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<any | undefined>(undefined);
+  const [error, setError] = useState<unknown>(undefined);
 
   const fetchLists = async () => {
     if (!user) return;

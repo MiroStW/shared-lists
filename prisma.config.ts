@@ -2,17 +2,16 @@
 import { defineConfig } from "prisma/config";
 import { readFileSync } from "fs";
 
-let dbUrl = process.env.DATABASE_URL;
-try {
-  const envLocal = readFileSync(".env.local", "utf-8");
-  const dbUrlMatch = envLocal.match(/DATABASE_URL="([^"]+)"/);
-  if (dbUrlMatch) {
-    dbUrl = dbUrlMatch[1];
+// DATABASE_URL from the environment wins (CI, test runs). .env.local is only
+// a fallback for local development.
+const readEnvLocalDatabaseUrl = () => {
+  try {
+    const envLocal = readFileSync(".env.local", "utf-8");
+    return envLocal.match(/DATABASE_URL="([^"]+)"/)?.[1];
+  } catch {
+    return undefined;
   }
-} catch (e) {
-  // Ignore
-}
-
+};
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
@@ -20,6 +19,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: dbUrl,
+    url: process.env.DATABASE_URL ?? readEnvLocalDatabaseUrl(),
   },
 });

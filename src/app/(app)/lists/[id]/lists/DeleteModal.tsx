@@ -45,8 +45,8 @@ const DeleteModal = ({
           // If it's a section, we might need to refresh the page/context
           router.refresh();
       }
-    } catch (err: any) {
-      setError(err.message || "An error occurred");
+    } catch (err) {
+      setError((err instanceof Error && err.message) || "An error occurred");
       setIsDeleting(false);
     }
   };

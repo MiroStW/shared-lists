@@ -28,7 +28,7 @@ export async function POST(
     });
 
     const results = items.map(query => {
-      const match = findBestMatch(query, existingItems as any);
+      const match = findBestMatch(query, existingItems);
       return {
         query,
         matchType: match.matchType,

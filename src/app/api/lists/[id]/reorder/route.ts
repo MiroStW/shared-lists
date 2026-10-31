@@ -2,6 +2,8 @@ import { prisma } from "db/prisma";
 import getServerSession from "auth/getServerSession";
 import { NextResponse } from "next/server";
 
+type ReorderItem = { id: string; order: number; sectionID?: string | null };
+
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -40,7 +42,7 @@ export async function POST(
     // Prisma doesn't have a built-in "bulk update with different values" for sqlite/postgres easily without many queries or raw SQL
     // For now, we'll use a transaction with multiple updates
     await prisma.$transaction(
-      items.map((item: any) =>
+      items.map((item: ReorderItem) =>
         prisma.item.update({
           where: { id: item.id },
           data: {

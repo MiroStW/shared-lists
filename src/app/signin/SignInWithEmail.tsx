@@ -48,9 +48,9 @@ const SignInWithEmail = ({
         setIsLoading(false);
         router.push("/lists");
       }
-    } catch (err: any) {
+    } catch (err) {
       setIsLoading(false);
-      setError(err.message || "An error occurred");
+      setError((err instanceof Error && err.message) || "An error occurred");
     }
 
     return null;

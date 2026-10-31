@@ -9,7 +9,13 @@ import {
   useEffect,
   useState,
 } from "react";
-import { AdminList, Item as ItemType, Section, ItemData } from "types/types";
+import {
+  AdminList,
+  Item as ItemType,
+  Section,
+  SectionData,
+  ItemData,
+} from "types/types";
 
 interface ItemsContextType {
   items: ItemType[];
@@ -26,7 +32,7 @@ interface ItemsContextType {
     order?: number;
   }) => void;
   loading: boolean;
-  error?: any;
+  error?: unknown;
   refreshItems: () => void;
 }
 
@@ -44,7 +50,7 @@ export const ItemsContextProvider = ({
   const [items, setItems] = useState<ItemType[]>([]);
   const [sections, setSections] = useState<Section[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<any>(undefined);
+  const [error, setError] = useState<unknown>(undefined);
 
   const [localItems, setLocalItems] = useState<{
     [key: string]: ItemType[];
@@ -61,7 +67,7 @@ export const ItemsContextProvider = ({
       if (!itemsRes.ok || !sectionsRes.ok) throw new Error("Failed to fetch items or sections");
 
       const itemsData: ItemData[] = await itemsRes.json();
-      const sectionsData: any[] = await sectionsRes.json();
+      const sectionsData: SectionData[] = await sectionsRes.json();
 
       const mappedItems = itemsData.map(d => ({ id: d.id, data: d }));
       const mappedSections = sectionsData.map(d => ({ id: d.id, data: d }));
