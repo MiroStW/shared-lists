@@ -31,7 +31,9 @@ export class AgentUnavailableError extends Error {
 }
 
 const anthropicModel = (apiKey: string): AgentModel => {
-  const client = new Anthropic({ apiKey });
+  // A hanging model call must not hold the request open: fail after 30 s with
+  // one retry, and the agent answers with an error.
+  const client = new Anthropic({ apiKey, timeout: 30_000, maxRetries: 1 });
   const model =
     process.env.LIST_AGENT_MODEL?.trim() || DEFAULT_LIST_AGENT_MODEL;
   return {

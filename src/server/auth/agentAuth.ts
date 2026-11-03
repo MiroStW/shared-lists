@@ -64,7 +64,9 @@ export const actorFromAgentToken = async (
     return personActor(memberIds[0], options);
   }
 
-  if (memberIds.length === 0) throw new UnauthenticatedError();
+  // A household that lost members down to one would see that member's
+  // private lists; it stops working instead.
+  if (memberIds.length < 2) throw new UnauthenticatedError();
   let actingUserId: string | null = null;
   if (actingUserEmail) {
     const email = actingUserEmail.toLowerCase();

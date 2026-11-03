@@ -41,11 +41,15 @@ export const validateOptions = (raw: unknown): ClarificationOption[] => {
   return valid;
 };
 
-// One open question per person, or per access when no person is known.
-const ownerWhere = (actor: Actor): Prisma.ClarificationWhereInput =>
-  actor.actingUserId
-    ? { actorUserId: actor.actingUserId }
-    : { actorUserId: null, accessId: actor.accessId };
+// One open question per person, or per access when no person is known. A
+// household access sees only questions asked through it, never a member's
+// private question from another channel.
+const ownerWhere = (actor: Actor): Prisma.ClarificationWhereInput => {
+  if (!actor.actingUserId) return { actorUserId: null, accessId: actor.accessId };
+  return actor.memberUserIds.length > 1
+    ? { actorUserId: actor.actingUserId, accessId: actor.accessId }
+    : { actorUserId: actor.actingUserId };
+};
 
 const openWhere = (
   actor: Actor,

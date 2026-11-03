@@ -84,6 +84,40 @@ test.describe("live updates", () => {
     await expect(a.page.getByText(name)).toBeVisible({ timeout: LIVE_TIMEOUT });
   });
 
+  test("a refused stream is reopened and delivers changes again", async ({
+    browser,
+  }) => {
+    const a = await openSharedList(browser, user1);
+    const other = await openSharedList(browser, user2);
+    contexts.push(a.context, other.context);
+    const name = uniqueName("After restart");
+
+    // A restarting server refuses the stream; the browser then gives up on
+    // its own and the page has to reopen it. The service worker fetches the
+    // stream, so the route is set on the context.
+    await a.context.route("**/api/events", (route) =>
+      route.fulfill({ status: 503, body: "" }),
+    );
+    const refused = a.page.waitForResponse(
+      (response) =>
+        response.url().endsWith("/api/events") && response.status() === 503,
+    );
+    await a.page.reload();
+    await refused;
+    const reopened = a.page.waitForResponse(
+      (response) =>
+        response.url().endsWith("/api/events") && response.status() === 200,
+    );
+    await a.context.unroute("**/api/events");
+    await reopened;
+
+    const item = await createItemViaApi(other.context, name);
+
+    await expect(a.page.locator(`[id="${item.id}"]`)).toContainText(name, {
+      timeout: LIVE_TIMEOUT,
+    });
+  });
+
   test("focus and blur after a foreign rename send no PATCH", async ({
     browser,
   }) => {

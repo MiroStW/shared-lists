@@ -160,6 +160,16 @@ describe("agent token auth", () => {
     });
   });
 
+  test("a household left with a single member answers 401", async () => {
+    // E.g. after the partner's account was deleted.
+    const { token } = await createAccess(me, {
+      kind: "household",
+      members: [me],
+    });
+
+    expect(await statusOf(bearer(token))).toBe(401);
+  });
+
   test("the caller decides the origin", async () => {
     const { token } = await createAccess(me);
 

@@ -8,7 +8,9 @@ import {
 } from "server/agent/clarifications";
 import { runAgentCommand } from "server/agent/listAgent";
 import { ListServiceError } from "server/lists/access";
-import { personActor, type Actor } from "server/lists/actor";
+import { householdActor, personActor, type Actor } from "server/lists/actor";
+import { CommandContext } from "server/lists/command";
+import { setItemCompleted } from "server/lists/itemService";
 import { undoLastCommand } from "server/lists/undo";
 import { resetDatabase } from "../setup/db";
 import * as fixtures from "../lists/fixtures";
@@ -219,6 +221,49 @@ describe("clarifications", () => {
       }),
     );
     expect(structured!.kind).toBe("not_found");
+  });
+
+  test("a household access neither sees a member's private question nor answers it", async () => {
+    const partner = await fixtures.createUser("clarify-partner");
+    const { access } = await fixtures.createAgentAccess(owner, {
+      kind: "household",
+      label: "family-bot",
+      memberIds: [owner.id, partner.id],
+    });
+    const household = householdActor([owner.id, partner.id], {
+      actingUserId: owner.id,
+      accessId: access.id,
+      channel: access.label,
+      origin: "agent",
+    });
+    // Asked in the owner's own channel, e.g. the web.
+    await askAboutMilk();
+    model.script(reply("Was meinst du?"));
+
+    const response = await sentence(household, "2");
+
+    expect(response.status).toBe("done");
+    expect(model.calls).toBe(2);
+    // No question of the owner leaks into the household's model context.
+    expect(systemText(model.requests[1])).not.toContain("Welche Milch?");
+    expect(await completed(oatMilk)).toBe(true);
+    expect(
+      (await prisma.clarification.findFirstOrThrow()).resolvedAt,
+    ).toBeNull();
+  });
+
+  test("undo after an answer takes back the answer, not a later change", async () => {
+    await askAboutMilk();
+    // A click by the same person after the question was asked.
+    await setItemCompleted(new CommandContext(actor), milk.id, false);
+    await sentence(actor, "2");
+    expect(await completed(oatMilk)).toBe(false);
+
+    const result = await undoLastCommand(actor);
+
+    expect(result.status).toBe("undone");
+    expect(await completed(oatMilk)).toBe(true);
+    expect(await completed(milk)).toBe(false);
   });
 
   test("other text is a new sentence with the open question as context; the question lapses", async () => {

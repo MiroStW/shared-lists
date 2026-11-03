@@ -4,15 +4,18 @@ Source: ce-code-review run `20261031-090952-126bfc0b` (mode:agent, 12 reviewers,
 
 ## Residual Review Findings
 
-- P2 `src/server/agent/clarifications.ts:45` Household actor reads and answers another channel's private clarification. Clarification ownership matches the acting person only, so a household token with `x-acting-user` sees and can answer that person's private question. Fix: for household actors also match `accessId`.
-- P2 `src/server/auth/agentAuth.ts:67` Household access widens to a lone member's lists. Deleting a non-creator member leaves a one-member household that then sees the creator's private lists. Fix: reject households with fewer than two members in `actorFromAgentToken`; consider a cleanup-script blocker.
-- P2 `src/server/lists/undo.ts:90` Undo after a clarification answer reverts a later, unrelated command. Answers append to the asking command, but undo picks the newest command by `createdAt`. Fix: pick the command of the newest eligible `ListEvent` by `seq`.
-- P2 `src/app/shared/useLiveUpdates.ts:25` EventSource is never reopened after a fatal stream error (non-200 on reconnect). Fix: on `CLOSED`, reset `source` and reopen with capped backoff while subscribers exist.
-- P2 `src/server/agent/anthropicClient.ts:34` Model call has no timeout or abort propagation. Fix: `new Anthropic({ apiKey, timeout: 30_000, maxRetries: 1 })`, optionally pass the request signal.
 - P2 `src/server/agent/listAgent.ts:454` Clarification is consumed before its stored tool call runs; an unexpected failure loses the question. Fix: reset `resolvedAt` on the rethrow path.
 - P2 `src/server/lists/access.ts:62` In-memory household visibility checks have no negative tests (item, section, list visible to only one member). Fix: add forbidden-path household tests.
 - P3 `src/server/agent/listAgent.ts:306` Daily limit counts follow-up commands of one sentence (after undo, or an answer to an undone sentence) as extra sentences. Fix: mark only entry commands as sentences.
 - P3 `src/server/lists/undo.ts:214` Undo of a section move records the wrong `sectionId` on the inverse event. Fix: use the restored section id for `item.section_set`.
+
+## Fixed before merge
+
+- Household accesses see and answer only questions asked through the same access.
+- A household access left with fewer than two members stops authenticating (401).
+- Undo picks the command that wrote the newest event, so an answer to a question is undone before a later change.
+- The live stream reopens with a growing delay (1 s up to 30 s) after the server refused it.
+- Model calls time out after 30 s with one retry.
 
 ## Design notes (report-only)
 

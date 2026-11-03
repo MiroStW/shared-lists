@@ -17,6 +17,13 @@ type Subscriber = (listIds: string[] | null) => void;
 const subscribers = new Set<Subscriber>();
 let source: EventSource | null = null;
 
+// After a fatal error (e.g. a non-200 answer while the server restarts) the
+// browser gives up on the stream; it is reopened with a growing delay.
+const MIN_RETRY_MS = 1_000;
+const MAX_RETRY_MS = 30_000;
+let retryDelay = MIN_RETRY_MS;
+let retryTimer: ReturnType<typeof setTimeout> | undefined;
+
 const notify = (listIds: string[] | null) => {
   for (const subscriber of [...subscribers]) subscriber(listIds);
 };
@@ -37,7 +44,21 @@ const openSource = () => {
   // Reload once whenever the stream (re)opens: changes made between the
   // initial data load and the subscription, or during a reconnect after an
   // error (the browser reconnects by itself), were not delivered.
-  eventSource.onopen = () => notify(null);
+  eventSource.onopen = () => {
+    retryDelay = MIN_RETRY_MS;
+    notify(null);
+  };
+  // Transient errors reconnect by themselves; only a closed stream needs us.
+  eventSource.onerror = () => {
+    if (eventSource.readyState !== EventSource.CLOSED) return;
+    if (source !== eventSource) return;
+    source = null;
+    retryTimer = setTimeout(() => {
+      retryTimer = undefined;
+      if (subscribers.size > 0) source ??= openSource();
+    }, retryDelay);
+    retryDelay = Math.min(retryDelay * 2, MAX_RETRY_MS);
+  };
   return eventSource;
 };
 
@@ -46,10 +67,11 @@ const subscribe = (subscriber: Subscriber) => {
   source ??= openSource();
   return () => {
     subscribers.delete(subscriber);
-    if (subscribers.size === 0 && source) {
-      source.close();
-      source = null;
-    }
+    if (subscribers.size > 0) return;
+    clearTimeout(retryTimer);
+    retryTimer = undefined;
+    source?.close();
+    source = null;
   };
 };
 

@@ -69,9 +69,11 @@ const entryOf = (event: ListEvent, fields: string[] = []): UndoEntry => ({
   fields,
 });
 
-// The last command of the same person (or, without one, the same access)
-// that is not undone and has at least one event (KTD4.1, KTD4.2).
-const findCandidate = (scope: WriteScope) => {
+// The command of the same person (or, without one, the same access) that is
+// not undone and wrote the newest event (KTD4.1, KTD4.2). Ordering by event,
+// not by command, matters because an answer to a question appends its events
+// to the older command that asked.
+const findCandidate = async (scope: WriteScope) => {
   const { actor, tx } = scope;
   const owner = actor.actingUserId
     ? { actorUserId: actor.actingUserId }
@@ -79,15 +81,15 @@ const findCandidate = (scope: WriteScope) => {
       ? { accessId: actor.accessId }
       : null;
   if (!owner) return null;
-  return tx.command.findFirst({
-    where: {
-      ...owner,
-      kind: "change",
-      undoState: "none",
-      events: { some: {} },
-    },
+  const latest = await tx.listEvent.findFirst({
+    where: { command: { ...owner, kind: "change", undoState: "none" } },
+    orderBy: { seq: "desc" },
+    select: { commandId: true },
+  });
+  if (!latest) return null;
+  return tx.command.findUnique({
+    where: { id: latest.commandId },
     include: { events: { orderBy: { seq: "desc" } } },
-    orderBy: [{ createdAt: "desc" }, { seq: "desc" }],
   });
 };
 
