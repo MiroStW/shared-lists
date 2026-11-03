@@ -50,7 +50,11 @@ Three ways in, all on the same tools and the same event log:
 - **HTTP tools** for bridges that speak plain HTTP: `GET /api/agent/tools` lists the tools with their JSON schemas, `POST /api/agent/tools/<name>` with the tool input as JSON body runs one and answers `{result}` or `{error, fields?}`. Each call is one command; `undo_last_command` takes back the latest one.
 - **Sentences** for the list agent: `POST /api/agent/command` with `{"text": "Milch und Brot drauf"}`. The answer is `{status, message, changes, command_id, clarification}` with status `done`, `needs_choice` or `error`. On `needs_choice`, `message` lists numbered options and `clarification` holds them structured; answer with the number as text (`{"text": "2"}`), an option label, or `{"clarification_id": "...", "option": 2}`. Questions expire after 30 minutes. "mach das rückgängig" undoes the person's last command. A signed-in web session can call the endpoint too.
 
-The list agent needs `ANTHROPIC_API_KEY` (model `LIST_AGENT_MODEL`, default `claude-haiku-5-5`); without it sentences answer 503 while the tools and answers by number keep working. Each access (or user) may send `LIST_AGENT_DAILY_COMMAND_LIMIT` sentences per day (default 300); above that sentences answer 429. Tool calls, web clicks and answers to a question do not count.
+The list agent needs `ANTHROPIC_API_KEY` or `ANTHROPIC_PROXY_URL` (model `LIST_AGENT_MODEL`, default `claude-haiku-5-5`); without either, sentences answer 503 while the tools and answers by number keep working. Each access (or user) may send `LIST_AGENT_DAILY_COMMAND_LIMIT` sentences per day (default 300); above that sentences answer 429. Tool calls, web clicks and answers to a question do not count.
+
+### Key through a credential proxy
+
+Instead of holding the key itself, the app can send its model calls through a credential proxy such as a [OneCLI](https://onecli.sh) gateway, which injects the real key. Set `ANTHROPIC_PROXY_URL` to the proxy URL of an identity that holds only the Anthropic secret (with its token, e.g. `http://x:<token>@172.17.0.1:10255`), leave `ANTHROPIC_API_KEY` empty and let Node trust the proxy's CA: put the CA file into `certs/` next to `docker-compose.yml` (mounted read-only at `/run/certs`) and set `NODE_EXTRA_CA_CERTS=/run/certs/<file>`. Only the model client uses the proxy; all other traffic goes direct.
 
 ## Deployment
 
@@ -88,7 +92,7 @@ rm -rf src/app/api/machine src/server/machineAuth.ts scripts/migrate-user.ts scr
    ```bash
    docker compose run --rm tools bunx prisma migrate deploy
    ```
-4. Set the new variables in `.env` (see `.env.local.example`), at least `SHARED_LISTS_API_TOKEN_OWNER_EMAIL`: without it every `/api/v1/*` call answers 403 and the NanoClaw bridge stops working. For the list agent add `ANTHROPIC_API_KEY`, optionally `LIST_AGENT_MODEL` and `LIST_AGENT_DAILY_COMMAND_LIMIT`. Remove `SHARED_LISTS_MACHINE_TOKEN`; nothing reads it anymore. Then start the new version:
+4. Set the new variables in `.env` (see `.env.local.example`), at least `SHARED_LISTS_API_TOKEN_OWNER_EMAIL`: without it every `/api/v1/*` call answers 403 and the NanoClaw bridge stops working. For the list agent add `ANTHROPIC_API_KEY` (or `ANTHROPIC_PROXY_URL`, see above), optionally `LIST_AGENT_MODEL` and `LIST_AGENT_DAILY_COMMAND_LIMIT`. Remove `SHARED_LISTS_MACHINE_TOKEN`; nothing reads it anymore. Then start the new version:
    ```bash
    docker compose up -d --build web
    ```

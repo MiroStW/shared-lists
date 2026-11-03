@@ -10,3 +10,4 @@ build
 .git
 .env*
 !.env.example
+certs
