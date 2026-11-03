@@ -9,11 +9,12 @@ import {
 } from "react";
 import { List, ListData } from "types/types";
 import { useClientSession } from "app/sessionContext";
+import { useLiveUpdates } from "app/shared/useLiveUpdates";
 
 const listsContext = createContext({
   lists: [] as List[] | undefined,
   loading: true,
-  error: undefined as any | undefined,
+  error: undefined as unknown,
   refreshLists: () => {},
 });
 
@@ -21,11 +22,12 @@ export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useClientSession();
   const [lists, setLists] = useState<List[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<any | undefined>(undefined);
+  const [error, setError] = useState<unknown>(undefined);
 
-  const fetchLists = async () => {
+  // Live reloads pass showLoading = false so the lists do not flicker.
+  const fetchLists = async (showLoading = true) => {
     if (!user) return;
-    setLoading(true);
+    if (showLoading) setLoading(true);
     try {
       const response = await fetch("/api/lists");
       if (!response.ok) {
@@ -46,13 +48,19 @@ export const ListsContextProvider = ({ children }: { children: ReactNode }) => {
     fetchLists();
   }, [user]);
 
+  // Any change can rename, archive or remove a list, so reload on every one.
+  useLiveUpdates(
+    () => true,
+    () => fetchLists(false),
+  );
+
   return (
     <listsContext.Provider
       value={{
         lists,
         loading,
         error,
-        refreshLists: fetchLists,
+        refreshLists: () => fetchLists(),
       }}
     >
       {children}

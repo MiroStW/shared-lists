@@ -1,6 +1,6 @@
 import { defaultCache } from "@serwist/next/worker";
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
-import { Serwist, NetworkFirst, ExpirationPlugin, CacheFirst } from "serwist";
+import { Serwist, NetworkFirst, NetworkOnly, ExpirationPlugin } from "serwist";
 
 // This declares the value of `injectionPoint` to typescript.
 // `injectionPoint` is the string that will be replaced by the actual precache list.
@@ -13,12 +13,24 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope;
 
+// Live updates (a long-lived event stream) and agent endpoints must never be
+// cached or answered from a cache (KTD8).
+const isUncachedApi = ({ url, sameOrigin }: { url: URL; sameOrigin: boolean }) =>
+  sameOrigin &&
+  (url.pathname === "/api/events" ||
+    url.pathname === "/api/mcp" ||
+    url.pathname.startsWith("/api/agent/"));
+
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
   skipWaiting: true,
   clientsClaim: true,
   navigationPreload: true,
   runtimeCaching: [
+    {
+      matcher: isUncachedApi,
+      handler: new NetworkOnly(),
+    },
     {
       matcher: ({ request }: { request: Request }) => request.mode === "navigate",
       handler: new NetworkFirst({

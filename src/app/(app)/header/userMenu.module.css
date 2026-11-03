@@ -33,3 +33,15 @@
   z-index: 2;
   border: 1px solid #5f6368;
 }
+
+.userMenuList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.userMenuItem {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}

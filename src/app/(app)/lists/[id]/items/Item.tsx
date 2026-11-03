@@ -12,6 +12,7 @@ import {
 import { useItems } from "app/(app)/lists/[id]/itemsContext";
 import { Item as ItemType } from "types/types";
 import { Icon } from "app/shared/Icon";
+import { fetchWrite } from "app/shared/clientId";
 import styles from "./item.module.css";
 import { Sortable } from "./dnd/Sortable";
 import Checkbox from "@mui/material/Checkbox";
@@ -26,16 +27,31 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
     localItems,
     refreshItems,
     updateLocalItem,
+    setItemEditing,
   } = useItems();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const divRef = useRef<HTMLDivElement>(null);
   const completionRequestId = useRef(0);
+  const editing = inlineEdit || focus;
+
+  // Without an open input the local name follows the item, e.g. after a
+  // rename from elsewhere. Otherwise focus and blur would write the old name
+  // back.
+  if (!editing && itemName !== item.data.name) {
+    setItemName(item.data.name);
+  }
 
   useEffect(() => {
-    if (inlineEdit || focus) {
+    if (editing) {
       textareaRef.current?.focus();
     }
-  }, [focus, inlineEdit, itemName.length]);
+  }, [editing, itemName.length]);
+
+  useEffect(() => {
+    if (!editing) return;
+    setItemEditing(item.id, true);
+    return () => setItemEditing(item.id, false);
+  }, [editing, item.id, setItemEditing]);
 
   const handleInlineEdit = () => {
     setInlineEdit(true);
@@ -71,7 +87,7 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
     if (itemName !== item.data.name) {
       if (item.id.startsWith("newItem_")) {
         // Create new item
-        const response = await fetch(`/api/lists/${item.data.listID}/items`, {
+        const response = await fetchWrite(`/api/lists/${item.data.listID}/items`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -87,7 +103,7 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
         }
       } else {
         // Update existing item
-        await fetch(`/api/items/${item.id}`, {
+        await fetchWrite(`/api/items/${item.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: itemName }),
@@ -102,7 +118,7 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
   };
 
   const handleDelete = async () => {
-    await fetch(`/api/items/${item.id}`, {
+    await fetchWrite(`/api/items/${item.id}`, {
       method: "DELETE",
     });
     refreshItems();
@@ -120,7 +136,7 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
     const requestId = ++completionRequestId.current;
 
     try {
-      const response = await fetch(`/api/items/${item.id}`, {
+      const response = await fetchWrite(`/api/items/${item.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ completed }),
@@ -172,7 +188,7 @@ const Item = ({ item, focus = false }: { item: ItemType; focus?: boolean }) => {
             onPointerDown={(e) => e.stopPropagation()}
             onClick={handleCheckboxClick}
           />
-          {inlineEdit || focus ? (
+          {editing ? (
             <TextareaAutosize
               maxRows={10}
               ref={textareaRef}

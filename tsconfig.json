@@ -9,11 +9,6 @@
     ],
     "allowJs": true,
     "baseUrl": "src",
-    "paths": {
-      "@firebase/*": [
-        "firebase/*"
-      ]
-    },
     "skipLibCheck": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,

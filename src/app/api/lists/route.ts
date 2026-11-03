@@ -1,64 +1,30 @@
-import { prisma } from "db/prisma";
-import getServerSession from "auth/getServerSession";
 import { NextResponse } from "next/server";
+import { actorFromRequest } from "server/http/actorFromRequest";
+import { errorResponse } from "server/http/errors";
+import { CommandContext } from "server/lists/command";
+import { createList, getVisibleLists } from "server/lists/listService";
 
-export async function GET() {
-  const session = await getServerSession();
-
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
+export async function GET(request: Request) {
   try {
-    const lists = await prisma.list.findMany({
-      where: {
-        OR: [
-          { ownerID: session.user.id },
-          { contributors: { some: { id: session.user.id } } },
-        ],
-        isArchived: false,
-      },
-      include: {
-        owner: true,
-        contributors: true,
-      },
-      orderBy: {
-        createdDate: "asc",
-      },
-    });
-
-    return NextResponse.json(lists);
+    const actor = await actorFromRequest(request);
+    return NextResponse.json(await getVisibleLists(actor));
   } catch (error) {
-    console.error("Error fetching lists:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return errorResponse(error, { context: "Error fetching lists:" });
   }
 }
 
 export async function POST(request: Request) {
-  const session = await getServerSession();
-
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    const body = await request.json();
-    const { name } = body;
+    const actor = await actorFromRequest(request);
+    const { name } = await request.json();
 
     if (!name) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
-    const newList = await prisma.list.create({
-      data: {
-        name,
-        ownerID: session.user.id,
-      },
-    });
-
-    return NextResponse.json(newList);
+    const list = await createList(new CommandContext(actor), { name });
+    return NextResponse.json(list);
   } catch (error) {
-    console.error("Error creating list:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return errorResponse(error, { context: "Error creating list:" });
   }
 }

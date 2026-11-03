@@ -1,3 +1,6 @@
+import { CommandContext } from "server/lists/command";
+import { personActor } from "server/lists/actor";
+import { createList } from "server/lists/listService";
 import { prisma } from "./prisma";
 import getServerSession from "../auth/getServerSession";
 
@@ -17,12 +20,12 @@ export const getFirstListId = async () => {
     });
 
     if (!list) {
-      const newList = await prisma.list.create({
-        data: {
+      const newList = await createList(
+        new CommandContext(personActor(userId)),
+        {
           name: "my first list",
-          ownerID: userId,
         },
-      });
+      );
 
       return newList.id;
     }

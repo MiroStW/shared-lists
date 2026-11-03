@@ -23,8 +23,9 @@ test("checkbox toggles on first click and updates optimistically", async ({
   await expect(checkbox).not.toBeChecked();
 
   let releasePatch;
+  let markPatchStarted;
   const patchStarted = new Promise((resolve) => {
-    releasePatch = resolve;
+    markPatchStarted = resolve;
   });
   const patchCompleted = page.waitForResponse((response) => {
     return (
@@ -39,7 +40,7 @@ test("checkbox toggles on first click and updates optimistically", async ({
       return;
     }
 
-    patchStarted();
+    markPatchStarted();
     await new Promise((resolve) => {
       releasePatch = resolve;
     });

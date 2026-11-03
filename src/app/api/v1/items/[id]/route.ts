@@ -1,48 +1,38 @@
 import { NextResponse } from "next/server";
-import { checkApiAuth } from "../../../../../server/apiAuth";
-import { prisma } from "../../../../../db/prisma";
+import { v1ActorFromRequest, v1ErrorResponse } from "server/apiAuth";
+import { CommandContext } from "server/lists/command";
+import { updateItem, type ItemChanges } from "server/lists/itemService";
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = checkApiAuth(request);
-  if (auth.error) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
-  }
-
   try {
+    const actor = await v1ActorFromRequest(request);
     const itemId = (await params).id;
     const body = await request.json();
-    
-    const updateData: { completed?: boolean; name?: string } = {};
-    
-    if (typeof body.completed === "boolean") {
-      updateData.completed = body.completed;
+
+    const changes: ItemChanges = {};
+    if (typeof body?.completed === "boolean") {
+      changes.completed = body.completed;
     }
-    if (typeof body.name === "string") {
-      updateData.name = body.name;
+    if (typeof body?.name === "string") {
+      changes.name = body.name;
     }
 
-    if (Object.keys(updateData).length === 0) {
-      return NextResponse.json({ error: "No valid update fields provided" }, { status: 400 });
+    if (Object.keys(changes).length === 0) {
+      return NextResponse.json(
+        { error: "No valid update fields provided" },
+        { status: 400 },
+      );
     }
 
-    const updatedItem = await prisma.item.update({
-      where: { id: itemId },
-      data: updateData,
+    const item = await updateItem(new CommandContext(actor), itemId, changes);
+    return NextResponse.json({ item });
+  } catch (error) {
+    return v1ErrorResponse(error, {
+      context: "PATCH item error:",
+      notFound: "Item not found",
     });
-
-    return NextResponse.json({ item: updatedItem });
-  } catch (err) {
-    console.error("PATCH item error:", err);
-    
-    // If the item doesn't exist, Prisma throws P2025. 
-    // We can just return 404 for missing items.
-    if (err && typeof err === 'object' && 'code' in err && err.code === 'P2025') {
-       return NextResponse.json({ error: "Item not found" }, { status: 404 });
-    }
-
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

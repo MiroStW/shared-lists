@@ -59,6 +59,15 @@ const seed = {
   listName: process.env.E2E_LIST_NAME || "E2E List",
   itemId: process.env.E2E_ITEM_ID || "e2e-checkbox-item",
   itemName: process.env.E2E_ITEM_NAME || "E2E Checkbox Item",
+  // A second user who owns a list shared with the first user, for the live
+  // update specs. Owned by the second user, so the first user's first list
+  // (the redirect target after sign-in) stays the list above.
+  user2Email: process.env.E2E_USER2_EMAIL || "e2e-2@example.test",
+  user2Password: process.env.E2E_USER2_PASSWORD || "e2e-password-2",
+  user2Name: process.env.E2E_USER2_NAME || "E2E User 2",
+  user2Id: process.env.E2E_USER2_ID || "e2e-user-2",
+  sharedListId: process.env.E2E_SHARED_LIST_ID || "e2e-shared-list",
+  sharedListName: process.env.E2E_SHARED_LIST_NAME || "E2E Shared List",
 };
 
 const pool = new pg.Pool({
@@ -66,11 +75,9 @@ const pool = new pg.Pool({
   connectionTimeoutMillis: 5_000,
 });
 
-const main = async () => {
-  const now = new Date();
-  const passwordHash = await bcrypt.hash(seed.password, 10);
-
-  const userResult = await pool.query(
+const upsertUser = async ({ id, email, name, password }, now) => {
+  const passwordHash = await bcrypt.hash(password, 10);
+  const result = await pool.query(
     `
       INSERT INTO "User" ("id", "email", "name", "passwordHash", "createdAt", "updatedAt")
       VALUES ($1, $2, $3, $4, $5, $5)
@@ -81,11 +88,12 @@ const main = async () => {
         "updatedAt" = EXCLUDED."updatedAt"
       RETURNING "id"
     `,
-    [seed.userId, seed.email, seed.userName, passwordHash, now],
+    [id, email, name, passwordHash, now],
   );
+  return result.rows[0].id;
+};
 
-  const userId = userResult.rows[0].id;
-
+const upsertList = async ({ id, name, ownerId }, now) => {
   await pool.query(
     `
       INSERT INTO "List" ("id", "name", "isArchived", "createdDate", "ownerID")
@@ -96,8 +104,47 @@ const main = async () => {
         "isArchived" = false,
         "ownerID" = EXCLUDED."ownerID"
     `,
-    [seed.listId, seed.listName, now, userId],
+    [id, name, now, ownerId],
   );
+};
+
+const main = async () => {
+  const now = new Date();
+
+  const userId = await upsertUser(
+    {
+      id: seed.userId,
+      email: seed.email,
+      name: seed.userName,
+      password: seed.password,
+    },
+    now,
+  );
+  const user2Id = await upsertUser(
+    {
+      id: seed.user2Id,
+      email: seed.user2Email,
+      name: seed.user2Name,
+      password: seed.user2Password,
+    },
+    now,
+  );
+
+  await upsertList({ id: seed.listId, name: seed.listName, ownerId: userId }, now);
+  await upsertList(
+    { id: seed.sharedListId, name: seed.sharedListName, ownerId: user2Id },
+    now,
+  );
+  await pool.query(
+    `
+      INSERT INTO "_ListContributors" ("A", "B")
+      VALUES ($1, $2)
+      ON CONFLICT DO NOTHING
+    `,
+    [seed.sharedListId, userId],
+  );
+  // Items created by earlier runs of the live update specs.
+  await pool.query(`DELETE FROM "Item" WHERE "listID" = $1`, [seed.sharedListId]);
 
   await pool.query(
     `
@@ -130,6 +177,8 @@ const main = async () => {
   console.log(`  E2E_EMAIL=${seed.email}`);
   console.log(`  E2E_LIST_ID=${seed.listId}`);
   console.log(`  E2E_ITEM_ID=${seed.itemId}`);
+  console.log(`  E2E_USER2_EMAIL=${seed.user2Email}`);
+  console.log(`  E2E_SHARED_LIST_ID=${seed.sharedListId}`);
 };
 
 main()

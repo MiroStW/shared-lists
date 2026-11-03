@@ -1,6 +1,7 @@
 "use client";
 
 import { Modal } from "app/shared/Modal";
+import { fetchWrite } from "app/shared/clientId";
 import { MouseEvent, Dispatch, SetStateAction, useState } from "react";
 import { AdminList, List, Section } from "types/types";
 import { useRouter } from "next/navigation";
@@ -23,7 +24,7 @@ const RenameModal = ({
         ? `/api/sections/${collection.id}`
         : `/api/lists/${collection.id}`;
 
-      await fetch(endpoint, {
+      await fetchWrite(endpoint, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: collectionTitle }),

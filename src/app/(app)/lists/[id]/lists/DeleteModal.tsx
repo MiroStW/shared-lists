@@ -2,6 +2,7 @@
 
 import { Loading } from "app/shared/Loading";
 import { Modal } from "app/shared/Modal";
+import { fetchWrite } from "app/shared/clientId";
 import { AdminList, List, Section } from "types/types";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -29,7 +30,7 @@ const DeleteModal = ({
         ? `/api/sections/${collection.id}`
         : `/api/lists/${collection.id}`;
 
-      const response = await fetch(endpoint, {
+      const response = await fetchWrite(endpoint, {
         method: "DELETE",
       });
 
@@ -45,8 +46,8 @@ const DeleteModal = ({
           // If it's a section, we might need to refresh the page/context
           router.refresh();
       }
-    } catch (err: any) {
-      setError(err.message || "An error occurred");
+    } catch (err) {
+      setError((err instanceof Error && err.message) || "An error occurred");
       setIsDeleting(false);
     }
   };

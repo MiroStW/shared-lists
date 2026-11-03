@@ -1,73 +1,44 @@
-import { prisma } from "db/prisma";
-import getServerSession from "auth/getServerSession";
 import { NextResponse } from "next/server";
+import { actorFromRequest } from "server/http/actorFromRequest";
+import { errorResponse } from "server/http/errors";
+import { CommandContext } from "server/lists/command";
+import { deleteList, updateList } from "server/lists/listService";
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await getServerSession();
+type Params = { params: Promise<{ id: string }> };
+
+// Only the owner may rename, archive or delete a list. A missing list answers
+// 403 like a foreign one.
+export async function PATCH(request: Request, { params }: Params) {
   const listId = (await params).id;
 
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    const body = await request.json();
-    const { name, isArchived } = body;
+    const actor = await actorFromRequest(request);
+    const { name, isArchived } = await request.json();
 
-    const list = await prisma.list.findUnique({
-      where: { id: listId },
+    const list = await updateList(new CommandContext(actor), listId, {
+      name,
+      isArchived,
     });
-
-    if (!list || list.ownerID !== session.user.id) {
-        // Only owner can update list metadata for now, or check for contributors if needed
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    const updatedList = await prisma.list.update({
-      where: { id: listId },
-      data: {
-        name: name !== undefined ? name : undefined,
-        isArchived: isArchived !== undefined ? isArchived : undefined,
-      },
-    });
-
-    return NextResponse.json(updatedList);
+    return NextResponse.json(list);
   } catch (error) {
-    console.error("Error updating list:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return errorResponse(error, {
+      context: "Error updating list:",
+      notFoundStatus: 403,
+    });
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await getServerSession();
+export async function DELETE(request: Request, { params }: Params) {
   const listId = (await params).id;
 
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    const list = await prisma.list.findUnique({
-      where: { id: listId },
-    });
-
-    if (!list || list.ownerID !== session.user.id) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    await prisma.list.delete({
-      where: { id: listId },
-    });
-
+    const actor = await actorFromRequest(request);
+    await deleteList(new CommandContext(actor), listId);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error deleting list:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return errorResponse(error, {
+      context: "Error deleting list:",
+      notFoundStatus: 403,
+    });
   }
 }

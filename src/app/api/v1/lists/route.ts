@@ -1,24 +1,19 @@
 import { NextResponse } from "next/server";
-import { checkApiAuth } from "../../../../server/apiAuth";
-import { prisma } from "../../../../db/prisma";
+import { v1ActorFromRequest, v1ErrorResponse } from "server/apiAuth";
+import { getVisibleLists } from "server/lists/listService";
 
+// The owner's visible, active lists, like the web app's list sidebar.
 export async function GET(request: Request) {
-  const auth = checkApiAuth(request);
-  if (auth.error) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
-  }
-
   try {
-    const lists = await prisma.list.findMany({
-      select: {
-        id: true,
-        name: true,
-      },
+    const actor = await v1ActorFromRequest(request);
+    const lists = await getVisibleLists(actor);
+    return NextResponse.json({
+      lists: lists.map(({ id, name }) => ({ id, name })),
     });
-
-    return NextResponse.json({ lists });
-  } catch (err) {
-    console.error("Fetch lists error:", err);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  } catch (error) {
+    return v1ErrorResponse(error, {
+      context: "Fetch lists error:",
+      notFound: "List not found",
+    });
   }
 }

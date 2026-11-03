@@ -1,6 +1,7 @@
 "use client";
 
 import { Modal } from "app/shared/Modal";
+import { fetchWrite } from "app/shared/clientId";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useState } from "react";
 import { AdminList } from "types/types";
@@ -32,7 +33,7 @@ const AddNamePicker = ({
     try {
       switch (type) {
         case "list": {
-          const response = await fetch("/api/lists", {
+          const response = await fetchWrite("/api/lists", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name: finalName }),
@@ -45,7 +46,7 @@ const AddNamePicker = ({
           break;
         }
         case "section": {
-          const response = await fetch("/api/sections", {
+          const response = await fetchWrite("/api/sections", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name: finalName, listId: activeList.id }),

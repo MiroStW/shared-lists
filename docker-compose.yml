@@ -15,6 +15,21 @@ services:
     networks:
       - stack_default
 
+  # One-off container for migrations and scripts, built from the Dockerfile's
+  # builder stage (the runner image has neither scripts/ nor prisma.config.ts).
+  # Never started by `docker compose up`; run it with
+  # `docker compose run --rm --build tools <command>`.
+  tools:
+    build:
+      context: .
+      target: builder
+    profiles:
+      - tools
+    env_file:
+      - .env
+    networks:
+      - stack_default
+
 networks:
   stack_default:
     external: true

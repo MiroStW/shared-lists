@@ -22,6 +22,7 @@ import { Item } from "./Item";
 import { ItemArea } from "./ItemArea";
 import LoadingItems from "app/shared/LoadingItems";
 import { useClientSession } from "app/sessionContext";
+import { fetchWrite } from "app/shared/clientId";
 
 const ItemDndContext = ({ list }: { list: AdminList }) => {
   const { user } = useClientSession();
@@ -130,7 +131,7 @@ const ItemDndContext = ({ list }: { list: AdminList }) => {
       })).filter(u => !u.id.startsWith("newItem_"));
 
       try {
-        const response = await fetch(`/api/lists/${list.id}/reorder`, {
+        const response = await fetchWrite(`/api/lists/${list.id}/reorder`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ items: updates }),

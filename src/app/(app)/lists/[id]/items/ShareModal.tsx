@@ -1,4 +1,5 @@
 import { Modal } from "app/shared/Modal";
+import { fetchWrite } from "app/shared/clientId";
 import { useClientSession } from "app/sessionContext";
 import { Dispatch, SetStateAction, useState } from "react";
 import { AdminList } from "types/types";
@@ -19,7 +20,7 @@ const ShareModal = ({
     if (user && email) {
       setIsLoading(true);
       try {
-        await fetch("/api/invites", {
+        await fetchWrite("/api/invites", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ inviteeEmail: email, listId: list.id }),

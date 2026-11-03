@@ -27,6 +27,11 @@ model User {
   contributedLists List[]   @relation("ListContributors")
   sentInvites      Invite[] @relation("InviteSender")
 
+  createdAgentAccesses AgentAccess[]   @relation("AgentAccessCreator")
+  agentAccesses        AgentAccess[]   @relation("AgentAccessMembers")
+  commands             Command[]
+  clarifications       Clarification[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -140,14 +145,93 @@ model ItemAlias {
   @@unique([itemId, normalized])
 }
 
-model ItemUpdateLog {
-  id              String   @id @default(cuid())
-  listId          String
-  itemId          String?
-  source          String
-  action          String
-  rawInput        String
-  normalizedInput String
-  matchConfidence Float?
-  createdAt       DateTime @default(now())
+// A token-based way in for agents (Claude Code, NanoClaw, ...). It acts for
+// one person or for a household; a household sees only the lists that every
+// member can see. Only the SHA-256 hash of the token secret is stored.
+model AgentAccess {
+  id          String    @id @default(cuid())
+  label       String // channel name, e.g. "claude-code"
+  kind        String // "person" | "household"
+  tokenId     String    @unique // public 8-character part of the token
+  tokenHash   String    @unique
+  createdById String
+  createdAt   DateTime  @default(now())
+  lastUsedAt  DateTime?
+  revokedAt   DateTime?
+
+  createdBy      User            @relation("AgentAccessCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  members        User[]          @relation("AgentAccessMembers")
+  commands       Command[]
+  clarifications Clarification[]
+}
+
+// One user intent (a click, a tool call, a sentence). Its ListEvents are the
+// changes it made; undo works on whole commands.
+model Command {
+  id          String    @id @default(cuid())
+  seq         Int       @unique @default(autoincrement()) // stable order for commands created in the same millisecond
+  actorUserId String?
+  accessId    String?
+  channel     String // e.g. "web", "v1", "claude-code"
+  origin      String // "web" | "v1" | "tool" | "agent"
+  inputText   String?
+  kind        String // "change" | "undo"
+  undoState   String    @default("none") // "none" | "undone" | "partial"
+  undoneAt    DateTime?
+  undoOfId    String?
+  createdAt   DateTime  @default(now())
+
+  actor          User?           @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  access         AgentAccess?    @relation(fields: [accessId], references: [id], onDelete: SetNull)
+  undoOf         Command?        @relation("CommandUndo", fields: [undoOfId], references: [id], onDelete: SetNull)
+  undoneBy       Command[]       @relation("CommandUndo")
+  events         ListEvent[]
+  clarifications Clarification[]
+
+  @@index([actorUserId, createdAt])
+  @@index([accessId, createdAt])
+}
+
+// A single change to list content. listId, itemId and sectionId carry no
+// foreign keys so events outlive deleted lists, sections and items. before and
+// after hold only the changed fields. Event types are string constants in code.
+model ListEvent {
+  id        String   @id @default(cuid())
+  seq       Int      @unique @default(autoincrement()) // stable order within a command
+  commandId String
+  type      String
+  listId    String
+  itemId    String?
+  sectionId String?
+  before    Json?
+  after     Json?
+  createdAt DateTime @default(now())
+
+  command Command @relation(fields: [commandId], references: [id], onDelete: Cascade)
+
+  @@index([listId, createdAt])
+  @@index([commandId])
+}
+
+// An open question from the list agent. options holds, per option, a label
+// and a prepared tool call; answering runs that call and attaches its events
+// to the command of the original sentence.
+model Clarification {
+  id          String    @id @default(cuid())
+  actorUserId String?
+  accessId    String?
+  commandId   String
+  question    String
+  options     Json
+  inputText   String
+  expiresAt   DateTime
+  resolvedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  actor   User?        @relation(fields: [actorUserId], references: [id], onDelete: Cascade)
+  access  AgentAccess? @relation(fields: [accessId], references: [id], onDelete: Cascade)
+  command Command      @relation(fields: [commandId], references: [id], onDelete: Cascade)
+
+  @@index([actorUserId, createdAt])
+  @@index([accessId, createdAt])
 }
