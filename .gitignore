@@ -62,3 +62,6 @@ public/workbox*
 !public/_next
 
 /src/generated/prisma
+
+# CA files of a credential proxy (see README)
+/certs/

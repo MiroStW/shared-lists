@@ -67,6 +67,7 @@ let oatMilk: Item;
 let model: FakeModel;
 let restoreModel: () => void;
 const savedKey = process.env.ANTHROPIC_API_KEY;
+const savedProxyUrl = process.env.ANTHROPIC_PROXY_URL;
 
 const askAboutMilk = () =>
   callTools(
@@ -115,6 +116,8 @@ describe("/api/agent/command", () => {
     delete process.env.LIST_AGENT_DAILY_COMMAND_LIMIT;
     if (savedKey === undefined) delete process.env.ANTHROPIC_API_KEY;
     else process.env.ANTHROPIC_API_KEY = savedKey;
+    if (savedProxyUrl === undefined) delete process.env.ANTHROPIC_PROXY_URL;
+    else process.env.ANTHROPIC_PROXY_URL = savedProxyUrl;
   });
 
   test("answers 401 without credentials", async () => {
@@ -323,6 +326,7 @@ describe("/api/agent/command", () => {
     restoreModel();
     restoreModel = () => {};
     delete process.env.ANTHROPIC_API_KEY;
+    delete process.env.ANTHROPIC_PROXY_URL;
 
     const answered = await command({ text: "2" });
     expect(answered.status).toBe(200);
