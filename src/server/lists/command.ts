@@ -6,6 +6,8 @@ import type { CommandKind, EventRecord } from "./events";
 
 type CommandOptions = {
   inputText?: string | null;
+  // The entry command of an agent sentence (KTD10).
+  sentence?: boolean;
   kind?: CommandKind;
   undoOfId?: string | null;
 };
@@ -16,17 +18,24 @@ type CommandOptions = {
 export class CommandContext {
   readonly actor: Actor;
   readonly inputText: string | null;
+  readonly sentence: boolean;
   readonly kind: CommandKind;
   undoOfId: string | null;
   commandId: string | null = null;
 
   constructor(
     actor: Actor,
-    { inputText = null, kind = "change", undoOfId = null }: CommandOptions = {},
+    {
+      inputText = null,
+      sentence = false,
+      kind = "change",
+      undoOfId = null,
+    }: CommandOptions = {},
   ) {
     assertValidActor(actor);
     this.actor = actor;
     this.inputText = inputText;
+    this.sentence = sentence;
     this.kind = kind;
     this.undoOfId = undoOfId;
   }
@@ -42,6 +51,7 @@ export class CommandContext {
   }
 
   // A fresh change command for the same sentence, e.g. after an undo (KTD4.6).
+  // It is no new sentence, so it does not count against the daily limit.
   next() {
     return new CommandContext(this.actor, { inputText: this.inputText });
   }
@@ -53,6 +63,7 @@ export class CommandContext {
       channel: this.actor.channel,
       origin: this.actor.origin,
       inputText: this.inputText,
+      sentence: this.sentence,
       kind: this.kind,
       undoOfId: this.undoOfId,
     };

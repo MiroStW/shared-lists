@@ -352,6 +352,30 @@ describe("undo", () => {
     expect((await itemById(item.id))?.sectionID).toBe(section.id);
   });
 
+  test("undoing a section move records the section the item is back in", async () => {
+    const a = await fixtures.createUser("person-a");
+    const list = await fixtures.createList(a.id);
+    const from = await fixtures.createSection(list.id, "From");
+    const to = await fixtures.createSection(list.id, "To");
+    const item = await fixtures.createItem(list.id, { sectionID: from.id });
+    await updateItem(new CommandContext(personActor(a.id)), item.id, {
+      sectionId: to.id,
+    });
+
+    const result = await undoLastCommand(personActor(a.id));
+
+    expect((await itemById(item.id))?.sectionID).toBe(from.id);
+    const inverse = await prisma.listEvent.findFirstOrThrow({
+      where: { commandId: result.undoCommandId! },
+    });
+    expect(inverse).toMatchObject({
+      type: EVENT.itemSectionSet,
+      sectionId: from.id,
+      before: { sectionID: to.id },
+      after: { sectionID: from.id },
+    });
+  });
+
   test("a created item that was changed since is not deleted by undo", async () => {
     const a = await fixtures.createUser("person-a");
     const b = await fixtures.createUser("person-b");

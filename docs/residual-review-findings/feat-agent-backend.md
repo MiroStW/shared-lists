@@ -4,10 +4,12 @@ Source: ce-code-review run `20261031-090952-126bfc0b` (mode:agent, 12 reviewers,
 
 ## Residual Review Findings
 
-- P2 `src/server/agent/listAgent.ts:454` Clarification is consumed before its stored tool call runs; an unexpected failure loses the question. Fix: reset `resolvedAt` on the rethrow path.
-- P2 `src/server/lists/access.ts:62` In-memory household visibility checks have no negative tests (item, section, list visible to only one member). Fix: add forbidden-path household tests.
-- P3 `src/server/agent/listAgent.ts:306` Daily limit counts follow-up commands of one sentence (after undo, or an answer to an undone sentence) as extra sentences. Fix: mark only entry commands as sentences.
-- P3 `src/server/lists/undo.ts:214` Undo of a section move records the wrong `sectionId` on the inverse event. Fix: use the restored section id for `item.section_set`.
+None open. The four findings below were fixed after merge, in `fix/residual-review-findings`:
+
+- P2 `src/server/agent/listAgent.ts` A question whose chosen option fails unexpectedly is reopened, so it can be answered again.
+- P2 `test/lists/access.test.ts` A household is denied reads and writes on a list, item or section that only one member sees.
+- P3 `src/server/agent/limits.ts` The daily limit counts only the entry command of a sentence (`Command.sentence`), not its later change commands.
+- P3 `src/server/lists/undo.ts` Undo of a section move records the restored section on the inverse event.
 
 ## Fixed before merge
 

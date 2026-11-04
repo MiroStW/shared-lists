@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, spyOn, test } from "bun:test";
 import type { Item, List, User } from "@prisma/client";
 import { prisma } from "db/prisma";
 import {
@@ -12,6 +12,7 @@ import { householdActor, personActor, type Actor } from "server/lists/actor";
 import { CommandContext } from "server/lists/command";
 import { setItemCompleted } from "server/lists/itemService";
 import { undoLastCommand } from "server/lists/undo";
+import * as registry from "server/tools/registry";
 import { resetDatabase } from "../setup/db";
 import * as fixtures from "../lists/fixtures";
 import {
@@ -390,6 +391,29 @@ describe("clarifications", () => {
         })
       ).undoState,
     ).toBe("undone");
+  });
+
+  test("an unexpected failure of the chosen option keeps the question open", async () => {
+    await askAboutMilk();
+    const failing = spyOn(registry, "invokeTool").mockImplementationOnce(() =>
+      Promise.reject(new Error("database down")),
+    );
+    const quiet = spyOn(console, "error").mockImplementation(() => {});
+    try {
+      expect(await fixtures.caught(() => sentence(actor, "2"))).toBeInstanceOf(
+        Error,
+      );
+    } finally {
+      failing.mockRestore();
+      quiet.mockRestore();
+    }
+    expect(await completed(oatMilk)).toBe(true);
+
+    const response = await sentence(actor, "2");
+
+    expect(response.status).toBe("done");
+    expect(await completed(oatMilk)).toBe(false);
+    expect(model.calls).toBe(1);
   });
 
   test("matchAnswer accepts bare numbers and labels only", () => {

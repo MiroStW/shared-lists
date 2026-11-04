@@ -175,6 +175,7 @@ model Command {
   channel     String // e.g. "web", "v1", "claude-code"
   origin      String // "web" | "v1" | "tool" | "agent"
   inputText   String?
+  sentence    Boolean   @default(false) // entry command of an agent sentence; counts against the daily limit
   kind        String // "change" | "undo"
   undoState   String    @default("none") // "none" | "undone" | "partial"
   undoneAt    DateTime?

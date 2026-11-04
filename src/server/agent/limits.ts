@@ -30,9 +30,9 @@ const startOfDay = (now: Date) => {
 };
 
 // Sentences that reached the model today. Each one opened a change command
-// with its text and origin "agent" on entry. Undo commands of a sentence are
-// not counted; web clicks, tool calls and answers to a question never create
-// such a command.
+// marked as sentence on entry. Undo commands and later change commands of a
+// sentence are not counted; web clicks, tool calls and answers to a question
+// never create such a command.
 const countSentencesToday = (actor: Actor, now = new Date()) =>
   prisma.command.count({
     where: {
@@ -41,7 +41,7 @@ const countSentencesToday = (actor: Actor, now = new Date()) =>
         : { actorUserId: actor.actingUserId, accessId: null }),
       origin: "agent",
       kind: "change",
-      inputText: { not: null },
+      sentence: true,
       createdAt: { gte: startOfDay(now) },
     },
   });
