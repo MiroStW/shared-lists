@@ -12,6 +12,7 @@ import {
   findItems,
   getList,
   getVisibleLists,
+  renameSection,
   updateList,
 } from "server/lists/listService";
 import { resetDatabase } from "../setup/db";
@@ -91,6 +92,41 @@ describe("list access", () => {
     expect(lists.map((list) => list.id).sort()).toEqual(
       [sharedByA.id, sharedByB.id].sort(),
     );
+  });
+
+  test("a household cannot read or change a list, item or section only one member sees", async () => {
+    const a = await createUser("person-a");
+    const b = await createUser("person-b");
+    const list = await createList(a.id, { name: "a-private" });
+    const item = await createItem(list.id, { name: "Milk" });
+    const section = await createSection(list.id, "Dairy");
+    const household = householdActor([a.id, b.id], {
+      actingUserId: a.id,
+      accessId: null,
+      channel: "household",
+    });
+    const ctx = new CommandContext(household);
+
+    expectServiceError(
+      await caught(() => getList(household, list.id)),
+      "forbidden",
+    );
+    expectServiceError(
+      await caught(() => updateItem(ctx, item.id, { completed: true })),
+      "forbidden",
+    );
+    expectServiceError(
+      await caught(() => renameSection(ctx, section.id, "Milk products")),
+      "forbidden",
+    );
+    expectServiceError(
+      await caught(() =>
+        createItemViaService(ctx, { listId: list.id, name: "Bread" }),
+      ),
+      "forbidden",
+    );
+    expect(await countCommandsAndEvents()).toEqual({ commands: 0, events: 0 });
+    expect(await prisma.item.count()).toBe(1);
   });
 
   test("writing to an invisible list throws forbidden and writes no command or event", async () => {

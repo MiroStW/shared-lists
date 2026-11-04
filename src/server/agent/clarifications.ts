@@ -45,7 +45,8 @@ export const validateOptions = (raw: unknown): ClarificationOption[] => {
 // household access sees only questions asked through it, never a member's
 // private question from another channel.
 const ownerWhere = (actor: Actor): Prisma.ClarificationWhereInput => {
-  if (!actor.actingUserId) return { actorUserId: null, accessId: actor.accessId };
+  if (!actor.actingUserId)
+    return { actorUserId: null, accessId: actor.accessId };
   return actor.memberUserIds.length > 1
     ? { actorUserId: actor.actingUserId, accessId: actor.accessId }
     : { actorUserId: actor.actingUserId };
@@ -122,6 +123,14 @@ export const claimClarification = async (id: string) =>
       data: { resolvedAt: new Date() },
     })
   ).count === 1;
+
+// Reopens a claimed question whose stored call failed unexpectedly, so it can
+// be answered again.
+export const releaseClarification = (id: string) =>
+  prisma.clarification.update({
+    where: { id },
+    data: { resolvedAt: null },
+  });
 
 // The 1-based option a text answer picks: a bare number ("2", "2.") or an
 // option label (case-insensitive). Null for any other text.

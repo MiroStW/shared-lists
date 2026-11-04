@@ -217,7 +217,11 @@ class EventUndoer {
       type: INVERSE_TYPE[event.type] ?? (event.type as EventType),
       listId: event.listId,
       itemId: event.itemId,
-      sectionId: event.sectionId,
+      // A reverted section move points to the section the item is back in.
+      sectionId:
+        "sectionID" in revert
+          ? (revert.sectionID as string | null)
+          : event.sectionId,
       before: inverseBefore,
       after: revert,
     });

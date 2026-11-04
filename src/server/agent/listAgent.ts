@@ -29,6 +29,7 @@ import {
   matchAnswer,
   MAX_CLARIFICATION_OPTIONS,
   optionsOf,
+  releaseClarification,
   validateOptions,
   type ClarificationOutput,
 } from "./clarifications";
@@ -429,7 +430,10 @@ const runSentence = async (
 
   // Created on entry, after the limit check, so the sentence counts against
   // the limit even if it changes nothing (KTD10).
-  const entry = await CommandContext.start(actor, { inputText: text });
+  const entry = await CommandContext.start(actor, {
+    inputText: text,
+    sentence: true,
+  });
   const runtime = [
     catalog,
     ...(pending ? [pendingQuestionContext(pending)] : []),
@@ -472,7 +476,10 @@ const answerClarification = async (
     await invokeTool(actor, option.tool, option.input, { command: ctx });
   } catch (error) {
     const described = describeToolError(error);
-    if (!described) throw error;
+    if (!described) {
+      await releaseClarification(clarification.id);
+      throw error;
+    }
     return {
       status: "error",
       message: described.body.error,

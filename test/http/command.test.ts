@@ -248,6 +248,26 @@ describe("/api/agent/command", () => {
     expect(await prisma.command.count()).toBe(1);
   });
 
+  test("a change after an undo in the same sentence does not use up another sentence", async () => {
+    process.env.LIST_AGENT_DAILY_COMMAND_LIMIT = "2";
+    model.script(
+      callTools(toolUse("add_items", { list: "Groceries", items: ["Brot"] })),
+      callTools(toolUse("undo_last_command")),
+      callTools(toolUse("add_items", { list: "Groceries", items: ["Butter"] })),
+      reply("Butter ist drauf."),
+      reply("Hallo."),
+    );
+
+    const first = await command({
+      text: "Brot drauf, nein doch nicht, Butter",
+    });
+    expect(first.body.status).toBe("done");
+    expect(await prisma.command.count({ where: { kind: "change" } })).toBe(2);
+
+    expect((await command({ text: "Hallo" })).status).toBe(200);
+    expect((await command({ text: "Noch was" })).status).toBe(429);
+  });
+
   test("MCP run_command runs a sentence and is limited the same way", async () => {
     process.env.LIST_AGENT_DAILY_COMMAND_LIMIT = "1";
     model.script(
